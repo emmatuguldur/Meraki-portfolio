@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Meraki — touch the heart, explore the galaxy</title>
+<meta name="description" content="Meraki is a creative agency. Touch the sapphire heart of the nebula to warp into our galaxy — every star is a piece of our soul we left in a project.">
+<style>
+/* ============================================================
+   MERAKI VOYAGE — design tokens (one grade across both acts)
+   ============================================================ */
+:root{
+  --space:#0A0F22;         /* deep navy, not pure black */
+  --space-deep:#04060E;    /* the nebula void */
+  --gold:#E9B44C;          /* the soul / heat of meraki */
+  --gold-bright:#FFD98A;
+  --gold-hot:#FFF3DC;      /* warp flash */
+  --cobalt:#3D63D8;
+  --cobalt-light:#7C98F0;
+  --sapphire:#2E64FF;      /* the heart */
+  --ink:#EAEDF7;
+  --muted:#97A0BF;
+  --panel:#10162E;
+  --panel-edge:#27325A;
+  --hairline:#1B2344;
+  --display:"Didot","Bodoni MT","Bodoni 72","Cochin","Playfair Display",Georgia,"Times New Roman",serif;
+  --sans:"Avenir Next","Avenir","Segoe UI","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--space-deep);
+  color:var(--ink);
+  font-family:var(--sans);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+
+/* ---------- scene canvases ---------- */
+#galaxy{
+  position:fixed;inset:0;width:100%;height:100%;
+  display:block;cursor:grab;touch-action:none;z-index:1;
+}
+#galaxy.dragging{cursor:grabbing}
+#galaxy.pointing{cursor:pointer}
+#nebula{
+  position:fixed;inset:0;width:100%;height:100%;
+  display:block;cursor:crosshair;touch-action:none;z-index:2;
+}
+#nebula.pointing{cursor:pointer}
+.off{display:none !important}
+
+/* cinematic vignette — the color-grade frame over both acts */
+#frame{position:fixed;inset:0;z-index:4;pointer-events:none;
+  box-shadow:inset 0 0 220px 60px rgba(2,4,10,.9);}
+
+/* warp flash */
+#flash{
+  position:fixed;inset:0;z-index:30;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 50%,
+    var(--gold-hot) 0%, #FFE4A8 34%, rgba(233,180,76,.92) 58%, rgba(10,15,34,.98) 100%);
+}
+
+/* ---------- corner wordmark ---------- */
+.wordmark{
+  position:fixed;top:22px;left:26px;z-index:5;
+  pointer-events:none;user-select:none;
+}
+.wordmark h1{
+  font-family:var(--display);
+  font-weight:400;font-size:1.45rem;letter-spacing:.34em;
+  color:var(--ink);text-transform:uppercase;
+}
+.wordmark h1 span{color:var(--gold)}
+.wordmark p{
+  margin-top:4px;font-size:.62rem;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--muted);
+}
+
+/* ---------- nebula hint (Act I) ---------- */
+.heart-hint{
+  position:fixed;left:50%;bottom:9vh;transform:translateX(-50%);
+  z-index:6;pointer-events:none;text-align:center;user-select:none;
+  transition:opacity .8s ease;
+}
+.heart-hint .line{
+  font-family:var(--display);font-size:1.05rem;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--gold-bright);
+  animation:heartpulse 3s ease-in-out infinite;
+}
+.heart-hint .sub{
+  margin-top:8px;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--muted);
+}
+.heart-hint.hidden{opacity:0}
+@keyframes heartpulse{0%,100%{opacity:.45}50%{opacity:1}}
+
+/* ---------- HUD (Act II) ---------- */
+.hud{position:fixed;z-index:6}
+.hud-controls{
+  right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;
+}
+.hud-controls button{
+  width:42px;height:42px;border-radius:50%;
+  background:var(--panel);border:1px solid var(--panel-edge);
+  color:var(--ink);font-size:1.05rem;line-height:1;cursor:pointer;
+  transition:border-color .2s,color .2s;
+  font-family:var(--sans);
+}
+.hud-controls button:hover{border-color:var(--gold);color:var(--gold)}
+.hud-controls button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.hud-controls button.heart{color:var(--cobalt-light)}
+.hud-controls button.heart:hover{border-color:var(--sapphire);color:var(--sapphire)}
+.hud-controls button.mode{
+  font-size:.68rem;font-weight:600;letter-spacing:.12em;color:var(--gold);
+}
+.hud-controls button.mode:hover{border-color:var(--gold-bright);color:var(--gold-bright)}
+
+/* onboarding hint */
+.hint{
+  left:50%;bottom:34px;transform:translateX(-50%);
+  background:var(--panel);border:1px solid var(--panel-edge);
+  border-radius:999px;padding:10px 22px;
+  font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  display:flex;align-items:center;gap:10px;
+  opacity:1;transition:opacity .9s ease;
+  pointer-events:none;white-space:nowrap;
+}
+.hint .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);
+  animation:pulse 2.2s ease-in-out infinite}
+.hint.hidden{opacity:0}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+
+/* hover tooltip */
+.tip{
+  position:fixed;z-index:7;pointer-events:none;
+  background:var(--panel);border:1px solid var(--panel-edge);
+  padding:7px 14px;border-radius:6px;
+  font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);
+  transform:translate(14px,14px);
+  opacity:0;transition:opacity .15s;
+  white-space:nowrap;
+}
+.tip b{color:var(--gold);font-weight:600}
+.tip.show{opacity:1}
+
+/* ---------- accessible navigation ---------- */
+.a11y-nav{
+  position:fixed;top:0;left:0;z-index:20;
+  display:flex;flex-direction:column;gap:2px;padding:6px;
+}
+.a11y-nav button{
+  position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap;border:0;padding:0;
+}
+.a11y-nav button:focus-visible{
+  position:static;width:auto;height:auto;clip:auto;overflow:visible;
+  background:var(--panel);color:var(--ink);border:1px solid var(--gold);
+  padding:8px 14px;border-radius:6px;font-size:.8rem;cursor:pointer;
+  outline:none;font-family:var(--sans);
+}
+
+/* ---------- overlay panel ---------- */
+.veil{
+  position:fixed;inset:0;z-index:10;
+  background:rgba(7,11,25,.55);
+  opacity:0;pointer-events:none;transition:opacity .35s;
+  backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+}
+.veil.open{opacity:1;pointer-events:auto}
+
+/* ---------- landing horizon: the planet you touch down on ---------- */
+#ground{
+  position:fixed;left:0;right:0;bottom:0;height:46vh;z-index:10;
+  pointer-events:none;overflow:hidden;
+  transform:translateY(105%);
+  transition:transform .8s cubic-bezier(.22,1,.36,1);
+}
+#ground.up{transform:translateY(0)}
+#groundCv{display:block;width:100%;height:100%}
+
+.panel{
+  position:fixed;z-index:11;top:50%;left:50%;
+  width:min(560px,calc(100vw - 36px));
+  max-height:min(78vh,720px);
+  transform:translate(-50%,-42%) scale(.98);
+  background:var(--panel);border:1px solid var(--panel-edge);
+  border-radius:14px;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s cubic-bezier(.22,1,.36,1),transform .5s cubic-bezier(.22,1,.36,1);
+  display:flex;flex-direction:column;
+  box-shadow:0 30px 80px rgba(0,0,0,.55);
+}
+.panel[hidden]{display:none}
+.panel.open{opacity:1;pointer-events:auto;transform:translate(-50%,-52%) scale(1)}
+.panel-head{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  padding:30px 32px 0;
+}
+.panel-eyebrow{
+  font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:10px;
+}
+.panel-title{
+  font-family:var(--display);font-weight:400;font-size:2rem;line-height:1.1;
+  letter-spacing:.02em;color:var(--ink);
+}
+.panel-close{
+  flex:none;width:38px;height:38px;border-radius:50%;
+  background:transparent;border:1px solid var(--panel-edge);
+  color:var(--muted);font-size:1rem;cursor:pointer;margin-left:16px;
+  transition:border-color .2s,color .2s;font-family:var(--sans);
+}
+.panel-close:hover{border-color:var(--gold);color:var(--gold)}
+.panel-close:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.panel-body{
+  padding:22px 32px 34px;overflow-y:auto;
+  font-size:.95rem;line-height:1.75;color:var(--muted);
+}
+.panel-body p+p{margin-top:14px}
+.panel-body em{color:var(--ink);font-style:normal}
+.panel-body .lede{
+  font-family:var(--display);font-size:1.18rem;line-height:1.5;color:var(--ink);
+  margin-bottom:16px;
+}
+
+/* lists inside panels */
+.item-list{list-style:none}
+.item-list li{border-top:1px solid var(--hairline);padding:18px 0}
+.item-list li:first-child{border-top:none;padding-top:4px}
+.item-name{
+  font-family:var(--display);font-size:1.2rem;color:var(--ink);margin-bottom:4px;
+}
+.item-meta{
+  font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:6px;
+}
+.item-desc{font-size:.9rem;line-height:1.7}
+
+.star-list button{
+  width:100%;text-align:left;background:none;border:none;color:inherit;
+  font-family:inherit;cursor:pointer;padding:0;
+}
+.star-list button:hover .item-name{color:var(--gold)}
+.star-list button:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:4px}
+.star-list .item-name::before{
+  content:"✦";color:var(--gold);font-size:.8em;margin-right:10px;
+}
+
+/* project card extras */
+.proj-link{
+  display:inline-block;margin-top:18px;
+  color:var(--gold);text-decoration:none;
+  font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;
+  border-bottom:1px solid var(--gold);padding-bottom:3px;
+  transition:color .2s,border-color .2s;
+}
+.proj-link:hover{color:var(--gold-bright);border-color:var(--gold-bright)}
+.proj-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.proj-role{margin-top:14px}
+.proj-role b{
+  display:block;font-weight:600;color:var(--ink);
+  font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;margin-bottom:4px;
+}
+
+/* contact */
+.contact-mail{
+  display:inline-block;font-family:var(--display);font-size:1.5rem;
+  color:var(--ink);text-decoration:none;margin:6px 0 18px;
+  border-bottom:1px solid var(--gold);padding-bottom:4px;
+  transition:color .2s;
+}
+.contact-mail:hover{color:var(--gold)}
+.contact-mail:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.socials{display:flex;gap:20px;flex-wrap:wrap;margin-top:6px}
+.socials a{
+  color:var(--muted);text-decoration:none;
+  font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+  transition:color .2s;
+}
+.socials a:hover{color:var(--gold)}
+.socials a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+/* mobile */
+@media (max-width:600px){
+  .wordmark{top:16px;left:18px}
+  .wordmark h1{font-size:1.15rem}
+  .heart-hint .line{font-size:.85rem}
+  .panel-head{padding:24px 22px 0}
+  .panel-body{padding:18px 22px 28px}
+  .panel-title{font-size:1.6rem}
+  .hint{bottom:24px;font-size:.68rem;padding:9px 16px}
+  .hud-controls{right:14px;bottom:14px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .hint .dot,.heart-hint .line{animation:none}
+  .panel,.veil,.hint,.heart-hint{transition:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ACT II — the galaxy (hidden underneath until you warp in) -->
+<canvas id="galaxy" aria-hidden="true"></canvas>
+
+<!-- ACT I — the nebula heart -->
+<canvas id="nebula" aria-label="A living cosmic nebula: a sapphire heart wrapped in golden plasma. Touch the heart to enter the Meraki galaxy." role="img"></canvas>
+
+<div id="frame"></div>
+
+<header class="wordmark">
+  <h1>Mer<span>a</span>ki</h1>
+  <p id="wordmarkSub">a creative agency</p>
+</header>
+
+<div class="heart-hint" id="heartHint">
+  <p class="line">Touch the heart</p>
+  <p class="sub">every galaxy begins with one</p>
+</div>
+
+<!-- Keyboard-accessible navigation: mirrors everything in both scenes -->
+<nav class="a11y-nav" aria-label="Voyage navigation">
+  <button id="a11yEnter">Enter the galaxy</button>
+  <button data-open="work">Open Work</button>
+  <button data-open="services">Open Services</button>
+  <button data-open="about">Open About</button>
+  <button data-open="contact">Open Contact</button>
+  <button data-open="p0">Project: Aurora Threads</button>
+  <button data-open="p1">Project: Vessel No. 9</button>
+  <button data-open="p2">Project: Cinder &amp; Sage</button>
+  <button data-open="p3">Project: The Quiet Index</button>
+  <button data-open="p4">Project: Halcyon FM</button>
+  <button data-open="p5">Project: Studio Marrow</button>
+  <button id="a11yHeart">Return to the nebula heart</button>
+</nav>
+
+<div class="hud hud-controls off" id="hudControls">
+  <button id="zoomIn" aria-label="Zoom in">+</button>
+  <button id="zoomOut" aria-label="Zoom out">−</button>
+  <button id="recenter" aria-label="Recenter view" title="Recenter">◉</button>
+  <button id="viewMode" class="mode" aria-label="Switch between 3D and 2D view" aria-pressed="true" title="Switch view">2D</button>
+  <button id="toHeart" class="heart" aria-label="Return to the nebula heart" title="Return to the heart">❖</button>
+</div>
+
+<div class="hud hint off" id="hint" role="status">
+  <span class="dot"></span><span id="hintText">Drag to explore · pinch or scroll to zoom</span>
+</div>
+
+<div class="tip" id="tip" aria-hidden="true"></div>
+
+<div class="veil" id="veil"></div>
+<div id="ground" aria-hidden="true"><canvas id="groundCv"></canvas></div>
+<section class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" hidden>
+  <div class="panel-head">
+    <div>
+      <p class="panel-eyebrow" id="panelEyebrow"></p>
+      <h2 class="panel-title" id="panelTitle"></h2>
+    </div>
+    <button class="panel-close" id="panelClose" aria-label="Close panel">✕</button>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+</section>
+
+<div id="flash"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   ☉ CONTENT — EDIT EVERYTHING IN THIS BLOCK
+   ============================================================ */
+const CONTENT = {
+  about: {
+    eyebrow: "About · the sun we orbit",
+    title: "Why “Meraki”?",
+    html: `
+      <p class="lede">Meraki (μεράκι) is a Greek word with no clean translation:
+      to do something with soul, creativity, and love — to leave a piece of
+      yourself in your work.</p>
+      <p>We are a small studio of designers, writers, and developers who only
+      take on work we can pour ourselves into. <em>[Replace with your real
+      about copy — who you are, where you're based, what you believe.]</em></p>
+      <p>Every star in this galaxy is a project we shipped. Every one carries
+      a piece of us. That's the whole philosophy.</p>`
+  },
+  services: {
+    eyebrow: "Services · three orbits",
+    title: "What we make",
+    items: [
+      { name: "Brand identity", meta: "Strategy · Naming · Visual systems",
+        desc: "[Placeholder] Identities built from the inside out — strategy first, then a visual language that can grow with you." },
+      { name: "Digital experiences", meta: "Websites · Apps · Prototypes",
+        desc: "[Placeholder] Sites and products that feel hand-made: fast, accessible, and a little bit playful." },
+      { name: "Art direction & content", meta: "Campaigns · Motion · Photography",
+        desc: "[Placeholder] Campaign worlds, motion systems, and imagery directed with one eye on craft and one on results." }
+    ]
+  },
+  contact: {
+    eyebrow: "Contact · send a signal",
+    title: "Say hello",
+    email: "hello@meraki.studio",
+    note: "[Placeholder] Tell us about your project, your timeline, and what you want people to feel.",
+    socials: [
+      { label: "Instagram", url: "#" },
+      { label: "Behance",   url: "#" },
+      { label: "LinkedIn",  url: "#" },
+      { label: "X / Twitter", url: "#" }
+    ]
+  },
+  projects: [
+    { title: "Aurora Threads", meta: "Brand identity · 2025",
+      desc: "[Placeholder] A slow-fashion label woven from recycled fibers. We built the name, mark, and packaging system.",
+      role: "Naming, identity, packaging", link: "#" },
+    { title: "Vessel No. 9", meta: "Digital experience · 2025",
+      desc: "[Placeholder] An immersive product site for a small-batch ceramics studio, with a 3D glaze configurator.",
+      role: "Design & development", link: "#" },
+    { title: "Cinder & Sage", meta: "Art direction · 2024",
+      desc: "[Placeholder] Campaign world for a restaurant group — photography, menus, and a motion system for socials.",
+      role: "Art direction, content", link: "#" },
+    { title: "The Quiet Index", meta: "Editorial platform · 2024",
+      desc: "[Placeholder] A reading platform for long-form criticism. Typography-first, distraction-free, fast.",
+      role: "Product design, front-end", link: "#" },
+    { title: "Halcyon FM", meta: "Brand & app · 2023",
+      desc: "[Placeholder] Identity and mobile app for an independent radio station that broadcasts only at golden hour.",
+      role: "Identity, UI design", link: "#" },
+    { title: "Studio Marrow", meta: "Identity & site · 2023",
+      desc: "[Placeholder] A bone-deep rebrand for an architecture practice, plus a portfolio site that loads in under a second.",
+      role: "Identity, web design", link: "#" }
+  ]
+};
+/* ========================== end of content ========================== */
+
+/* ============================================================
+   SHARED — grade, sprites, motion prefs, orchestration
+   ============================================================ */
+const css = getComputedStyle(document.documentElement);
+const C = {
+  space:      css.getPropertyValue("--space").trim()       || "#0A0F22",
+  spaceDeep:  css.getPropertyValue("--space-deep").trim()  || "#04060E",
+  gold:       css.getPropertyValue("--gold").trim()        || "#E9B44C",
+  goldBright: css.getPropertyValue("--gold-bright").trim() || "#FFD98A",
+  cobalt:     css.getPropertyValue("--cobalt").trim()      || "#3D63D8",
+  cobaltLight:css.getPropertyValue("--cobalt-light").trim()|| "#7C98F0",
+  ink:        css.getPropertyValue("--ink").trim()         || "#EAEDF7",
+  muted:      css.getPropertyValue("--muted").trim()       || "#97A0BF",
+  orbit:      "rgba(124,152,240,0.14)",
+  orbitHover: "rgba(233,180,76,0.35)"
+};
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isCoarse     = matchMedia("(pointer: coarse)").matches;
+const lowPower     = isCoarse || (navigator.hardwareConcurrency || 4) <= 4;
+
+/* pre-rendered soft glow sprites — the 60fps volumetric trick */
+function sprite(stops, size){
+  const c = document.createElement("canvas"); c.width = c.height = size;
+  const g = c.getContext("2d");
+  const grd = g.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+  for (const [o, col] of stops) grd.addColorStop(o, col);
+  g.fillStyle = grd; g.fillRect(0, 0, size, size);
+  return c;
+}
+function hexRgb(hex){
+  const h = hex.replace("#","");
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function glowOf(hex, aCore){
+  const [r,g,b] = hexRgb(hex);
+  return sprite([
+    [0,    `rgba(${r},${g},${b},${aCore})`],
+    [0.45, `rgba(${r},${g},${b},${aCore*0.45})`],
+    [1,    `rgba(${r},${g},${b},0)`]
+  ], 96);
+}
+const SPR_GOLD  = sprite([[0,"rgba(255,231,170,1)"],[0.35,"rgba(255,193,75,0.85)"],[1,"rgba(255,150,40,0)"]], 64);
+const SPR_WHITE = sprite([[0,"rgba(255,251,238,1)"],[0.4,"rgba(255,236,196,0.7)"],[1,"rgba(255,220,150,0)"]], 64);
+const SPR_BLUE  = sprite([[0,"rgba(190,214,255,0.9)"],[0.4,"rgba(70,118,240,0.5)"],[1,"rgba(40,80,200,0)"]], 64);
+const SPR_DEEP  = sprite([[0,"rgba(46,100,255,0.9)"],[0.45,"rgba(30,63,168,0.55)"],[1,"rgba(12,26,90,0)"]], 96);
+
+/* warp flash */
+const flashEl = document.getElementById("flash");
+function setFlash(v, ms){
+  flashEl.style.transition = ms ? `opacity ${ms}ms ease` : "none";
+  flashEl.style.opacity = v;
+}
+const smooth = x => { x = Math.max(0, Math.min(1, x)); return x*x*(3-2*x); };
+
+/* scene handles, wired at the bottom */
+const Voyage = { enterGalaxy: null, toHeart: null };
+
+/* ============================================================
+   ACT I — THE NEBULA HEART
+   ============================================================ */
+const Nebula = (() => {
+  const cv = document.getElementById("nebula");
+  const ctx = cv.getContext("2d", { alpha:false });
+  let W=0, H=0, DPR=1, cx=0, cy=0, scaleRef=1;
+  let active = true;
+
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio||1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    cx = W*0.5; cy = H*0.5;
+    scaleRef = Math.min(W,H);
+  }
+  window.addEventListener("resize", resize); resize();
+
+  /* geometry of the tilted volumetric disc */
+  const TILT = 0.58;
+  let ELL = -0.42;
+  const coreR = () => scaleRef*0.055;
+  const maxR  = () => scaleRef*0.52;
+  function project(a, r, depthOut){
+    let ex = Math.cos(a)*r;
+    let ey = Math.sin(a)*r*TILT;
+    const ca = Math.cos(ELL), sa = Math.sin(ELL);
+    const rx = ex*ca - ey*sa;
+    const ry = ex*sa + ey*ca;
+    if (depthOut) depthOut.d = (Math.sin(a)*0.5)+0.5;
+    return [cx+rx, cy+ry];
+  }
+
+  /* particles */
+  const rand = (a,b) => a + Math.random()*(b-a);
+  function makePlasma(){
+    const cR = coreR(), mR = maxR();
+    return { a:rand(0,6.283), r:rand(cR*0.4, mR), z:rand(0.35,1),
+             drift:rand(4,16), wob:rand(0,6.283), wobS:rand(0.6,1.8),
+             size:rand(0.5,1.4), seed:rand(0,1000) };
+  }
+  function makeDust(){
+    const mR = maxR();
+    return { a:rand(0,6.283), r:rand(mR*0.2, mR*1.7), z:rand(0.25,1),
+             drift:rand(-3,5), wob:rand(0,6.283), wobS:rand(0.2,0.8),
+             size:rand(0.4,1.2), blue: Math.random()<0.78, seed:rand(0,1000) };
+  }
+  const N_PLASMA = lowPower ? 360 : 720;
+  const N_DUST   = lowPower ? 160 : 320;
+  const N_FAR    = lowPower ? 50  : 90;
+  const plasma = Array.from({length:N_PLASMA}, makePlasma);
+  const dust   = Array.from({length:N_DUST}, makeDust);
+  const farStars = Array.from({length:N_FAR}, () => ({ x:Math.random(), y:Math.random(),
+    r:rand(0.4,1.4), tw:rand(0,6.283), blue:Math.random()<0.5 }));
+
+  /* pointer: parallax + heart interaction */
+  let pmx=0, pmy=0, mx=0, my=0;
+  let hoveringHeart = false;
+  let downAt = null;
+  const heartHint = document.getElementById("heartHint");
+
+  function heartHit(x, y){
+    const hx = cx - pmx*scaleRef*0.04;
+    const hy = cy - pmy*scaleRef*0.04;
+    return Math.hypot(x-hx, y-hy) < Math.max(44, coreR()*2.3);
+  }
+  cv.addEventListener("pointermove", e => {
+    mx = (e.clientX/W - 0.5); my = (e.clientY/H - 0.5);
+    hoveringHeart = heartHit(e.clientX, e.clientY);
+    cv.classList.toggle("pointing", hoveringHeart && !warping);
+  });
+  cv.addEventListener("pointerdown", e => {
+    downAt = { x:e.clientX, y:e.clientY };
+  });
+  cv.addEventListener("pointerup", e => {
+    if (!downAt) return;
+    const moved = Math.hypot(e.clientX-downAt.x, e.clientY-downAt.y);
+    downAt = null;
+    if (moved < 14 && heartHit(e.clientX, e.clientY)) startWarp();
+  });
+
+  /* warp state */
+  let warping = false, warpT = 0;
+  function startWarp(){
+    if (warping || !active) return;
+    warping = true; warpT = 0;
+    heartHint.classList.add("hidden");
+    if (reduceMotion){
+      setFlash(1, 220);
+      setTimeout(() => Voyage.enterGalaxy(), 260);
+    }
+  }
+  function reset(){
+    warping = false; warpT = 0;
+    heartHint.classList.remove("hidden");
+    for (let i=0;i<plasma.length;i++) plasma[i] = makePlasma();
+    for (let i=0;i<dust.length;i++)   dust[i]   = makeDust();
+  }
+
+  function drawSprite(spr, x, y, s, alpha){
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(spr, x-s/2, y-s/2, s, s);
+  }
+
+  let last = performance.now(), t = 0, breathe = 0, beat = 0;
+  function frame(now){
+    requestAnimationFrame(frame);
+    if (!active){ last = now; return; }
+    let dt = (now-last)/1000; last = now; if (dt>0.05) dt = 0.05;
+    t += dt;
+
+    /* warp progression */
+    let boost = 0, zoomK = 1;
+    if (warping && !reduceMotion){
+      warpT += dt/1.15;
+      boost = smooth(warpT);
+      zoomK = 1 + boost*boost*2.2;
+      setFlash(smooth((warpT-0.52)/0.48), 0);
+      if (warpT >= 1){ Voyage.enterGalaxy(); return; }
+    }
+
+    pmx += (mx-pmx)*Math.min(1, dt*3);
+    pmy += (my-pmy)*Math.min(1, dt*3);
+    const par = scaleRef*0.04;
+
+    /* the heart is alive: it beats faster under your hand */
+    const beatTarget = hoveringHeart ? 2.6 : 0.6;
+    beat += (beatTarget-beat)*Math.min(1, dt*2.5);
+    if (!reduceMotion){
+      ELL = -0.42 + Math.sin(t*0.05)*0.10;
+      breathe = Math.sin(t*beat)* (hoveringHeart ? 0.16 : 0.08);
+    }
+
+    /* trail fade — motion-blur smear */
+    ctx.globalCompositeOperation = "source-over";
+    if (reduceMotion){ ctx.fillStyle = "#04060E"; ctx.fillRect(0,0,W,H); }
+    else { ctx.fillStyle = `rgba(4,6,14,${0.17 + boost*0.1})`; ctx.fillRect(0,0,W,H); }
+
+    ctx.save();
+    /* warp zoom dive into the heart */
+    if (zoomK !== 1){
+      ctx.translate(cx, cy); ctx.scale(zoomK, zoomK); ctx.translate(-cx, -cy);
+    }
+    ctx.translate(-pmx*par, -pmy*par);
+    ctx.globalCompositeOperation = "lighter";
+
+    /* far depth stars */
+    for (const s of farStars){
+      const x = s.x*W, y = s.y*H;
+      const tw = reduceMotion ? 0.6 : 0.4+0.6*Math.abs(Math.sin(t*1.2+s.tw));
+      drawSprite(s.blue?SPR_BLUE:SPR_WHITE, x, y, s.r*7, 0.12*tw);
+    }
+
+    const cR = coreR(), mR = maxR();
+
+    /* cosmic dust halo */
+    for (const p of dust){
+      const omega = (reduceMotion?0:1) * (0.18 + boost*4) * (cR/(p.r*0.45+cR));
+      p.a += omega*dt;
+      p.r += (p.drift + Math.sin(t*p.wobS+p.wob)*2 + boost*boost*1400) * dt;
+      if (p.r > mR*1.9 || p.r < cR*0.5){
+        if (!warping){ Object.assign(p, makeDust()); p.r = cR*0.6; }
+        else { p.r = cR*0.6; }
+      }
+      const dep = {}; const [x,y] = project(p.a, p.r, dep);
+      const px = x + pmx*par*(0.4+p.z*0.8);
+      const py = y + pmy*par*(0.4+p.z*0.8);
+      const fall = Math.max(0, 1-(p.r/(mR*1.9)));
+      const a = 0.05 + 0.10*fall*p.z*(0.5+0.5*dep.d);
+      drawSprite(p.blue?SPR_BLUE:SPR_WHITE, px, py, (6+p.size*10)*p.z, a);
+    }
+
+    /* deep sapphire core glow — breathing, beating */
+    const coreS = cR*(2.6+breathe*4);
+    drawSprite(SPR_DEEP, cx-pmx*par, cy-pmy*par, coreS*2.4, 0.5+boost*0.3);
+    drawSprite(SPR_DEEP, cx-pmx*par, cy-pmy*par, coreS*1.4, 0.6);
+    drawSprite(SPR_BLUE, cx-pmx*par, cy-pmy*par, coreS*0.9, 0.7);
+
+    /* golden plasma — differential rotation winds it into arms;
+       during warp it stretches into hyperspace streaks */
+    const baseOmega = reduceMotion ? 0 : 0.9 + boost*10;
+    for (const p of plasma){
+      const omega = baseOmega * (cR/(p.r*0.5+cR));
+      const rPrev = p.r, aPrev = p.a;
+      p.a += omega*dt;
+      p.r += (p.drift + Math.sin(t*p.wobS+p.wob)*6 + boost*boost*2400) * dt;
+      if (p.r > mR*(1+boost*1.6)){
+        Object.assign(p, makePlasma()); p.r = rand(cR*0.4, cR*1.2);
+      }
+      const dep = {}; const [x,y] = project(p.a, p.r, dep);
+      const px = x - pmx*par*(0.3+p.z*0.7);
+      const py = y - pmy*par*(0.3+p.z*0.7);
+      const norm = p.r/mR;
+      const fall = Math.pow(Math.max(0,1-norm), 1.4);
+      const shimmer = reduceMotion ? 1 : 0.7+0.3*Math.sin(t*3+p.seed);
+      const depth = 0.55 + 0.45*dep.d;
+      const a = (0.06 + 0.5*fall) * p.z * shimmer * depth + boost*0.12;
+      const s = (2.5 + p.size*5 + norm*14) * p.z;
+      const spr = (norm<0.22 && Math.random()<0.5) ? SPR_WHITE : SPR_GOLD;
+      drawSprite(spr, px, py, s, Math.min(1,a));
+      /* streak: echo the sprite back along its radial path while warping */
+      if (boost > 0.05){
+        const [ox,oy] = project(aPrev, Math.max(cR*0.4, rPrev - boost*140), {});
+        drawSprite(spr, ox - pmx*par*(0.3+p.z*0.7), oy - pmy*par*(0.3+p.z*0.7), s*0.8, Math.min(1,a)*0.5);
+      }
+    }
+
+    /* hot white pinpoint heart */
+    drawSprite(SPR_WHITE, cx-pmx*par, cy-pmy*par, cR*(1.1+breathe*2+boost*3), 0.9);
+
+    ctx.restore();
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+  }
+  requestAnimationFrame(frame);
+
+  return {
+    setActive(v){ active = v; cv.classList.toggle("off", !v); },
+    reset, startWarp
+  };
+})();
+
+/* ============================================================
+   ACT II — THE GALAXY (tilted plane, volumetric grade)
+   ============================================================ */
+const Galaxy = (() => {
+  const canvas = document.getElementById("galaxy");
+  const ctx = canvas.getContext("2d");
+  let W = 0, H = 0, DPR = 1;
+  let active = false;
+
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width  = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  /* ---------- the galactic plane: an animatable 2D ⇄ 3D tilt ---------- */
+  const VIEW3D = { ty: 0.62, rot: -0.10 };   /* deeper perspective */
+  const VIEW2D = { ty: 1.00, rot:  0.00 };   /* flat map, straight down */
+  const view = { ty: VIEW3D.ty, rot: VIEW3D.rot, tTy: VIEW3D.ty, tRot: VIEW3D.rot,
+                 cosR: 1, sinR: 0, depth: 1 };
+  let is3D = true;
+  function updateView(dt){
+    const k = Math.min(1, dt*4);
+    view.ty  += (view.tTy  - view.ty)  * k;
+    view.rot += (view.tRot - view.rot) * k;
+    view.cosR = Math.cos(view.rot);
+    view.sinR = Math.sin(view.rot);
+    /* how "3D" we currently are, 0 (flat) → 1 (full tilt) */
+    view.depth = Math.max(0, Math.min(1, (1 - view.ty) / (1 - VIEW3D.ty)));
+  }
+  updateView(1);
+  function setMode(three){
+    is3D = three;
+    view.tTy  = three ? VIEW3D.ty  : VIEW2D.ty;
+    view.tRot = three ? VIEW3D.rot : VIEW2D.rot;
+  }
+  function tiltXY(wx, wy){
+    const rx = wx*view.cosR - wy*view.sinR;
+    const ry = (wx*view.sinR + wy*view.cosR) * view.ty;
+    return [rx, ry];
+  }
+  function depthOf(wx, wy, dist){
+    const vy = (wx*view.sinR + wy*view.cosR);   /* pre-squash vertical in plane */
+    const d = 0.5 + 0.5*Math.max(-1, Math.min(1, vy/Math.max(1,dist)));
+    return 0.5 + (d - 0.5) * view.depth;        /* flattens to neutral in 2D */
+  }
+
+  /* ---------- camera (in tilted view space) ---------- */
+  const WORLD_LIMIT = 950;
+  const cam = { x: 60, y: -30, z: isCoarse ? 0.72 : 0.92, tx: 0, ty: 0, tz: null };
+  cam.tx = cam.x; cam.ty = cam.y; cam.tz = cam.z;
+  const ZMIN = 0.45, ZMAX = 2.6;
+
+  const toScreen = (wx, wy) => {
+    const [vx, vy] = tiltXY(wx, wy);
+    return [ (vx - cam.x) * cam.z + W/2, (vy - cam.y) * cam.z + H/2 ];
+  };
+  /* view-space (camera plane) coords — used for zoom anchoring */
+  const toView = (sx, sy) => [ (sx - W/2) / cam.z + cam.x, (sy - H/2) / cam.z + cam.y ];
+
+  function clampCam(){
+    cam.tx = Math.max(-WORLD_LIMIT, Math.min(WORLD_LIMIT, cam.tx));
+    cam.ty = Math.max(-WORLD_LIMIT, Math.min(WORLD_LIMIT, cam.ty));
+    cam.tz = Math.max(ZMIN, Math.min(ZMAX, cam.tz));
+  }
+
+  /* ---------- scene data ---------- */
+  function mulberry32(seed){
+    return function(){
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ---------- procedural planet surfaces ---------- */
+  function makeNoise(seed){
+    const rnd = mulberry32(seed);
+    const g = new Float32Array(512);
+    for (let i = 0; i < 512; i++) g[i] = rnd();
+    const hash = (x,y) => g[((x*73856093) ^ (y*19349663)) & 511];
+    const sm = t => t*t*(3-2*t);
+    return function(x, y){
+      const xi = Math.floor(x), yi = Math.floor(y);
+      const fx = sm(x-xi), fy = sm(y-yi);
+      const a = hash(xi,yi),   b = hash(xi+1,yi);
+      const c = hash(xi,yi+1), d = hash(xi+1,yi+1);
+      return a + (b-a)*fx + (c-a)*fy + (a-b-c+d)*fx*fy;
+    };
+  }
+  function fbm(n, x, y, oct){
+    let v = 0, amp = 0.5, f = 1;
+    for (let i = 0; i < oct; i++){ v += amp*n(x*f, y*f); amp *= 0.5; f *= 2; }
+    return v;
+  }
+  function lerpRGB(a, b, t){
+    return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t];
+  }
+  function ramp(stops, t){
+    t = Math.max(0, Math.min(1, t));
+    for (let i = 1; i < stops.length; i++){
+      if (t <= stops[i][0]){
+        const [t0, c0] = stops[i-1], [t1, c1] = stops[i];
+        return lerpRGB(c0, c1, (t-t0)/Math.max(1e-6, t1-t0));
+      }
+    }
+    return stops[stops.length-1][1];
+  }
+  const TEXW = 512, TEXH = 256;
+  function paintTexture(seed, pixelFn){
+    const n = makeNoise(seed);
+    const c = document.createElement("canvas"); c.width = TEXW; c.height = TEXH;
+    const g = c.getContext("2d");
+    const img = g.createImageData(TEXW, TEXH);
+    for (let y = 0; y < TEXH; y++){
+      for (let x = 0; x < TEXW; x++){
+        const [r, gr, b] = pixelFn(n, x, y);
+        const i = (y*TEXW + x)*4;
+        img.data[i] = r; img.data[i+1] = gr; img.data[i+2] = b; img.data[i+3] = 255;
+      }
+    }
+    g.putImageData(img, 0, 0);
+    /* crossfade left/right edges so the rotation seam disappears */
+    const BLEND = 40;
+    const strip = g.getImageData(TEXW-BLEND, 0, BLEND, TEXH);
+    const left  = g.getImageData(0, 0, BLEND, TEXH);
+    for (let y = 0; y < TEXH; y++){
+      for (let x = 0; x < BLEND; x++){
+        const t = x/BLEND, i = (y*BLEND + x)*4;
+        for (let k = 0; k < 3; k++)
+          left.data[i+k] = strip.data[i+k]*(1-t) + left.data[i+k]*t;
+      }
+    }
+    g.putImageData(left, 0, 0);
+    return c;
+  }
+  /* gas giant — wind-sheared golden bands with storm cells */
+  const TEX_GAS = paintTexture(101, (n, x, y) => {
+    const warp = fbm(n, x*0.02, y*0.02, 3) * 34;
+    const band = fbm(n, x*0.004, (y+warp)*0.05, 4);
+    const storm = Math.max(0, fbm(n, x*0.05, y*0.05, 3) - 0.62) * 2.2;
+    return ramp([[0,[110,66,20]],[0.35,[201,138,52]],[0.55,[233,180,76]],
+                 [0.75,[255,217,138]],[1,[250,240,214]]], band*1.15 + storm*0.4);
+  });
+  /* storm world — deep cobalt with racing cloud streaks */
+  const TEX_STORM = paintTexture(202, (n, x, y) => {
+    const warp = fbm(n, x*0.03, y*0.012, 4) * 60;
+    const band = fbm(n, (x+warp)*0.006, y*0.045, 4);
+    const wisp = Math.max(0, fbm(n, x*0.08, y*0.03, 3) - 0.58) * 2.4;
+    return ramp([[0,[10,17,52]],[0.4,[33,55,140]],[0.62,[61,99,216]],
+                 [0.82,[124,152,240]],[1,[224,234,255]]], band + wisp*0.5);
+  });
+  /* rocky world — dusty highlands pocked with craters */
+  const TEX_ROCK = (() => {
+    const base = paintTexture(303, (n, x, y) => {
+      const v = fbm(n, x*0.02, y*0.02, 5);
+      return ramp([[0,[112,86,48]],[0.5,[178,140,86]],[0.8,[224,187,124]],
+                   [1,[255,225,166]]], v*1.25);
+    });
+    const g = base.getContext("2d");
+    const rnd = mulberry32(304);
+    for (let i = 0; i < 46; i++){
+      const cx = rnd()*TEXW, cy = 20 + rnd()*(TEXH-40), r = 3 + rnd()*rnd()*16;
+      g.fillStyle = "rgba(60,40,18,0.42)";
+      g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill();
+      g.strokeStyle = "rgba(255,228,170,0.35)";
+      g.lineWidth = Math.max(1, r*0.22);
+      g.beginPath(); g.arc(cx, cy + r*0.18, r*0.82, 0.15*Math.PI, 0.85*Math.PI); g.stroke();
+      if (cx < 30){ g.beginPath(); g.arc(cx+TEXW, cy, r, 0, 7); g.fillStyle="rgba(60,40,18,0.42)"; g.fill(); }
+    }
+    return base;
+  })();
+  /* ice world — glacial sheets veined with fractures */
+  const TEX_ICE = paintTexture(404, (n, x, y) => {
+    const v = fbm(n, x*0.018, y*0.02, 5);
+    const crack = Math.abs(fbm(n, x*0.05, y*0.05, 4) - 0.5) < 0.014 ? -0.35 : 0;
+    const sheet = v > 0.56 ? 0.28 : 0;
+    return ramp([[0,[52,74,150]],[0.45,[124,152,240]],[0.72,[190,208,250]],
+                 [1,[244,249,255]]], v + sheet + crack);
+  });
+  /* star surface — boiling golden granulation, for landing on project stars */
+  const TEX_SUNFACE = paintTexture(505, (n, x, y) => {
+    const v = fbm(n, x*0.05, y*0.05, 5);
+    return ramp([[0,[201,120,30]],[0.45,[233,180,76]],[0.75,[255,217,138]],
+                 [1,[255,246,226]]], v*1.3);
+  });
+
+  const TILE = 1400;
+  function makeLayer(seed, count, parallax, rMin, rMax, blueRatio){
+    const rnd = mulberry32(seed);
+    const stars = [];
+    for (let i = 0; i < count; i++){
+      stars.push({
+        x: rnd() * TILE, y: rnd() * TILE,
+        r: rMin + rnd() * (rMax - rMin),
+        a: 0.25 + rnd() * 0.6,
+        tw: rnd() * Math.PI * 2,
+        blue: rnd() < blueRatio
+      });
+    }
+    return { stars, parallax };
+  }
+  const layers = [
+    makeLayer(11, 70, 0.18, 0.5, 1.0, 0.30),
+    makeLayer(22, 55, 0.42, 0.7, 1.4, 0.22),
+    makeLayer(33, 40, 0.70, 0.9, 1.8, 0.15)
+  ];
+
+  /* nebula haze — the color grade of Act I bleeding into Act II */
+  const hazeRnd = mulberry32(77);
+  const haze = Array.from({length: lowPower ? 6 : 9}, (_, i) => ({
+    d: 120 + hazeRnd()*620,
+    a: hazeRnd()*Math.PI*2,
+    drift: (hazeRnd()-0.5)*0.02,
+    r: 140 + hazeRnd()*220,
+    gold: i % 3 !== 0,               /* gold near, cobalt sprinkled */
+    ph: hazeRnd()*Math.PI*2
+  }));
+
+  const planets = [
+    { id:"work",     label:"Work",     orbit:200, speed: 0.050, angle: -0.55, r:30,
+      color:C.gold,   style:"ring",     tex:TEX_GAS,   spin:1.0 },
+    { id:"services", label:"Services", orbit:330, speed:-0.034, angle:  2.30, r:26,
+      color:C.cobalt, style:"plain",    tex:TEX_STORM, spin:1.5 },
+    { id:"about",    label:"About",    orbit:460, speed: 0.024, angle:  4.10, r:22,
+      color:C.goldBright, style:"plain", tex:TEX_ROCK, spin:0.55 },
+    { id:"contact",  label:"Contact",  orbit:590, speed:-0.017, angle:  0.95, r:24,
+      color:C.cobaltLight, style:"moon", tex:TEX_ICE,  spin:0.8 }
+  ];
+  for (const p of planets) p.glow = glowOf(p.color, 0.55);
+
+  const starSeats = [
+    { d:262, a:1.15 }, { d:148, a:3.60 }, { d:395, a:0.20 },
+    { d:288, a:5.05 }, { d:520, a:2.85 }, { d:415, a:5.65 }
+  ];
+  const stars = CONTENT.projects.map((p, i) => ({
+    id: "p" + i, label: p.title,
+    x: Math.cos(starSeats[i].a) * starSeats[i].d,
+    y: Math.sin(starSeats[i].a) * starSeats[i].d,
+    r: 7, tw: i * 1.7
+  }));
+
+  const comet = { active:false, x:0, y:0, vx:0, vy:0, trail:[], nextAt: 6 };
+
+  let hovered = null;
+  let dragging = false, dragMoved = 0;
+  let lastPan = { x:0, y:0, t:0 };
+  let panVel = { x:0, y:0 };
+  const pointers = new Map();
+  let pinchDist = 0;
+  let hasExplored = false;
+  let shipLabelAlpha = 1;
+
+  /* ---------- landing: follow-cam + planet horizon ---------- */
+  let followRef = null;      /* { ref, kind:'planet'|'star' } */
+  let prevCam = null;
+  function flyTo(ref, kind){
+    if (!prevCam) prevCam = { tx:cam.tx, ty:cam.ty, tz:cam.tz };
+    followRef = { ref, kind };
+    cam.tz = isCoarse ? 1.15 : 1.7;
+  }
+  function liftOff(){
+    followRef = null;
+    if (prevCam){
+      cam.tx = prevCam.tx; cam.ty = prevCam.ty; cam.tz = prevCam.tz;
+      prevCam = null;
+      clampCam();
+    }
+  }
+
+  const groundEl = document.getElementById("ground");
+  const groundCv = document.getElementById("groundCv");
+  const gctx = groundCv.getContext("2d");
+  const ground = { on:false, tex:TEX_GAS, color:C.gold, hideTimer:null };
+  function sizeGround(){
+    groundCv.width  = Math.round(groundEl.clientWidth  * DPR);
+    groundCv.height = Math.round(groundEl.clientHeight * DPR);
+    gctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  window.addEventListener("resize", () => { if (ground.on) sizeGround(); });
+
+  function touchDown(tex, color){
+    clearTimeout(ground.hideTimer);
+    ground.tex = tex; ground.color = color; ground.on = true;
+    sizeGround();
+    requestAnimationFrame(() => groundEl.classList.add("up"));
+  }
+  function takeOff(){
+    groundEl.classList.remove("up");
+    ground.hideTimer = setTimeout(() => { ground.on = false; }, 850);
+  }
+
+  function drawGround(now){
+    const gw = groundEl.clientWidth, gh = groundEl.clientHeight;
+    gctx.clearRect(0, 0, gw, gh);
+    const R = Math.max(gw, gh) * 1.5;          /* a world so big it curves gently */
+    const cx = gw/2, cy = gh*0.30 + R;         /* horizon arc near the top */
+    const [cr, cg, cb] = hexRgb(ground.color);
+
+    /* atmosphere haze rising off the limb */
+    const at = gctx.createRadialGradient(cx, cy, R*0.985, cx, cy, R*1.12);
+    at.addColorStop(0,   `rgba(${cr},${cg},${cb},0.55)`);
+    at.addColorStop(0.4, `rgba(${cr},${cg},${cb},0.16)`);
+    at.addColorStop(1,   `rgba(${cr},${cg},${cb},0)`);
+    gctx.fillStyle = at;
+    gctx.fillRect(0, 0, gw, gh);
+
+    /* the surface itself, slowly turning beneath you */
+    gctx.save();
+    gctx.beginPath(); gctx.arc(cx, cy, R, 0, 7); gctx.clip();
+    const tex = ground.tex;
+    const scale = (gh * 2.6) / tex.height;
+    const tw = tex.width * scale;
+    const off = reduceMotion ? 0 : (now * 0.012) % tw;
+    for (let x = -off; x < gw; x += tw){
+      gctx.drawImage(tex, x, gh*0.30 - gh*0.42, tw, tex.height*scale);
+    }
+    /* dusk falls toward the bottom of the view */
+    const dg = gctx.createLinearGradient(0, gh*0.28, 0, gh);
+    dg.addColorStop(0, "rgba(4,6,14,0)");
+    dg.addColorStop(1, "rgba(4,6,14,0.88)");
+    gctx.fillStyle = dg;
+    gctx.fillRect(0, 0, gw, gh);
+    gctx.restore();
+
+    /* crisp sunlit limb line */
+    gctx.beginPath();
+    gctx.arc(cx, cy, R, Math.PI*1.15, Math.PI*1.85);
+    gctx.strokeStyle = `rgba(${Math.min(255,cr+70)},${Math.min(255,cg+70)},${Math.min(255,cb+60)},0.85)`;
+    gctx.lineWidth = 1.5;
+    gctx.stroke();
+  }
+
+  /* ---------- drawing ---------- */
+  function drawBackground(now){
+    ctx.fillStyle = C.spaceDeep;
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = C.space;
+    ctx.globalAlpha = 0.55;
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalAlpha = 1;
+
+    for (const layer of layers){
+      const ox = cam.x * layer.parallax * cam.z;
+      const oy = cam.y * layer.parallax * cam.z;
+      for (const s of layer.stars){
+        let sx = ((s.x * cam.z - ox) % TILE + TILE) % TILE;
+        let sy = ((s.y * cam.z - oy) % TILE + TILE) % TILE;
+        for (let gx = -1; gx * TILE + sx < W + 4; gx++){
+          if (gx * TILE + sx < -4) continue;
+          for (let gy = -1; gy * TILE + sy < H + 4; gy++){
+            if (gy * TILE + sy < -4) continue;
+            const tw = reduceMotion ? 1 : 0.7 + 0.3 * Math.sin(now * 0.0012 + s.tw);
+            ctx.globalAlpha = s.a * tw;
+            ctx.fillStyle = s.blue ? C.cobaltLight : C.ink;
+            ctx.beginPath();
+            ctx.arc(gx * TILE + sx, gy * TILE + sy, s.r * Math.min(cam.z, 1.2), 0, 7);
+            ctx.fill();
+          }
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawHaze(now){
+    ctx.globalCompositeOperation = "lighter";
+    for (const h of haze){
+      if (!reduceMotion) h.a += h.drift * 0.016;
+      const wx = Math.cos(h.a) * h.d;
+      const wy = Math.sin(h.a) * h.d;
+      const [sx, sy] = toScreen(wx, wy);
+      const s = h.r * 2 * cam.z;
+      if (sx < -s || sx > W+s || sy < -s || sy > H+s) continue;
+      const puls = reduceMotion ? 1 : 0.85 + 0.15*Math.sin(now*0.0004 + h.ph);
+      ctx.globalAlpha = (h.gold ? 0.075 : 0.09) * puls;
+      ctx.drawImage(h.gold ? SPR_GOLD : SPR_DEEP, sx - s/2, sy - s/2, s, s);
+    }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  function drawOrbits(){
+    const [cx, cy] = toScreen(0, 0);
+    for (const p of planets){
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, p.orbit * cam.z, p.orbit * view.ty * cam.z, view.rot, 0, 7);
+      ctx.strokeStyle = (hovered && hovered.ref === p) ? C.orbitHover : C.orbit;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+
+  function drawSun(now){
+    const [sx, sy] = toScreen(0, 0);
+    const R = 58 * cam.z;
+    const hot = hovered && hovered.type === "sun";
+    const t = now * 0.001;
+
+    /* volumetric corona — layered, breathing */
+    ctx.globalCompositeOperation = "lighter";
+    const breathe = reduceMotion ? 0 : Math.sin(now*0.0009)*0.06;
+    ctx.globalAlpha = hot ? 0.62 : 0.5;
+    ctx.drawImage(SPR_GOLD, sx - R*3.1, sy - R*3.1, R*6.2*(1+breathe), R*6.2*(1+breathe));
+    ctx.globalAlpha = 0.38;
+    ctx.drawImage(SPR_GOLD, sx - R*1.9, sy - R*1.9, R*3.8, R*3.8);
+    ctx.globalAlpha = 0.3;
+    ctx.drawImage(SPR_WHITE, sx - R*1.25, sy - R*1.25, R*2.5, R*2.5);
+    ctx.globalAlpha = 1;
+
+    /* prominences — plasma loops arcing off the limb, drawn behind the disc */
+    if (!reduceMotion){
+      for (let i = 0; i < 4; i++){
+        const a = i*1.7 + t*0.05;
+        const flick = 0.35 + 0.3*Math.abs(Math.sin(t*0.9 + i*2.1));
+        const reach = R*(1.18 + 0.16*Math.sin(t*0.5 + i*3.3));
+        const bx1 = sx + Math.cos(a-0.09)*R*0.99, by1 = sy + Math.sin(a-0.09)*R*0.99;
+        const bx2 = sx + Math.cos(a+0.09)*R*0.99, by2 = sy + Math.sin(a+0.09)*R*0.99;
+        const px  = sx + Math.cos(a)*reach,       py  = sy + Math.sin(a)*reach;
+        ctx.beginPath();
+        ctx.moveTo(bx1, by1);
+        ctx.quadraticCurveTo(px, py, bx2, by2);
+        ctx.strokeStyle = C.goldBright;
+        ctx.lineWidth = Math.max(1, R*0.035);
+        ctx.globalAlpha = flick;
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+    ctx.globalCompositeOperation = "source-over";
+
+    /* boiling photosphere — two granulation layers shearing past each other */
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.clip();
+    const tex = TEX_SUNFACE, TW = tex.width, TH = tex.height, HALF = TW*0.5;
+    const ph1 = reduceMotion ? 0 : (now*0.004) % TW;
+    const ph2 = reduceMotion ? 0 : (TW - (now*0.0065) % TW);
+    const SL = 30;
+    for (let pass = 0; pass < 2; pass++){
+      const phase = pass ? ph2 : ph1;
+      if (pass){ ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = 0.35; }
+      for (let i = 0; i < SL; i++){
+        const x0 = -R + (2*R*i)/SL, x1 = -R + (2*R*(i+1))/SL;
+        const mx = (x0+x1)*0.5/R;
+        const sq = Math.sqrt(Math.max(0.03, 1 - mx*mx));
+        const lon0 = Math.asin(Math.max(-1, Math.min(1, x0/R)));
+        const lon1 = Math.asin(Math.max(-1, Math.min(1, x1/R)));
+        let u0 = ((lon0/Math.PI + 0.5)*HALF + phase) % TW; if (u0 < 0) u0 += TW;
+        const uw = Math.max(1, (lon1-lon0)/Math.PI * HALF);
+        ctx.drawImage(tex, u0, 0, Math.min(uw, TW-u0), TH,
+                      x0, -R*sq, (x1-x0)+0.8, 2*R*sq);
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+    }
+    /* limb darkening: white-hot core falling to deep amber edge */
+    const ld = ctx.createRadialGradient(0, 0, R*0.1, 0, 0, R);
+    ld.addColorStop(0,    "rgba(255,250,232,0.55)");
+    ld.addColorStop(0.55, "rgba(255,230,170,0.08)");
+    ld.addColorStop(0.85, "rgba(190,100,20,0.30)");
+    ld.addColorStop(1,    "rgba(140,60,8,0.62)");
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, 7);
+    ctx.fillStyle = ld; ctx.fill();
+
+    /* the sapphire heart still beats inside */
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = 0.35 + (reduceMotion ? 0 : 0.15*Math.sin(now*0.0016));
+    ctx.drawImage(SPR_DEEP, -R*0.5, -R*0.5, R, R);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.restore();
+
+    /* crisp chromosphere rim */
+    ctx.beginPath();
+    ctx.arc(sx, sy, R, 0, 7);
+    ctx.strokeStyle = hot ? "rgba(255,246,226,0.9)" : "rgba(255,217,138,0.7)";
+    ctx.lineWidth = Math.max(1, R*0.02);
+    ctx.stroke();
+
+    /* wordmark on the sun */
+    ctx.fillStyle = "#1A1206";
+    ctx.shadowColor = "rgba(255,246,226,0.8)";
+    ctx.shadowBlur = 4 * cam.z;
+    ctx.font = `600 ${Math.max(9, 11 * cam.z)}px ${css.getPropertyValue("--sans")}`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    const t2 = "MERAKI", ls = 3.4 * cam.z;
+    let total = 0;
+    for (const ch of t2) total += ctx.measureText(ch).width + ls;
+    let x = sx - total / 2 + ls / 2;
+    for (const ch of t2){
+      const w = ctx.measureText(ch).width;
+      ctx.fillText(ch, x + w / 2, sy);
+      x += w + ls;
+    }
+    ctx.shadowBlur = 0;
+  }
+
+  function planetPos(p, now){
+    const a = p.angle + (reduceMotion ? 0 : now * 0.0001 * p.speed * 10);
+    return [Math.cos(a) * p.orbit, Math.sin(a) * p.orbit];
+  }
+
+  function drawPlanet(p, now){
+    const [wx, wy] = planetPos(p, now);
+    const [sx, sy] = toScreen(wx, wy);
+    /* depth on the tilted plane: nearer = slightly larger & brighter */
+    const dep = depthOf(wx, wy, p.orbit);
+    const R = p.r * cam.z * (0.9 + 0.22*dep);
+    const hot = hovered && hovered.ref === p;
+    p._sx = sx; p._sy = sy; p._sr = R;
+
+    if (sx < -120 || sx > W + 120 || sy < -120 || sy > H + 120) return;
+
+    /* atmosphere — soft volumetric glow in the planet's own color */
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = (hot ? 0.55 : 0.32) * (0.7 + 0.3*dep);
+    ctx.drawImage(p.glow, sx - R*2.2, sy - R*2.2, R*4.4, R*4.4);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+
+    if (hot){
+      ctx.beginPath();
+      ctx.arc(sx, sy, R * 1.28, 0, 7);
+      ctx.strokeStyle = C.gold;
+      ctx.globalAlpha = 0.8; ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    /* sunlight direction: from this planet toward the sun (screen space) */
+    const [sunX, sunY] = toScreen(0, 0);
+    let lx = sunX - sx, ly = sunY - sy;
+    const ll = Math.hypot(lx, ly) || 1;
+    lx /= ll; ly /= ll;
+
+    ctx.save();
+    ctx.translate(sx, sy);
+
+    if (p.style === "ring"){
+      ctx.strokeStyle = hot ? C.goldBright : "rgba(255,217,138,0.85)";
+      ctx.lineWidth = Math.max(1.5, 2.4 * cam.z);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, R * 1.75, R * 1.75 * Math.max(0.2, 1.805*view.ty - 0.805), view.rot - 0.32*view.depth, Math.PI * 0.97, Math.PI * 2.03);
+      ctx.stroke();
+    }
+
+    /* --- textured rotating sphere --- */
+    const tex = p.tex, TW = tex.width, TH = tex.height;
+    const phase = reduceMotion ? 0 : (now * 0.006 * p.spin) % TW;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.clip();
+    const SL = 26, HALF = TW * 0.5;
+    for (let i = 0; i < SL; i++){
+      const x0 = -R + (2*R*i)/SL, x1 = -R + (2*R*(i+1))/SL;
+      const mx = (x0+x1)*0.5/R;
+      const sq = Math.sqrt(Math.max(0.03, 1 - mx*mx));   /* spherical curvature */
+      const lon0 = Math.asin(Math.max(-1, Math.min(1, x0/R)));
+      const lon1 = Math.asin(Math.max(-1, Math.min(1, x1/R)));
+      let u0 = ((lon0/Math.PI + 0.5) * HALF + phase) % TW; if (u0 < 0) u0 += TW;
+      const uw = Math.max(1, (lon1-lon0)/Math.PI * HALF);
+      ctx.drawImage(tex, u0, 0, Math.min(uw, TW-u0), TH,
+                    x0, -R*sq, (x1-x0)+0.8, 2*R*sq);
+    }
+    /* day/night lighting wrapped over the surface */
+    const sh = ctx.createRadialGradient(lx*R*0.6, ly*R*0.6, R*0.15, lx*R*0.05, ly*R*0.05, R*1.6);
+    sh.addColorStop(0,    "rgba(255,250,235,0.22)");
+    sh.addColorStop(0.42, "rgba(255,250,235,0)");
+    sh.addColorStop(0.72, "rgba(7,11,25,0.62)");
+    sh.addColorStop(1,    "rgba(4,6,14,0.94)");
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, 7);
+    ctx.fillStyle = sh; ctx.fill();
+    ctx.restore();
+
+    /* specular glint on the sun-facing side */
+    ctx.beginPath();
+    ctx.arc(lx*R*0.52, ly*R*0.52, R*0.18, 0, 7);
+    ctx.fillStyle = "rgba(255,252,240,0.22)";
+    ctx.fill();
+
+    /* cool rim light on the night side — starlight bounce */
+    ctx.save();
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.clip();
+    ctx.beginPath();
+    ctx.arc(-lx*R*0.18, -ly*R*0.18, R*0.99, 0, 7);
+    ctx.strokeStyle = "rgba(124,152,240,0.35)";
+    ctx.lineWidth = Math.max(1, R*0.07);
+    ctx.stroke();
+    ctx.restore();
+
+    if (p.style === "ring"){
+      ctx.strokeStyle = hot ? C.goldBright : "rgba(255,217,138,0.95)";
+      ctx.lineWidth = Math.max(1.5, 2.4 * cam.z);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, R * 1.75, R * 1.75 * Math.max(0.2, 1.805*view.ty - 0.805), view.rot - 0.32*view.depth, -0.03, Math.PI * 1.0);
+      ctx.stroke();
+    } else if (p.style === "moon"){
+      const ma = reduceMotion ? 1.1 : now * 0.0011 + 1.1;
+      ctx.beginPath();
+      ctx.arc(Math.cos(ma) * R * 1.7, Math.sin(ma) * R * 1.7 * view.ty, R * 0.2, 0, 7);
+      ctx.fillStyle = C.gold; ctx.fill();
+    }
+    ctx.restore();
+
+    const la = hot ? 1 : 0.4;
+    ctx.globalAlpha = la;
+    ctx.fillStyle = hot ? C.gold : C.muted;
+    ctx.font = `500 ${Math.max(9, 10.5 * Math.min(cam.z, 1.4))}px ${css.getPropertyValue("--sans")}`;
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    const label = p.label.toUpperCase().split("").join("\u200A\u200A");
+    ctx.fillText(label, sx, sy + R * (p.style === "ring" ? 1.0 : 1.35) + 10);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawStar(s, now){
+    const [sx, sy] = toScreen(s.x, s.y);
+    s._sx = sx; s._sy = sy; s._sr = Math.max(12, s.r * cam.z * 1.6);
+    if (sx < -60 || sx > W + 60 || sy < -60 || sy > H + 60) return;
+
+    const hot = hovered && hovered.ref === s;
+    const tw = reduceMotion ? 1 : 0.72 + 0.28 * Math.sin(now * 0.0021 + s.tw);
+    const R = s.r * cam.z * (hot ? 1.45 : tw);
+
+    /* warm glow behind each soul-star */
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = (hot ? 0.6 : 0.3) * tw;
+    ctx.drawImage(SPR_GOLD, sx - R*3.4, sy - R*3.4, R*6.8, R*6.8);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.rotate(view.rot);          /* the sparkle lies in the galactic plane… */
+    ctx.scale(1, view.ty);         /* …so it leans in 3D and stands flat in 2D */
+    ctx.fillStyle = hot ? C.goldBright : C.gold;
+    ctx.globalAlpha = hot ? 1 : 0.55 + 0.45 * tw;
+    ctx.beginPath();
+    ctx.moveTo(0, -R * 2);
+    ctx.quadraticCurveTo(R * 0.28, -R * 0.28, R * 2, 0);
+    ctx.quadraticCurveTo(R * 0.28, R * 0.28, 0, R * 2);
+    ctx.quadraticCurveTo(-R * 0.28, R * 0.28, -R * 2, 0);
+    ctx.quadraticCurveTo(-R * 0.28, -R * 0.28, 0, -R * 2);
+    ctx.fill();
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  function updateComet(now, dt){
+    if (reduceMotion) return;
+    if (!comet.active){
+      comet.nextAt -= dt;
+      if (comet.nextAt <= 0){
+        const a = Math.random() * Math.PI * 2;
+        const d = WORLD_LIMIT * 1.15;
+        comet.x = Math.cos(a) * d; comet.y = Math.sin(a) * d;
+        const aim = a + Math.PI + (Math.random() - 0.5) * 0.9;
+        const sp = 170 + Math.random() * 90;
+        comet.vx = Math.cos(aim) * sp; comet.vy = Math.sin(aim) * sp;
+        comet.trail.length = 0;
+        comet.active = true;
+      }
+      return;
+    }
+    comet.x += comet.vx * dt; comet.y += comet.vy * dt;
+    comet.trail.push({ x: comet.x, y: comet.y });
+    if (comet.trail.length > 26) comet.trail.shift();
+    if (Math.hypot(comet.x, comet.y) > WORLD_LIMIT * 1.5){
+      comet.active = false;
+      comet.nextAt = 16 + Math.random() * 18;
+    }
+  }
+
+  function drawComet(){
+    if (!comet.active) return;
+    for (let i = 0; i < comet.trail.length; i++){
+      const t = comet.trail[i];
+      const [sx, sy] = toScreen(t.x, t.y);
+      const f = i / comet.trail.length;
+      ctx.globalAlpha = f * 0.5;
+      ctx.fillStyle = C.goldBright;
+      ctx.beginPath(); ctx.arc(sx, sy, (0.5 + f * 2.2) * cam.z, 0, 7); ctx.fill();
+    }
+    const [hx, hy] = toScreen(comet.x, comet.y);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#FFF6E2";
+    ctx.beginPath(); ctx.arc(hx, hy, 2.6 * cam.z, 0, 7); ctx.fill();
+  }
+
+  function drawShip(now){
+    const cx = W / 2, cy = H / 2;
+    const tilt = Math.max(-0.5, Math.min(0.5, panVel.x * -0.002));
+    const bob = reduceMotion ? 0 : Math.sin(now * 0.0016) * 3;
+
+    ctx.save();
+    ctx.translate(cx, cy + bob);
+    ctx.rotate(view.rot * view.depth + tilt);   /* banks with the plane in 3D */
+    ctx.scale(1, 1 - (1 - view.ty) * 0.85);     /* leans over; flat map = upright */
+    ctx.beginPath();
+    ctx.moveTo(0, -11); ctx.lineTo(8, 9); ctx.lineTo(0, 4); ctx.lineTo(-8, 9);
+    ctx.closePath();
+    ctx.fillStyle = C.ink; ctx.fill();
+    ctx.beginPath(); ctx.arc(0, -2.5, 2.6, 0, 7);
+    ctx.fillStyle = C.cobalt; ctx.fill();
+    if (!reduceMotion){
+      const fl = 4 + Math.sin(now * 0.02) * 2;
+      ctx.beginPath();
+      ctx.moveTo(-2.6, 8.5); ctx.lineTo(0, 8.5 + fl); ctx.lineTo(2.6, 8.5);
+      ctx.closePath();
+      ctx.fillStyle = C.gold; ctx.globalAlpha = 0.9; ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+
+    if (shipLabelAlpha > 0.01){
+      ctx.globalAlpha = shipLabelAlpha * 0.8;
+      ctx.fillStyle = C.muted;
+      ctx.font = `500 10px ${css.getPropertyValue("--sans")}`;
+      ctx.textAlign = "center"; ctx.textBaseline = "top";
+      ctx.fillText("Y O U   A R E   H E R E", cx, cy + 22);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  /* ---------- main loop ---------- */
+  let lastT = performance.now();
+  function frame(now){
+    requestAnimationFrame(frame);
+    if (!active){ lastT = now; return; }
+    const dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+
+    const ease = 1 - Math.pow(0.0001, dt);
+    cam.x += (cam.tx - cam.x) * ease;
+    cam.y += (cam.ty - cam.y) * ease;
+    cam.z += (cam.tz - cam.z) * ease;
+    updateView(dt);
+
+    panVel.x *= Math.pow(0.05, dt);
+    panVel.y *= Math.pow(0.05, dt);
+    if (!dragging && (Math.abs(panVel.x) > 2 || Math.abs(panVel.y) > 2)){
+      cam.tx -= panVel.x * dt / cam.z;
+      cam.ty -= panVel.y * dt / cam.z;
+      clampCam();
+    }
+
+    if (hasExplored) shipLabelAlpha = Math.max(0, shipLabelAlpha - dt * 0.5);
+
+    /* keep gliding toward whatever we're landing on — it orbits, we track */
+    if (followRef){
+      const [wx, wy] = followRef.kind === "planet"
+        ? planetPos(followRef.ref, now)
+        : [followRef.ref.x, followRef.ref.y];
+      const [vx, vy] = tiltXY(wx, wy);
+      cam.tx = vx; cam.ty = vy;
+    }
+
+    drawBackground(now);
+    drawHaze(now);
+    drawOrbits();
+    updateComet(now, dt);
+    drawComet();
+    drawSun(now);
+    /* draw far-side planets first so near ones overlap — cheap painter's sort */
+    const sorted = planets.slice().sort((a,b) => {
+      const [ax,ay] = planetPos(a, now), [bx,by] = planetPos(b, now);
+      return depthOf(ax,ay,a.orbit) - depthOf(bx,by,b.orbit);
+    });
+    for (const p of sorted) drawPlanet(p, now);
+    for (const s of stars)  drawStar(s, now);
+    drawShip(now);
+    if (ground.on) drawGround(now);
+  }
+  requestAnimationFrame(frame);
+
+  /* ---------- hit testing ---------- */
+  function hitTest(sx, sy){
+    for (const s of stars){
+      if (Math.hypot(sx - s._sx, sy - s._sy) < Math.max(16, s._sr)) return { type:"star", ref:s };
+    }
+    for (const p of planets){
+      if (Math.hypot(sx - p._sx, sy - p._sy) < p._sr + 8) return { type:"planet", ref:p };
+    }
+    const [cx, cy] = toScreen(0, 0);
+    if (Math.hypot(sx - cx, sy - cy) < 58 * cam.z + 6) return { type:"sun", ref:"sun" };
+    return null;
+  }
+
+  /* ---------- pointer interaction ---------- */
+  const tip = document.getElementById("tip");
+  const hint = document.getElementById("hint");
+
+  function showTip(html, x, y){
+    tip.innerHTML = html;
+    tip.style.left = Math.min(x, W - 180) + "px";
+    tip.style.top  = Math.min(y, H - 60) + "px";
+    tip.classList.add("show");
+  }
+  function hideTip(){ tip.classList.remove("show"); }
+
+  function markExplored(){
+    if (!hasExplored){
+      hasExplored = true;
+      hint.classList.add("hidden");
+    }
+  }
+
+  canvas.addEventListener("pointerdown", e => {
+    canvas.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size === 1){
+      dragging = true; dragMoved = 0;
+      lastPan = { x: e.clientX, y: e.clientY, t: performance.now() };
+      canvas.classList.add("dragging");
+      panVel.x = panVel.y = 0;
+    } else if (pointers.size === 2){
+      const pts = [...pointers.values()];
+      pinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+    }
+  });
+
+  canvas.addEventListener("pointermove", e => {
+    if (pointers.has(e.pointerId)){
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+
+    if (pointers.size === 2){
+      const pts = [...pointers.values()];
+      const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      if (pinchDist > 0){
+        cam.tz *= d / pinchDist;
+        clampCam();
+        markExplored();
+      }
+      pinchDist = d;
+      dragMoved = 99;
+      return;
+    }
+
+    if (dragging){
+      const dx = e.clientX - lastPan.x;
+      const dy = e.clientY - lastPan.y;
+      const dtm = Math.max(1, performance.now() - lastPan.t);
+      dragMoved += Math.abs(dx) + Math.abs(dy);
+      cam.tx -= dx / cam.z; cam.ty -= dy / cam.z;
+      cam.x = cam.tx; cam.y = cam.ty;
+      clampCam();
+      cam.x = cam.tx; cam.y = cam.ty;
+      panVel.x = dx / dtm * 1000; panVel.y = dy / dtm * 1000;
+      lastPan = { x: e.clientX, y: e.clientY, t: performance.now() };
+      if (dragMoved > 12) markExplored();
+      hideTip();
+      return;
+    }
+
+    if (e.pointerType === "mouse"){
+      const hit = hitTest(e.clientX, e.clientY);
+      hovered = hit;
+      canvas.classList.toggle("pointing", !!hit);
+      if (hit){
+        if (hit.type === "star"){
+          showTip(`<b>✦ ${hit.ref.label}</b> · land`, e.clientX, e.clientY);
+        } else if (hit.type === "planet"){
+          showTip(`<b>${hit.ref.label}</b> · land`, e.clientX, e.clientY);
+        } else {
+          showTip(`<b>Meraki</b> · click to recenter`, e.clientX, e.clientY);
+        }
+      } else hideTip();
+    }
+  });
+
+  function endPointer(e){
+    const wasDrag = dragMoved > 8;
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinchDist = 0;
+    if (pointers.size === 0){
+      dragging = false;
+      canvas.classList.remove("dragging");
+      if (!wasDrag && e.type === "pointerup"){
+        const hit = hitTest(e.clientX, e.clientY);
+        if (hit){
+          if (hit.type === "sun") recenter();
+          else openPanel(hit.ref.id);
+        }
+      }
+    }
+  }
+  canvas.addEventListener("pointerup", endPointer);
+  canvas.addEventListener("pointercancel", endPointer);
+  canvas.addEventListener("pointerleave", () => { hovered = null; hideTip(); canvas.classList.remove("pointing"); });
+
+  canvas.addEventListener("wheel", e => {
+    e.preventDefault();
+    const factor = Math.exp(-e.deltaY * 0.0012);
+    const [vx, vy] = toView(e.clientX, e.clientY);
+    const nz = Math.max(ZMIN, Math.min(ZMAX, cam.tz * factor));
+    cam.tx = vx - (e.clientX - W/2) / nz;
+    cam.ty = vy - (e.clientY - H/2) / nz;
+    cam.tz = nz;
+    clampCam();
+    markExplored();
+  }, { passive:false });
+
+  /* ---------- HUD ---------- */
+  function recenter(){ cam.tx = 0; cam.ty = 0; cam.tz = isCoarse ? 0.72 : 0.92; }
+  document.getElementById("zoomIn").addEventListener("click", () => { cam.tz *= 1.25; clampCam(); });
+  document.getElementById("zoomOut").addEventListener("click", () => { cam.tz /= 1.25; clampCam(); });
+  document.getElementById("recenter").addEventListener("click", recenter);
+
+  /* 2D ⇄ 3D — the button always names the view you'd switch to */
+  const viewBtn = document.getElementById("viewMode");
+  viewBtn.addEventListener("click", () => {
+    setMode(!is3D);
+    viewBtn.textContent = is3D ? "2D" : "3D";
+    viewBtn.setAttribute("aria-pressed", String(is3D));
+  });
+
+  /* ---------- panel ---------- */
+  const panel = document.getElementById("panel");
+  const veil = document.getElementById("veil");
+  const panelTitle = document.getElementById("panelTitle");
+  const panelEyebrow = document.getElementById("panelEyebrow");
+  const panelBody = document.getElementById("panelBody");
+  const panelClose = document.getElementById("panelClose");
+  let lastFocus = null;
+  let panelOpen = false;
+
+  function esc(s){ return s.replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c])); }
+
+  function buildPanel(id){
+    if (id === "about"){
+      panelEyebrow.textContent = CONTENT.about.eyebrow;
+      panelTitle.textContent = CONTENT.about.title;
+      panelBody.innerHTML = CONTENT.about.html;
+      return;
+    }
+    if (id === "services"){
+      panelEyebrow.textContent = CONTENT.services.eyebrow;
+      panelTitle.textContent = CONTENT.services.title;
+      panelBody.innerHTML = `<ul class="item-list">` + CONTENT.services.items.map(s => `
+        <li>
+          <p class="item-meta">${esc(s.meta)}</p>
+          <p class="item-name">${esc(s.name)}</p>
+          <p class="item-desc">${esc(s.desc)}</p>
+        </li>`).join("") + `</ul>`;
+      return;
+    }
+    if (id === "contact"){
+      const c = CONTENT.contact;
+      panelEyebrow.textContent = c.eyebrow;
+      panelTitle.textContent = c.title;
+      panelBody.innerHTML = `
+        <p>${esc(c.note)}</p>
+        <p><a class="contact-mail" href="mailto:${esc(c.email)}">${esc(c.email)}</a></p>
+        <div class="socials">${c.socials.map(s =>
+          `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`).join("")}</div>`;
+      return;
+    }
+    if (id === "work"){
+      panelEyebrow.textContent = "Work · six stars and counting";
+      panelTitle.textContent = "Pieces of our soul";
+      panelBody.innerHTML = `
+        <p style="margin-bottom:18px">Each glowing star out in the galaxy is one of these
+        projects — click them in the scene, or browse here.</p>
+        <ul class="item-list star-list">` + CONTENT.projects.map((p, i) => `
+        <li><button data-proj="${i}">
+          <p class="item-meta">${esc(p.meta)}</p>
+          <p class="item-name">${esc(p.title)}</p>
+          <p class="item-desc">${esc(p.desc)}</p>
+        </button></li>`).join("") + `</ul>`;
+      panelBody.querySelectorAll("[data-proj]").forEach(btn =>
+        btn.addEventListener("click", () => openPanel("p" + btn.dataset.proj)));
+      return;
+    }
+    const i = parseInt(id.slice(1), 10);
+    const p = CONTENT.projects[i];
+    panelEyebrow.textContent = "✦ " + p.meta;
+    panelTitle.textContent = p.title;
+    panelBody.innerHTML = `
+      <p>${esc(p.desc)}</p>
+      <p class="proj-role"><b>Our role</b>${esc(p.role)}</p>
+      <a class="proj-link" href="${esc(p.link)}" target="_blank" rel="noopener">View project →</a>`;
+  }
+
+  function openPanel(id){
+    if (!active) Voyage.enterGalaxy();   /* a11y: opening a section warps you in */
+
+    /* land on what you touched: camera glides in, the horizon rises */
+    const planetRef = planets.find(pl => pl.id === id);
+    const starRef = /^p\d$/.test(id) ? stars[+id[1]] : null;
+    if (planetRef){
+      flyTo(planetRef, "planet");
+      touchDown(planetRef.tex, planetRef.color);
+    } else if (starRef){
+      flyTo(starRef, "star");
+      touchDown(TEX_SUNFACE, C.gold);
+    }
+
+    buildPanel(id);
+    lastFocus = document.activeElement;
+    panel.hidden = false;
+    panelOpen = true;
+    veil.classList.add("open");
+    requestAnimationFrame(() => panel.classList.add("open"));
+    panelClose.focus();
+    hovered = null; hideTip();
+  }
+
+  function closePanel(){
+    panelOpen = false;
+    panel.classList.remove("open");
+    veil.classList.remove("open");
+    takeOff();
+    liftOff();
+    setTimeout(() => { panel.hidden = true; }, 480);
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  panelClose.addEventListener("click", closePanel);
+  veil.addEventListener("click", closePanel);
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && panelOpen) closePanel();
+  });
+
+  document.addEventListener("focusin", e => {
+    if (panelOpen && !panel.contains(e.target)) panelClose.focus();
+  });
+
+  document.querySelectorAll(".a11y-nav [data-open]").forEach(btn =>
+    btn.addEventListener("click", () => openPanel(btn.dataset.open)));
+
+  /* hint fades on its own once you're in */
+  let hintTimer = null;
+
+  return {
+    setActive(v){
+      active = v;
+      canvas.classList.toggle("off", !v);
+    },
+    reset(){
+      if (panelOpen) closePanel();
+    },
+    enter(){
+      /* arrive from the warp: start deep in the sun's glare, pull back */
+      cam.x = 0; cam.y = 0; cam.z = 2.5;
+      cam.tx = 0; cam.ty = 0; cam.tz = isCoarse ? 0.72 : 0.92;
+      hint.classList.remove("hidden");
+      clearTimeout(hintTimer);
+      hintTimer = setTimeout(() => hint.classList.add("hidden"), 14000);
+    }
+  };
+})();
+
+/* ============================================================
+   ORCHESTRATION — moving between the two acts
+   ============================================================ */
+const hudControls = document.getElementById("hudControls");
+const hintEl = document.getElementById("hint");
+const wordmarkSub = document.getElementById("wordmarkSub");
+let inGalaxy = false;
+
+Voyage.enterGalaxy = function(){
+  if (inGalaxy) return;
+  inGalaxy = true;
+  Nebula.setActive(false);
+  Galaxy.setActive(true);
+  Galaxy.enter();
+  hudControls.classList.remove("off");
+  hintEl.classList.remove("off");
+  wordmarkSub.textContent = "a creative galaxy";
+  setFlash(0, 1100);
+};
+
+Voyage.toHeart = function(){
+  if (!inGalaxy) return;
+  setFlash(1, 320);
+  setTimeout(() => {
+    inGalaxy = false;
+    Galaxy.reset();
+    Galaxy.setActive(false);
+    hudControls.classList.add("off");
+    hintEl.classList.add("off");
+    wordmarkSub.textContent = "a creative agency";
+    Nebula.reset();
+    Nebula.setActive(true);
+    setFlash(0, 900);
+  }, 340);
+};
+
+document.getElementById("toHeart").addEventListener("click", Voyage.toHeart);
+document.getElementById("a11yHeart").addEventListener("click", Voyage.toHeart);
+document.getElementById("a11yEnter").addEventListener("click", () => {
+  if (!inGalaxy){
+    if (reduceMotion){ setFlash(1, 200); setTimeout(Voyage.enterGalaxy, 240); }
+    else Nebula.startWarp();
+  }
+});
+/* Enter key on the nebula also opens the way */
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !inGalaxy && document.activeElement === document.body){
+    Nebula.startWarp();
+  }
+});
+</script>
+</body>
+</html>
