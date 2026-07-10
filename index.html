@@ -636,37 +636,218 @@ const AudioSys = (() => {
     } catch(e){ ac = null; }
     return !!ac;
   }
-  /* deep evolving pad — three detuned voices under a slow-breathing lowpass */
+  /* ---------- Act I: nervous heart — racing thump under an uneasy drone ---------- */
+  let hbGain = null, hbNodes = [], hbSched = null, hbNext = 0, hbLive = false;
+  let hbBpm = 52, hbBpmTarget = 52, hbTense = 0, hbTenseTarget = 0;
+  let droneG = null, shimG = null;
+  function thump(t, vel){
+    const o = ac.createOscillator(); o.type = "sine";
+    o.frequency.setValueAtTime(64, t);
+    o.frequency.exponentialRampToValueAtTime(27, t + 0.13);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vel, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    o.connect(g); g.connect(hbGain);
+    o.start(t); o.stop(t + 0.4);
+  }
+  function startHeart(){
+    if (!ensure() || hbLive) return; hbLive = true;
+    hbGain = ac.createGain(); hbGain.gain.value = 0;
+    hbGain.connect(master);
+    /* uneasy drone: a low tritone that never resolves */
+    droneG = ac.createGain(); droneG.gain.value = 0.05; droneG.connect(hbGain);
+    for (const f of [73.42, 103.83]){
+      const o = ac.createOscillator(); o.type = "sawtooth"; o.frequency.value = f;
+      const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 380;
+      const g = ac.createGain(); g.gain.value = 0.5;
+      o.connect(lp); lp.connect(g); g.connect(droneG); o.start();
+      hbNodes.push(o, lp, g);
+    }
+    /* anxious shimmer: minor-second pair beating against itself, trembling */
+    shimG = ac.createGain(); shimG.gain.value = 0.012; shimG.connect(hbGain);
+    const trem = ac.createOscillator(); trem.frequency.value = 6.2;
+    const tremG = ac.createGain(); tremG.gain.value = 0.006;
+    trem.connect(tremG); tremG.connect(shimG.gain); trem.start();
+    for (const [f, v] of [[440, 1], [466.16, 1], [880, 0.4], [932.33, 0.4]]){
+      const o = ac.createOscillator(); o.type = "sine"; o.frequency.value = f;
+      const g = ac.createGain(); g.gain.value = v;
+      o.connect(g); g.connect(shimG); o.start();
+      hbNodes.push(o, g);
+    }
+    /* breath: slow noise swells, like trying to stay calm */
+    const br = ac.createBufferSource();
+    const bb = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+    const bd = bb.getChannelData(0);
+    for (let i = 0; i < bd.length; i++) bd[i] = Math.random() * 2 - 1;
+    br.buffer = bb; br.loop = true;
+    const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 850; bp.Q.value = 0.6;
+    const bg = ac.createGain(); bg.gain.value = 0.012;
+    const blfo = ac.createOscillator(); blfo.frequency.value = 0.09;
+    const blg = ac.createGain(); blg.gain.value = 0.01;
+    blfo.connect(blg); blg.connect(bg.gain); blfo.start();
+    br.connect(bp); bp.connect(bg); bg.connect(hbGain); br.start();
+    hbNodes.push(trem, tremG, br, bp, bg, blfo, blg, droneG, shimG);
+    /* the racing pulse: lub-dub pairs, tempo eased toward the visual heartbeat */
+    hbNext = ac.currentTime + 0.1;
+    hbSched = setInterval(() => {
+      if (!hbLive) return;
+      hbBpm += (hbBpmTarget - hbBpm) * 0.08;
+      hbTense += (hbTenseTarget - hbTense) * 0.06;
+      if (droneG) droneG.gain.setTargetAtTime(0.05 + hbTense * 0.05, ac.currentTime, 0.2);
+      if (shimG)  shimG.gain.setTargetAtTime(0.012 + hbTense * 0.014, ac.currentTime, 0.2);
+      while (hbNext < ac.currentTime + 0.25){
+        const period = 60 / hbBpm;
+        thump(hbNext, 0.30 + hbTense * 0.10);                 /* lub */
+        thump(hbNext + Math.min(0.30, period * 0.32), 0.18);  /* dub */
+        hbNext += period;
+      }
+    }, 40);
+    hbGain.gain.linearRampToValueAtTime(1, ac.currentTime + 1.6);
+  }
+  function stopHeart(){
+    if (!ac || !hbLive) return; hbLive = false;
+    clearInterval(hbSched); hbSched = null;
+    const t = ac.currentTime;
+    hbGain.gain.cancelScheduledValues(t);
+    hbGain.gain.setValueAtTime(hbGain.gain.value, t);
+    hbGain.gain.linearRampToValueAtTime(0, t + 0.45);
+    const nodes = hbNodes; hbNodes = []; droneG = null; shimG = null;
+    setTimeout(() => nodes.forEach(n => { try{ n.stop ? n.stop() : n.disconnect(); }catch(e){} }), 650);
+  }
+  /* nebula drives this each frame: visual beat rate + hover tension → sound */
+  function setPulse(beatVal, tense){
+    hbBpmTarget = 52 + Math.max(0, Math.min(1, (beatVal - 0.6) / 2)) * 92;
+    hbTenseTarget = tense ? 1 : 0;
+  }
+
+  /* ---------- lo-fi jazz engine: Fmaj7 → Em7 → Dm9 → Cmaj7, 72bpm swing ----------
+     E-piano chords, sine bass, brushed backbeat, sparse sparkle melody through a
+     tape echo, vinyl crackle + pops, and tape wobble. All synthesized, no files. */
+  const midi = m => 440 * Math.pow(2, (m - 69) / 12);
+  const TEMPO = 72, BEAT = 60 / TEMPO, SWING = 0.62;
+  const PROG = [                                     /* [bassMidi, chordMidis, sparkleScale] */
+    [41, [53, 57, 60, 64], [65, 69, 72, 76, 77]],    /* Fmaj7  */
+    [40, [55, 59, 62, 64], [64, 67, 71, 74, 76]],    /* Em7    */
+    [38, [57, 60, 62, 65], [62, 65, 69, 72, 74]],    /* Dm9    */
+    [36, [55, 59, 60, 64], [60, 64, 67, 71, 72]]     /* Cmaj7  */
+  ];
+  let bus = null, wobbleG = null, echo = null, sched = null, step = 0, nextT = 0;
+
+  function epNote(m, t, dur, vel){
+    const f = midi(m);
+    for (const [type, det, v] of [["sine", 0, 1], ["triangle", 4, 0.4]]){
+      const o = ac.createOscillator();
+      o.type = type; o.frequency.value = f; o.detune.value = det;
+      wobbleG.connect(o.detune);                     /* tape wow/flutter */
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vel * v, t + 0.03);
+      g.gain.setTargetAtTime(vel * v * 0.35, t + 0.05, dur * 0.35);
+      g.gain.setTargetAtTime(0.0001, t + dur, 0.09);
+      o.connect(g); g.connect(bus);
+      o.start(t); o.stop(t + dur + 0.6);
+    }
+  }
+  function bassNote(m, t, dur, vel){
+    const o = ac.createOscillator(); o.type = "sine"; o.frequency.value = midi(m);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vel, t + 0.02);
+    g.gain.setTargetAtTime(0.0001, t + dur * 0.8, 0.12);
+    o.connect(g); g.connect(bus);
+    o.start(t); o.stop(t + dur + 0.5);
+  }
+  function brush(t, vel){
+    const dur = 0.09;
+    const src = ac.createBufferSource();
+    const buf = ac.createBuffer(1, ac.sampleRate * dur, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+    src.buffer = buf;
+    const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 6200; bp.Q.value = 0.8;
+    const g = ac.createGain(); g.gain.value = vel;
+    src.connect(bp); bp.connect(g); g.connect(bus);
+    src.start(t);
+  }
+  function sparkle(m, t, vel){
+    const o = ac.createOscillator(); o.type = "sine"; o.frequency.value = midi(m);
+    wobbleG.connect(o.detune);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vel, t + 0.015);
+    g.gain.setTargetAtTime(0.0001, t + 0.1, 0.22);
+    o.connect(g); g.connect(bus); g.connect(echo);   /* dreamier through the tape echo */
+    o.start(t); o.stop(t + 1.6);
+  }
+  function scheduleStep(s, t){                        /* 8 swung eighths/bar, 4 bars */
+    const bar = Math.floor(s / 8) % 4, eighth = s % 8;
+    const [bassM, chord, scale] = PROG[bar];
+    if (eighth === 0){
+      chord.forEach((m, i) => epNote(m, t + i * 0.012, BEAT * 2.6, 0.105)); /* lazy roll */
+      bassNote(bassM, t, BEAT * 2.4, 0.21);
+    }
+    if (eighth === 5)                                 /* ghost re-strike on the and-of-3 */
+      chord.forEach((m, i) => epNote(m, t + i * 0.01, BEAT * 1.2, 0.05));
+    if (eighth === 4) bassNote(bassM + 7, t, BEAT * 1.1, 0.11);
+    if (eighth === 2 || eighth === 6) brush(t, 0.05); /* backbeat */
+    if (eighth === 7 && Math.random() < 0.5) brush(t, 0.026);
+    if ((eighth === 3 || eighth === 6) && Math.random() < 0.30)
+      sparkle(scale[(Math.random() * scale.length) | 0] + 12, t, 0.07);
+    if (Math.random() < 0.10){                        /* vinyl pop */
+      const p = ac.createBufferSource();
+      const b = ac.createBuffer(1, 220, ac.sampleRate);
+      const dd = b.getChannelData(0);
+      for (let i = 0; i < dd.length; i++) dd[i] = (Math.random() * 2 - 1) * (1 - i / dd.length);
+      p.buffer = b;
+      const g = ac.createGain(); g.gain.value = 0.08;
+      p.connect(g); g.connect(bus);
+      p.start(t + Math.random() * BEAT * 0.4);
+    }
+  }
   function startPad(){
     if (!ensure() || padLive) return; padLive = true;
     padGain = ac.createGain(); padGain.gain.value = 0;
-    const filt = ac.createBiquadFilter();
-    filt.type = "lowpass"; filt.frequency.value = 260; filt.Q.value = 0.7;
-    filt.connect(padGain); padGain.connect(master);
-    for (const [f, type, det, vol] of [[55,"sawtooth",-6,0.33],[82.41,"sawtooth",7,0.30],
-                                        [110,"sine",0,0.33],[220,"sine",4,0.16]]){
-      const o = ac.createOscillator(); o.type = type; o.frequency.value = f; o.detune.value = det;
-      const g = ac.createGain(); g.gain.value = vol;   /* the 220Hz voice keeps it audible on laptop speakers */
-      o.connect(g); g.connect(filt); o.start();
-      padNodes.push(o, g);
-    }
-    const lfo = ac.createOscillator(); lfo.frequency.value = 0.05;      /* filter breath */
-    const lfoG = ac.createGain(); lfoG.gain.value = 110;
-    lfo.connect(lfoG); lfoG.connect(filt.frequency); lfo.start();
-    const drift = ac.createOscillator(); drift.frequency.value = 0.031; /* slow detune drift */
-    const driftG = ac.createGain(); driftG.gain.value = 9;
-    drift.connect(driftG); driftG.connect(padNodes[0].detune); drift.start();
-    padNodes.push(lfo, lfoG, drift, driftG, filt);
-    padGain.gain.linearRampToValueAtTime(0.055, ac.currentTime + 2.5);
+    const warm = ac.createBiquadFilter();             /* lo-fi warmth: nothing above ~2.4k */
+    warm.type = "lowpass"; warm.frequency.value = 2400; warm.Q.value = 0.4;
+    bus = ac.createGain(); bus.gain.value = 1;
+    bus.connect(warm); warm.connect(padGain); padGain.connect(master);
+    echo = ac.createDelay(1.0); echo.delayTime.value = BEAT * SWING;
+    const fb = ac.createGain(); fb.gain.value = 0.34;
+    const wet = ac.createGain(); wet.gain.value = 0.5;
+    echo.connect(fb); fb.connect(echo); echo.connect(wet); wet.connect(warm);
+    const wob = ac.createOscillator(); wob.frequency.value = 0.6;   /* tape wobble */
+    wobbleG = ac.createGain(); wobbleG.gain.value = 4.5;
+    wob.connect(wobbleG); wob.start();
+    const hiss = ac.createBufferSource();             /* vinyl bed */
+    const hb = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+    const hd = hb.getChannelData(0);
+    for (let i = 0; i < hd.length; i++) hd[i] = Math.random() * 2 - 1;
+    hiss.buffer = hb; hiss.loop = true;
+    const hbp = ac.createBiquadFilter(); hbp.type = "highpass"; hbp.frequency.value = 3800;
+    const hg = ac.createGain(); hg.gain.value = 0.011;
+    hiss.connect(hbp); hbp.connect(hg); hg.connect(bus); hiss.start();
+    padNodes.push(bus, warm, echo, fb, wet, wob, wobbleG, hiss, hbp, hg);
+    step = 0; nextT = ac.currentTime + 0.15;
+    sched = setInterval(() => {                       /* lookahead scheduler */
+      if (!padLive) return;
+      while (nextT < ac.currentTime + 0.2){
+        scheduleStep(step, nextT);
+        nextT += BEAT * (step % 2 ? (1 - SWING) : SWING);  /* swung grid */
+        step = (step + 1) % 32;
+      }
+    }, 40);
+    padGain.gain.linearRampToValueAtTime(0.85, ac.currentTime + 2.5);
   }
   function stopPad(){
     if (!ac || !padLive) return; padLive = false;
+    clearInterval(sched); sched = null;
     const t = ac.currentTime;
     padGain.gain.cancelScheduledValues(t);
     padGain.gain.setValueAtTime(padGain.gain.value, t);
-    padGain.gain.linearRampToValueAtTime(0, t + 0.6);
+    padGain.gain.linearRampToValueAtTime(0, t + 0.7);
     const nodes = padNodes; padNodes = [];
-    setTimeout(() => nodes.forEach(n => { try{ n.stop ? n.stop() : n.disconnect(); }catch(e){} }), 800);
+    setTimeout(() => nodes.forEach(n => { try{ n.stop ? n.stop() : n.disconnect(); }catch(e){} }), 900);
   }
   /* warp: rising sweep engineered to peak exactly at the flash */
   function warpStart(){
@@ -707,7 +888,7 @@ const AudioSys = (() => {
       o.type = "sine"; o.frequency.value = f * (1 + (Math.random()-0.5)*0.004);
       const g = ac.createGain();
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(kind === "sun" ? 0.05 : 0.035, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(kind === "sun" ? 0.09 : 0.06, t + 0.012);
       g.gain.exponentialRampToValueAtTime(0.0001, t + 0.55 + i*0.12);
       o.connect(g); g.connect(p);
       o.start(t); o.stop(t + 0.9);
@@ -721,7 +902,7 @@ const AudioSys = (() => {
     stopPad(); warpEnd(true);
     if (ac){ try{ ac.close(); }catch(e){} ac = null; }
   }
-  return { ensure, startPad, stopPad, warpStart, warpSet, warpEnd, chime, setMuted,
+  return { ensure, startPad, stopPad, startHeart, stopHeart, setPulse, warpStart, warpSet, warpEnd, chime, setMuted,
            get muted(){ return muted; }, destroy };
 })();
 
@@ -815,6 +996,7 @@ const Nebula = (() => {
     warping = true; warpT = 0;
     heartHint.classList.add("hidden");
     AudioSys.ensure();
+    AudioSys.stopHeart();
     if (reduceMotion){
       setFlash(1, 220);
       setTimeout(() => Voyage.enterGalaxy(), 260);
@@ -871,6 +1053,7 @@ const Nebula = (() => {
     /* the heart is alive: it beats faster under your hand */
     const beatTarget = hoveringHeart ? 2.6 : 0.6;
     beat += (beatTarget-beat)*Math.min(1, dt*2.5);
+    AudioSys.setPulse(beat, hoveringHeart);
     if (!reduceMotion){
       ELL = -0.42 + Math.sin(t*0.05)*0.10;
       beatPhase += beat*dt;                       /* accumulate phase: smooth accel, no FM stutter */
@@ -2275,7 +2458,8 @@ Voyage.enterGalaxy = function(){
   hudControls.classList.remove("off");
   hintEl.classList.remove("off");
   wordmarkSub.textContent = "a creative galaxy";
-  AudioSys.startPad();               /* the deep-space hum arrives with you */
+  AudioSys.stopHeart();
+  AudioSys.startPad();               /* the lo-fi loop arrives with you */
   setFlash(0, 1100);
 };
 
@@ -2292,14 +2476,23 @@ Voyage.toHeart = function(){
     wordmarkSub.textContent = "a creative agency";
     Nebula.reset();
     Nebula.setActive(true);
+    AudioSys.startHeart();
     setFlash(0, 900);
   }, 340);
 };
+
+/* the heart's sound needs a gesture to exist: the visitor's first tap or key wakes it */
+function wakeHeartAudio(){
+  if (!inGalaxy && AudioSys.ensure()) AudioSys.startHeart();
+}
+Reg.on(window, "pointerdown", wakeHeartAudio, { once: true });
+Reg.on(window, "keydown", wakeHeartAudio, { once: true });
 
 /* sound toggle — works before any audio exists; first press is the unlock gesture */
 const audioBtn = document.getElementById("audioBtn");
 Reg.on(audioBtn, "click", () => {
   AudioSys.ensure();
+  if (!inGalaxy) AudioSys.startHeart();
   const m = !AudioSys.muted;
   AudioSys.setMuted(m);
   audioBtn.classList.toggle("muted", m);
@@ -2309,6 +2502,7 @@ Reg.on(audioBtn, "click", () => {
 /* explicit lifecycle: init runs automatically at load; destroy tears everything down */
 Voyage.init = function(){ /* modules self-arm above; kept for embedding symmetry */ };
 Voyage.destroy = function(){
+  AudioSys.stopHeart();
   Nebula.halt();
   Galaxy.halt();
   Reg.clear();
