@@ -283,18 +283,19 @@ body{
 .socials a:hover{color:var(--gold)}
 .socials a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 
-/* sound toggle — present in both acts */
-#audioBtn{
-  position:fixed;top:20px;right:20px;z-index:6;
+/* sound + language toggles — present in both acts */
+#audioBtn,#langBtn{
+  position:fixed;top:20px;right:20px;z-index:12;  /* above the veil: language + sound reachable while reading */
   width:42px;height:42px;border-radius:50%;
   background:var(--panel);border:1px solid var(--panel-edge);
   color:var(--gold);font-size:1rem;cursor:pointer;
   transition:border-color .2s,color .2s,opacity .2s;
   font-family:var(--sans);
 }
-#audioBtn:hover{border-color:var(--gold-bright);color:var(--gold-bright)}
-#audioBtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+#audioBtn:hover,#langBtn:hover{border-color:var(--gold-bright);color:var(--gold-bright)}
+#audioBtn:focus-visible,#langBtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #audioBtn.muted{opacity:.45;text-decoration:line-through}
+#langBtn{right:70px;font-size:.68rem;font-weight:600;letter-spacing:.08em}
 
 /* ---------- floating panel media (parallax layer) ---------- */
 .media-stage{position:relative;height:150px;margin:2px 0 20px}
@@ -377,9 +378,116 @@ body{
 .reserve .launch:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .reserve .launch[disabled]{opacity:.55;cursor:wait}
 
+/* ---------- About: five minds, editorial masthead ---------- */
+.minds-lede{
+  font-family:var(--display);font-size:1.14rem;line-height:1.6;color:var(--ink);
+  max-width:38ch;margin:2px 0 8px;
+}
+.minds{list-style:none;margin:22px 0 0}
+.mind{
+  position:relative;padding:26px 96px 26px 18px;
+  border-top:1px solid var(--hairline);
+  overflow:hidden;
+  transition:transform .45s cubic-bezier(.22,1,.36,1);
+}
+.mind::before{                               /* soft gradient wash */
+  content:"";position:absolute;inset:0;opacity:0;
+  background:radial-gradient(120% 160% at 0% 50%,
+    color-mix(in srgb, var(--mc) 14%, transparent), transparent 62%);
+  transition:opacity .5s ease;pointer-events:none;
+}
+.mind::after{                                /* growing accent rule */
+  content:"";position:absolute;left:0;top:18%;bottom:18%;width:2px;
+  background:linear-gradient(180deg, transparent, var(--mc), transparent);
+  transform:scaleY(0);transform-origin:center;
+  transition:transform .5s cubic-bezier(.22,1,.36,1);
+}
+.mind:hover{transform:translateX(7px)}
+.mind:hover::before{opacity:1}
+.mind:hover::after{transform:scaleY(1)}
+.mind-glyph{
+  position:absolute;right:6px;top:50%;transform:translateY(-46%) translateX(10px);
+  font-family:var(--display);font-size:5.6rem;line-height:1;
+  color:transparent;-webkit-text-stroke:1px color-mix(in srgb, var(--mc) 55%, transparent);
+  opacity:0;transition:opacity .5s ease,transform .5s cubic-bezier(.22,1,.36,1);
+  pointer-events:none;user-select:none;
+}
+@supports not (-webkit-text-stroke:1px black){
+  .mind-glyph{color:color-mix(in srgb, var(--mc) 22%, transparent)}
+}
+.mind:hover .mind-glyph{opacity:.55;transform:translateY(-46%) translateX(0)}
+.mind-role{
+  font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:9px;transition:color .35s;
+}
+.mind:hover .mind-role{color:var(--mc)}
+.mind-name{
+  font-family:var(--display);font-weight:400;font-size:1.7rem;line-height:1.1;
+  letter-spacing:.015em;color:var(--ink);margin:0 0 10px;transition:color .35s;
+}
+.mind:hover .mind-name{color:var(--mc)}
+.mind-note{
+  font-size:.92rem;line-height:1.65;color:var(--muted);max-width:34ch;margin:0;
+}
+.minds-close{
+  border-top:1px solid var(--hairline);
+  margin-top:2px;padding:44px 0 18px;text-align:center;
+}
+.minds-final{
+  font-family:var(--display);font-weight:400;font-size:1.65rem;line-height:1.25;
+  color:var(--ink);margin:0 0 12px;
+}
+.minds-sub{
+  font-size:.64rem;letter-spacing:.34em;text-transform:uppercase;
+  color:var(--gold);margin:0;
+}
+@media (max-width:600px){
+  .mind{padding:22px 70px 22px 14px}
+  .mind-glyph{font-size:4rem}
+  .mind-name{font-size:1.45rem}
+}
+@media (prefers-reduced-motion:reduce){
+  .mind,.mind::before,.mind::after,.mind-glyph,.mind-role,.mind-name{transition:none}
+}
+
+/* ---------- Work list: unfold on "See more" ---------- */
+.works .item-name{margin-bottom:2px}
+.works .item-name::before{
+  content:"✦";color:var(--gold);font-size:.8em;margin-right:10px;
+}
+.see-more{
+  margin-top:14px;display:inline-flex;align-items:center;gap:11px;
+  background:none;border:none;cursor:pointer;padding:2px 0;
+  color:var(--gold);font-family:var(--sans);
+  font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;
+  transition:color .25s;
+}
+.sm-circle{
+  width:30px;height:30px;border-radius:50%;flex:none;
+  border:1px solid var(--gold);color:var(--gold);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:.85rem;line-height:1;
+  transition:background .25s,color .25s,transform .45s cubic-bezier(.22,1,.36,1);
+}
+.see-more:hover{color:var(--gold-bright)}
+.see-more:hover .sm-circle{background:var(--gold);color:#1A1206;transform:translateX(5px)}
+.see-more:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
+.work-item .item-name-btn{
+  background:none;border:none;padding:0;margin:0;width:100%;
+  color:inherit;font-family:inherit;text-align:left;cursor:pointer;
+}
+.work-item .item-name-btn:hover .item-name{color:var(--gold)}
+.work-item .item-name-btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+.work-item .item-desc{margin-top:4px}
+@media (prefers-reduced-motion:reduce){
+  .sm-circle{transition:none}
+}
+
 /* mobile */
 @media (max-width:600px){
-  #audioBtn{top:14px;right:14px;width:38px;height:38px}
+  #audioBtn,#langBtn{top:14px;width:38px;height:38px}
+  #audioBtn{right:14px}
+  #langBtn{right:58px}
   .wordmark{top:16px;left:18px}
   .wordmark h1{font-size:1.15rem}
   .heart-hint .line{font-size:.85rem}
@@ -412,6 +520,7 @@ body{
 </header>
 
 <button id="audioBtn" aria-label="Toggle sound" aria-pressed="true" title="Sound">♪</button>
+<button id="langBtn" aria-label="Switch language (Хэл солих)" title="Switch language (Хэл солих)">МН</button>
 
 <div class="heart-hint" id="heartHint">
   <p class="line">Touch the heart</p>
@@ -470,17 +579,28 @@ body{
    ============================================================ */
 const CONTENT = {
   about: {
-    eyebrow: "About · the sun we orbit",
-    title: "Why “Meraki”?",
-    html: `
-      <p class="lede">Meraki (μεράκι) is a Greek word with no clean translation:
-      to do something with soul, creativity, and love — to leave a piece of
-      yourself in your work.</p>
-      <p>We are a small studio of designers, writers, and developers who only
-      take on work we can pour ourselves into. <em>[Replace with your real
-      about copy — who you are, where you're based, what you believe.]</em></p>
-      <p>Every star in this galaxy is a project we shipped. Every one carries
-      a piece of us. That's the whole philosophy.</p>`
+    eyebrow: "About · the minds behind it",
+    title: "Meraki (μεράκι)",
+    lede: "A Greek word with no clean translation: to do something with soul, creativity, and love — to leave a piece of yourself in the work.",
+    team: [
+      { name: "Enkh-Amgalan", role: "Creative Director · Team Leader",
+        note: "Turns ideas into identities and keeps every vision beautifully aligned.",
+        c: "#E9B44C" },
+      { name: "Ermuundorj", role: "Operations & Design",
+        note: "The bridge between people, projects, and polished visual experiences.",
+        c: "#7C98F0" },
+      { name: "Ashidbat", role: "Developer",
+        note: "Transforms ambitious concepts into fast, elegant digital products.",
+        c: "#FF9663" },
+      { name: "Emmatuguldur", role: "Developer",
+        note: "Engineers thoughtful interactions where creativity meets precision.",
+        c: "#C9DBFF" },
+      { name: "Sarangerel", role: "Strategy & Analysis",
+        note: "Finds clarity in complexity and guides every decision with insight.",
+        c: "#6E8CFF" }
+    ],
+    closingA: "Different minds. One vision.",
+    closingB: "Crafted with Meraki."
   },
   services: {
     eyebrow: "Services · three orbits",
@@ -545,11 +665,147 @@ const CONTENT = {
       c1: "rgba(151,160,191,.55)", c2: "rgba(233,180,76,.55)" }
   ]
 };
+
+/* ☾ Монгол контент — CONTENT-тэй ижил бүтэцтэй; чөлөөтэй засаарай */
+const CONTENT_MN = {
+  about: {
+    eyebrow: "Бидний тухай · ард нь буй сэтгэлгээнүүд",
+    title: "Мераки (μεράκι)",
+    lede: "Шууд орчуулагдашгүй грек үг: сэтгэл, бүтээлч эрч, хайраа шингээж — өөрийнхөө нэг хэсгийг бүтээлдээ үлдээхийг хэлдэг.",
+    team: [
+      { name: "Enkh-Amgalan", role: "Бүтээлч захирал · Багийн ахлагч",
+        note: "Санааг брэнд болгон хувиргаж, алсын харааг гоо сайхнаар нэгтгэдэг.", c: "#E9B44C" },
+      { name: "Ermuundorj", role: "Үйл ажиллагаа ба Дизайн",
+        note: "Хүмүүс, төслүүд, төгс визуалыг холбогч гүүр.", c: "#7C98F0" },
+      { name: "Ashidbat", role: "Хөгжүүлэгч",
+        note: "Том санааг хурдан, дэгжин дижитал бүтээгдэхүүн болгодог.", c: "#FF9663" },
+      { name: "Emmatuguldur", role: "Хөгжүүлэгч",
+        note: "Бүтээлч сэтгэлгээ, нарийвчлал уулзах харилцан үйлдлүүдийг урладаг.", c: "#C9DBFF" },
+      { name: "Sarangerel", role: "Стратеги ба Шинжилгээ",
+        note: "Ээдрээтэйгээс тодорхойг олж, шийдвэр бүрийг ухаанаар чиглүүлдэг.", c: "#6E8CFF" }
+    ],
+    closingA: "Өөр өөр сэтгэлгээ. Нэг алсын хараа.",
+    closingB: "Мераки сэтгэлээр бүтээв."
+  },
+  services: {
+    eyebrow: "Үйлчилгээ · гурван тойрог зам",
+    title: "Бид юу бүтээдэг вэ",
+    items: [
+      { name: "Брэнд айдентити", meta: "Стратеги · Нэршил · Визуал систем",
+        desc: "[Жишээ] Дотроосоо гадагшаа бүтээгдсэн айдентити — эхлээд стратеги, дараа нь тантай хамт өсөх визуал хэл." },
+      { name: "Дижитал туршлага", meta: "Вэбсайт · Апп · Прототип",
+        desc: "[Жишээ] Гараар урласан мэт мэдрэгддэг сайт, бүтээгдэхүүнүүд: хурдан, хүртээмжтэй, жаахан ч тоглоомч." },
+      { name: "Арт чиглүүлэг ба контент", meta: "Кампанит ажил · Хөдөлгөөн · Гэрэл зураг",
+        desc: "[Жишээ] Нэг нүдээрээ ур чадвар, нөгөөгөөрөө үр дүнг харсан кампанит ертөнц, хөдөлгөөнт систем, дүрслэл." }
+    ]
+  },
+  contact: {
+    eyebrow: "Холбоо барих · дохио илгээгээрэй",
+    title: "Мэндчилье",
+    email: "merakiagencymn@gmail.com",
+    note: "[Жишээ] Төслийнхөө тухай, хугацаа, хүмүүст ямар мэдрэмж төрүүлэхийг хүсэж буйгаа бидэнд хэлээрэй.",
+    socials: [
+      { label: "Instagram", url: "#" },
+      { label: "Behance",   url: "#" },
+      { label: "LinkedIn",  url: "#" },
+      { label: "X / Twitter", url: "#" }
+    ]
+  },
+  projects: [
+    { title: "Roan", meta: "Рестораны вэбсайт · 2026 нээлттэй",
+      desc: "Улаанбаатарын дээгүүр 32 давхарт өргөгдсөн fine dining ресторан — солонгос нарийн урлал нүүдэлчний өвтэй уулздаг газар. Бид түүний онлайн орон зайг бүтээв: кино мэт гүйлгэлт, онцлох хоолны түүх, захиалгын урсгал.",
+      role: "Вэб дизайн ба хөгжүүлэлт", link: "https://roa-nv3.vercel.app/",
+      stack: ["Санаа","Дизайн","Хөгжүүлэлт","Нээлт"], milestones: ["Санаа","Бүтээлт","Нээлттэй"],
+      c1: "rgba(233,180,76,.8)", c2: "rgba(170,55,40,.5)" },
+    { title: "Vessel No. 9", meta: "Дижитал туршлага · 2025",
+      desc: "[Жишээ] Жижиг цувралын шаазан урланы бүтээгдэхүүний сайт — 3D паалан сонгогчтой.",
+      role: "Дизайн ба хөгжүүлэлт", link: "#",
+      stack: ["Судалгаа","UX","3D сонгогч","Хөгжүүлэлт"], milestones: ["Судалгаа","Прототип","Хүлээлгэсэн"],
+      c1: "rgba(124,152,240,.7)", c2: "rgba(233,180,76,.5)" },
+    { title: "Cinder & Sage", meta: "Арт чиглүүлэг · 2024",
+      desc: "[Жишээ] Ресторанны сүлжээний кампанит ертөнц — гэрэл зураг, цэс, сошиал хөдөлгөөнт систем.",
+      role: "Арт чиглүүлэг, контент", link: "#",
+      stack: ["Концепц","Зураг авалт","Цэс","Хөдөлгөөн"], milestones: ["Мүүдборд","Зураг авалт","Түгээлт"],
+      c1: "rgba(255,150,60,.6)", c2: "rgba(46,100,255,.45)" },
+    { title: "The Quiet Index", meta: "Редакцийн платформ · 2024",
+      desc: "[Жишээ] Урт эссэ, шүүмжийн уншлагын платформ. Типографи түрүүлсэн, анхаарал сарниулахгүй, хурдан.",
+      role: "Бүтээгдэхүүний дизайн, фронт-энд", link: "#",
+      stack: ["Мэдээллийн бүтэц","Үсгийн систем","Дизайн","Фронт-энд"], milestones: ["Аудит","Бета","Нээлттэй"],
+      c1: "rgba(234,237,247,.35)", c2: "rgba(61,99,216,.6)" },
+    { title: "Halcyon FM", meta: "Брэнд ба апп · 2023",
+      desc: "[Жишээ] Зөвхөн алтан цагаар нэвтрүүлдэг бие даасан радиогийн айдентити болон гар утасны апп.",
+      role: "Айдентити, UI дизайн", link: "#",
+      stack: ["Айдентити","UI цуглуулга","iOS","Android"], milestones: ["Брэнд","Апп v1","Эфирт"],
+      c1: "rgba(255,217,138,.75)", c2: "rgba(255,110,60,.45)" },
+    { title: "Studio Marrow", meta: "Айдентити ба сайт · 2023",
+      desc: "[Жишээ] Архитектурын студийн ул суурьтай ре-брэнд, секундээс ч хурдан ачаалдаг портфолио сайт.",
+      role: "Айдентити, вэб дизайн", link: "#",
+      stack: ["Воркшоп","Айдентити","Сайт","CMS"], milestones: ["Судалгаа","Танилцуулга","Хүлээлгэсэн"],
+      c1: "rgba(151,160,191,.55)", c2: "rgba(233,180,76,.55)" }
+  ]
+};
 /* ========================== end of content ========================== */
 
 /* Reservation backend endpoint (see the meraki-backend package).
    Same-origin default; point at your deployment if hosted elsewhere. */
 const RESERVE_ENDPOINT = "/api/reserve";
+
+/* ---------- ☾ LANGUAGE — English / Монгол ---------- */
+let LANG = "en";
+const UI = {
+  en: {
+    subAgency:"a creative agency", subGalaxy:"a creative galaxy",
+    heartLine:"Touch the heart", heartSub:"every galaxy begins with one",
+    hint:"Drag to explore · pinch or scroll to zoom",
+    youAreHere:"Y O U   A R E   H E R E",
+    land:"land", recenter:"click to recenter",
+    a11yEnter:"Enter the galaxy", a11yHeart:"Return to the nebula heart",
+    openWork:"Open Work", openServices:"Open Services", openAbout:"Open About", openContact:"Open Contact",
+    project:"Project",
+    zoomIn:"Zoom in", zoomOut:"Zoom out", recenterBtn:"Recenter view",
+    switchView:"Switch between 3D and 2D view", toHeartBtn:"Return to the heart",
+    sound:"Toggle sound", langBtn:"Хэл солих (Switch language)",
+    workEyebrow:"Work · six stars and counting", workTitle:"Pieces of our soul",
+    workIntro:"Each glowing star out in the galaxy is one of these projects — open one by its name, or let \u201cSee more\u201d fly you to its star.",
+    seeMore:"See more", missionMap:"Mission map", ourRole:"Our role", viewProject:"View project \u2192",
+    formName:"Name", formEmail:"Email", formDate:"Preferred launch date", formNotes:"Mission notes",
+    formPh:"Timeline, budget orbit, what you want people to feel\u2026",
+    formSend:"Transmit reservation \u2726", formSending:"Transmitting\u2026",
+    stInfo:"Signal leaving the atmosphere\u2026",
+    stOk:"\u2726 Signal received. A navigator replies within one Earth rotation \u2014 check your inbox.",
+    st429:"Too many transmissions \u2014 give the relay a few minutes.",
+    stGlitch:"Mission control glitched \u2014 please try again.",
+    stOffline:"Could not reach mission control. Check your connection (or deploy the /api backend).",
+    planets:{ work:"Work", services:"Services", about:"About", contact:"Contact" }
+  },
+  mn: {
+    subAgency:"бүтээлч агентлаг", subGalaxy:"бүтээлч галактик",
+    heartLine:"Зүрхэнд хүрээрэй", heartSub:"галактик бүр нэг зүрхнээс эхэлдэг",
+    hint:"Чирж аялаарай · чимхэж эсвэл гүйлгэж томруулна",
+    youAreHere:"Т А   Э Н Д   Б А Й Н А",
+    land:"буух", recenter:"дарж голлуулах",
+    a11yEnter:"Галактикт орох", a11yHeart:"Мананцарын зүрхэнд буцах",
+    openWork:"Бүтээлүүдийг нээх", openServices:"Үйлчилгээг нээх", openAbout:"Бидний тухай нээх", openContact:"Холбоо барихыг нээх",
+    project:"Төсөл",
+    zoomIn:"Ойртуулах", zoomOut:"Холдуулах", recenterBtn:"Голлуулах",
+    switchView:"3D ба 2D хооронд шилжих", toHeartBtn:"Зүрх рүү буцах",
+    sound:"Дуу асаах/унтраах", langBtn:"Switch language (Хэл солих)",
+    workEyebrow:"Бүтээлүүд · зургаан од, өссөөр л байна", workTitle:"Сэтгэлийн минь хэлтэрхийнүүд",
+    workIntro:"Галактикт гэрэлтэх од бүр эдгээр төслийн нэг — нэрээр нь нээгээрэй, эсвэл \u201cДэлгэрэнгүй\u201d таныг од руу нь хөтөлнө.",
+    seeMore:"Дэлгэрэнгүй", missionMap:"Аяллын зураглал", ourRole:"Бидний үүрэг", viewProject:"Төслийг үзэх \u2192",
+    formName:"Нэр", formEmail:"Имэйл", formDate:"Хөөрөлтийн өдөр", formNotes:"Аяллын тэмдэглэл",
+    formPh:"Хугацаа, төсөв, хүмүүст ямар мэдрэмж төрүүлэхийг хүсэж буйгаа бичээрэй\u2026",
+    formSend:"Захиалга илгээх \u2726", formSending:"Илгээж байна\u2026",
+    stInfo:"Дохио агаар мандлыг орхиж байна\u2026",
+    stOk:"\u2726 Дохио хүлээн авлаа. Дэлхий нэг эргэхийн дотор хариу очно — имэйлээ шалгаарай.",
+    st429:"Хэт олон дохио илгээлээ — релег хэдэн минут амраагаарай.",
+    stGlitch:"Удирдлагын төвд саатал гарлаа — дахин оролдоно уу.",
+    stOffline:"Удирдлагын төвтэй холбогдож чадсангүй. Сүлжээгээ шалгаарай (эсвэл /api backend-ээ байршуулаарай).",
+    planets:{ work:"Бүтээл", services:"Үйлчилгээ", about:"Бидний тухай", contact:"Холбоо" }
+  }
+};
+const T = k => UI[LANG][k] ?? UI.en[k];
+const L = () => LANG === "mn" ? CONTENT_MN : CONTENT;
 
 /* ============================================================
    SHARED — grade, sprites, motion prefs, orchestration
@@ -1394,13 +1650,13 @@ const Galaxy = (() => {
   }));
 
   const planets = [
-    { id:"work",     label:"Work",     orbit:200, speed: 0.050, angle: -0.55, r:30,
+    { id:"work",     label:"Work",     labelMn:"Бүтээл",     orbit:200, speed: 0.050, angle: -0.55, r:30,
       color:C.gold,   style:"ring",     tex:TEX_GAS,   spin:1.0 },
-    { id:"services", label:"Services", orbit:330, speed:-0.034, angle:  2.30, r:26,
+    { id:"services", label:"Services", labelMn:"Үйлчилгээ", orbit:330, speed:-0.034, angle:  2.30, r:26,
       color:C.cobalt, style:"plain",    tex:TEX_STORM, spin:1.5 },
-    { id:"about",    label:"About",    orbit:460, speed: 0.024, angle:  4.10, r:22,
+    { id:"about",    label:"About",    labelMn:"Бидний тухай",    orbit:460, speed: 0.024, angle:  4.10, r:22,
       color:C.goldBright, style:"plain", tex:TEX_ROCK, spin:0.55 },
-    { id:"contact",  label:"Contact",  orbit:590, speed:-0.017, angle:  0.95, r:24,
+    { id:"contact",  label:"Contact",  labelMn:"Холбоо",  orbit:590, speed:-0.017, angle:  0.95, r:24,
       color:C.cobaltLight, style:"moon", tex:TEX_ICE,  spin:0.8 }
   ];
   for (const p of planets) p.glow = glowOf(p.color, 0.55);
@@ -1519,6 +1775,15 @@ const Galaxy = (() => {
     if (!prevCam) prevCam = { tx:cam.tx, ty:cam.ty, tz:cam.tz };
     followRef = { ref, kind };
     cam.tz = isCoarse ? 1.15 : 1.7;
+  }
+  let ping = null, revealTimer = null, currentId = null;
+  function revealStar(i){
+    const s = stars[i];
+    closePanel();                              /* veil down: the galaxy is visible */
+    flyTo(s, "star");                          /* glide to the star */
+    ping = { ref: s, until: performance.now() + 2600 };
+    clearTimeout(revealTimer);
+    revealTimer = setTimeout(() => openPanel("p" + i), 1700);  /* then land on it */
   }
   function liftOff(){
     followRef = null;
@@ -1881,7 +2146,7 @@ const Galaxy = (() => {
     ctx.fillStyle = hot ? C.gold : C.muted;
     ctx.font = `500 ${Math.max(9, 10.5 * Math.min(cam.z, 1.4))}px ${css.getPropertyValue("--sans")}`;
     ctx.textAlign = "center"; ctx.textBaseline = "top";
-    const label = p.label.toUpperCase().split("").join("\u200A\u200A");
+    const label = (LANG === "mn" ? p.labelMn : p.label).toUpperCase().split("").join("\u200A\u200A");
     ctx.fillText(label, sx, sy + R * (p.style === "ring" ? 1.0 : 1.35) + 10);
     ctx.globalAlpha = 1;
   }
@@ -1891,9 +2156,19 @@ const Galaxy = (() => {
     s._sx = sx; s._sy = sy; s._sr = Math.max(12, s.r * cam.z * 1.6);
     if (sx < -60 || sx > W + 60 || sy < -60 || sy > H + 60) return;
 
-    const hot = hovered && hovered.ref === s;
+    const pinged = ping && ping.ref === s && now < ping.until;
+    if (ping && now >= ping.until) ping = null;
+    const hot = (hovered && hovered.ref === s) || pinged;
     const tw = reduceMotion ? 1 : 0.72 + 0.28 * Math.sin(now * 0.0021 + s.tw);
     const R = s.r * cam.z * (hot ? 1.45 : tw);
+    if (pinged){                                /* expanding "here I am" rings */
+      const k = (now % 700) / 700;
+      ctx.globalAlpha = (1 - k) * 0.85;
+      ctx.strokeStyle = C.goldBright;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(sx, sy, R * 2.2 + k * R * 4.5, 0, 7); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
 
     /* warm glow behind each soul-star */
     ctx.globalCompositeOperation = "lighter";
@@ -1990,7 +2265,7 @@ const Galaxy = (() => {
       ctx.fillStyle = C.muted;
       ctx.font = `500 10px ${css.getPropertyValue("--sans")}`;
       ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.fillText("Y O U   A R E   H E R E", cx, cy + 22);
+      ctx.fillText(T("youAreHere"), cx, cy + 22);
       ctx.globalAlpha = 1;
     }
   }
@@ -2140,11 +2415,12 @@ const Galaxy = (() => {
       canvas.classList.toggle("pointing", !!hit);
       if (hit){
         if (hit.type === "star"){
-          showTip(`<b>✦ ${hit.ref.label}</b> · land`, e.clientX, e.clientY);
+          showTip(`<b>✦ ${hit.ref.label}</b> · ${T("land")}`, e.clientX, e.clientY);
         } else if (hit.type === "planet"){
-          showTip(`<b>${hit.ref.label}</b> · land`, e.clientX, e.clientY);
+          const pl = LANG === "mn" ? hit.ref.labelMn : hit.ref.label;
+          showTip(`<b>${pl}</b> · ${T("land")}`, e.clientX, e.clientY);
         } else {
-          showTip(`<b>Meraki</b> · click to recenter`, e.clientX, e.clientY);
+          showTip(`<b>Meraki</b> · ${T("recenter")}`, e.clientX, e.clientY);
         }
       } else hideTip();
     }
@@ -2226,8 +2502,8 @@ const Galaxy = (() => {
       e.preventDefault();
       setInvalid(null);
       button.disabled = true;
-      button.textContent = "Transmitting…";
-      say("Signal leaving the atmosphere…", "info");
+      button.textContent = T("formSending");
+      say(T("stInfo"), "info");
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 12000);
@@ -2243,15 +2519,15 @@ const Galaxy = (() => {
           setInvalid(data.errors);
           say(Object.values(data.errors)[0], "err");
         } else if (res.status === 429){
-          say(data.error || "Too many transmissions — give the relay a few minutes.", "err");
+          say(data.error || T("st429"), "err");
         } else if (res.ok && data.ok){
           form.reset();
-          say("✦ Signal received. A navigator replies within one Earth rotation — check your inbox.", "ok");
+          say(T("stOk"), "ok");
         } else {
-          say(data.error || "Mission control glitched — please try again.", "err");
+          say(data.error || T("stGlitch"), "err");
         }
       } catch {
-        say("Could not reach mission control. Check your connection (or deploy the /api backend).", "err");
+        say(T("stOffline"), "err");
       } finally {
         button.disabled = false;
         button.textContent = idle;
@@ -2281,7 +2557,7 @@ const Galaxy = (() => {
               <text x="${x}" y="132" text-anchor="middle">${esc(m)}</text></g>`;
     }).join("");
     return `<div class="constellation">
-      <p class="const-eyebrow">Mission map</p>
+      <p class="const-eyebrow">${T("missionMap")}</p>
       <svg viewBox="0 0 320 142" role="img"
            aria-label="Project constellation: ${esc(p.stack.join(", "))}. Milestones: ${esc((p.milestones||[]).join(", "))}">
         <line class="axis" x1="26" y1="118" x2="294" y2="118"/>
@@ -2299,15 +2575,29 @@ const Galaxy = (() => {
 
   function buildPanel(id){
     if (id === "about"){
-      panelEyebrow.textContent = CONTENT.about.eyebrow;
-      panelTitle.textContent = CONTENT.about.title;
-      panelBody.innerHTML = CONTENT.about.html;
+      const a = L().about;
+      panelEyebrow.textContent = a.eyebrow;
+      panelTitle.textContent = a.title;
+      panelBody.innerHTML = `
+        <p class="minds-lede">${esc(a.lede)}</p>
+        <ul class="minds">` + a.team.map(m => `
+          <li class="mind" style="--mc:${m.c}">
+            <span class="mind-glyph" aria-hidden="true">${esc(m.name[0])}</span>
+            <p class="mind-role">${esc(m.role)}</p>
+            <h3 class="mind-name">${esc(m.name)}</h3>
+            <p class="mind-note">${esc(m.note)}</p>
+          </li>`).join("") + `
+        </ul>
+        <div class="minds-close">
+          <p class="minds-final">${esc(a.closingA)}</p>
+          <p class="minds-sub">${esc(a.closingB)}</p>
+        </div>`;
       return;
     }
     if (id === "services"){
-      panelEyebrow.textContent = CONTENT.services.eyebrow;
-      panelTitle.textContent = CONTENT.services.title;
-      panelBody.innerHTML = `<ul class="item-list">` + CONTENT.services.items.map(s => `
+      panelEyebrow.textContent = L().services.eyebrow;
+      panelTitle.textContent = L().services.title;
+      panelBody.innerHTML = `<ul class="item-list">` + L().services.items.map(s => `
         <li>
           <p class="item-meta">${esc(s.meta)}</p>
           <p class="item-name">${esc(s.name)}</p>
@@ -2316,7 +2606,7 @@ const Galaxy = (() => {
       return;
     }
     if (id === "contact"){
-      const c = CONTENT.contact;
+      const c = L().contact;
       panelEyebrow.textContent = c.eyebrow;
       panelTitle.textContent = c.title;
       panelBody.innerHTML = `
@@ -2325,13 +2615,13 @@ const Galaxy = (() => {
         <div class="socials">${c.socials.map(s =>
           `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`).join("")}</div>
         <form class="reserve" novalidate>
-          <label>Name<input name="name" required maxlength="80" autocomplete="name"></label>
-          <label>Email<input name="email" type="email" required maxlength="254" autocomplete="email"></label>
-          <label>Preferred launch date<input name="date" type="date" required></label>
-          <label>Mission notes<textarea name="notes" maxlength="1000"
-            placeholder="Timeline, budget orbit, what you want people to feel…"></textarea></label>
+          <label>${T("formName")}<input name="name" required maxlength="80" autocomplete="name"></label>
+          <label>${T("formEmail")}<input name="email" type="email" required maxlength="254" autocomplete="email"></label>
+          <label>${T("formDate")}<input name="date" type="date" required></label>
+          <label>${T("formNotes")}<textarea name="notes" maxlength="1000"
+            placeholder="${T("formPh")}"></textarea></label>
           <p class="form-status" data-status role="status" aria-live="polite"></p>
-          <button type="submit" class="launch">Transmit reservation ✦</button>
+          <button type="submit" class="launch">${T("formSend")}</button>
         </form>`;
       const form = panelBody.querySelector("form.reserve");
       form.elements.date.min = new Date().toISOString().slice(0, 10);
@@ -2339,23 +2629,29 @@ const Galaxy = (() => {
       return;
     }
     if (id === "work"){
-      panelEyebrow.textContent = "Work · six stars and counting";
-      panelTitle.textContent = "Pieces of our soul";
+      panelEyebrow.textContent = T("workEyebrow");
+      panelTitle.textContent = T("workTitle");
       panelBody.innerHTML = `
-        <p style="margin-bottom:18px">Each glowing star out in the galaxy is one of these
-        projects — click them in the scene, or browse here.</p>
-        <ul class="item-list star-list">` + CONTENT.projects.map((p, i) => `
-        <li><button data-proj="${i}">
-          <p class="item-meta">${esc(p.meta)}</p>
-          <p class="item-name">${esc(p.title)}</p>
+        <p style="margin-bottom:18px">${esc(T("workIntro"))}</p>
+        <ul class="item-list works">` + L().projects.map((p, i) => `
+        <li class="work-item">
+          <button class="item-name-btn" data-proj="${i}">
+            <p class="item-meta">${esc(p.meta)}</p>
+            <p class="item-name">${esc(p.title)}</p>
+          </button>
           <p class="item-desc">${esc(p.desc)}</p>
-        </button></li>`).join("") + `</ul>`;
+          <button class="see-more" data-star="${i}">
+            <span>${esc(T("seeMore"))}</span><span class="sm-circle" aria-hidden="true">→</span>
+          </button>
+        </li>`).join("") + `</ul>`;
       panelBody.querySelectorAll("[data-proj]").forEach(btn =>
         btn.addEventListener("click", () => openPanel("p" + btn.dataset.proj)));
+      panelBody.querySelectorAll("[data-star]").forEach(btn =>
+        btn.addEventListener("click", () => revealStar(+btn.dataset.star)));
       return;
     }
     const i = parseInt(id.slice(1), 10);
-    const p = CONTENT.projects[i];
+    const p = L().projects[i];
     panelEyebrow.textContent = "✦ " + p.meta;
     panelTitle.textContent = p.title;
     panelBody.innerHTML = `
@@ -2365,13 +2661,14 @@ const Galaxy = (() => {
       </div>
       <p>${esc(p.desc)}</p>
       ${p.stack ? constellationSVG(p) : ""}
-      <p class="proj-role"><b>Our role</b>${esc(p.role)}</p>
-      <a class="proj-link" href="${esc(p.link)}" target="_blank" rel="noopener">View project →</a>`;
+      <p class="proj-role"><b>${esc(T("ourRole"))}</b>${esc(p.role)}</p>
+      <a class="proj-link" href="${esc(p.link)}" target="_blank" rel="noopener">${esc(T("viewProject"))}</a>`;
     bodyParallax();
   }
 
   function openPanel(id){
     if (!active) Voyage.enterGalaxy();   /* a11y: opening a section warps you in */
+    currentId = id;
 
     /* land on what you touched: camera glides in, the horizon rises */
     const planetRef = planets.find(pl => pl.id === id);
@@ -2427,6 +2724,7 @@ const Galaxy = (() => {
       canvas.classList.toggle("off", !v);
     },
     halt(){ halted = true; cancelAnimationFrame(rafId); },
+    relabel(){ if (panelOpen && currentId) buildPanel(currentId); },
     reset(){
       if (panelOpen) closePanel();
     },
@@ -2457,7 +2755,7 @@ Voyage.enterGalaxy = function(){
   Galaxy.enter();
   hudControls.classList.remove("off");
   hintEl.classList.remove("off");
-  wordmarkSub.textContent = "a creative galaxy";
+  wordmarkSub.textContent = T("subGalaxy");
   AudioSys.stopHeart();
   AudioSys.startPad();               /* the lo-fi loop arrives with you */
   setFlash(0, 1100);
@@ -2473,13 +2771,45 @@ Voyage.toHeart = function(){
     Galaxy.setActive(false);
     hudControls.classList.add("off");
     hintEl.classList.add("off");
-    wordmarkSub.textContent = "a creative agency";
+    wordmarkSub.textContent = T("subAgency");
     Nebula.reset();
     Nebula.setActive(true);
     AudioSys.startHeart();
     setFlash(0, 900);
   }, 340);
 };
+
+/* ---------- language switch: repaint every string in place ---------- */
+const langBtn = document.getElementById("langBtn");
+function applyLang(){
+  document.documentElement.lang = LANG;
+  langBtn.textContent = LANG === "mn" ? "EN" : "МН";
+  langBtn.title = T("langBtn");
+  langBtn.setAttribute("aria-label", T("langBtn"));
+  wordmarkSub.textContent = inGalaxy ? T("subGalaxy") : T("subAgency");
+  const hh = document.getElementById("heartHint");
+  hh.querySelector(".line").textContent = T("heartLine");
+  hh.querySelector(".sub").textContent  = T("heartSub");
+  document.getElementById("hintText").textContent = T("hint");
+  document.getElementById("a11yEnter").textContent = T("a11yEnter");
+  document.getElementById("a11yHeart").textContent = T("a11yHeart");
+  const opens = ["openWork","openServices","openAbout","openContact"];
+  document.querySelectorAll('.a11y-nav [data-open]').forEach((b, i) => {
+    if (i < 4) b.textContent = T(opens[i]);
+    else b.textContent = T("project") + ": " + CONTENT.projects[i - 4].title;
+  });
+  for (const [id, key] of [["zoomIn","zoomIn"],["zoomOut","zoomOut"],["recenter","recenterBtn"],
+                           ["viewMode","switchView"],["toHeart","toHeartBtn"],["audioBtn","sound"]]){
+    const el = document.getElementById(id);
+    if (el){ el.setAttribute("aria-label", T(key)); el.title = T(key); }
+  }
+  Galaxy.relabel();                        /* live-rebuild whatever panel is open */
+}
+Reg.on(langBtn, "click", () => {
+  LANG = LANG === "mn" ? "en" : "mn";
+  applyLang();
+});
+applyLang();
 
 /* the heart's sound needs a gesture to exist: the visitor's first tap or key wakes it */
 function wakeHeartAudio(){
