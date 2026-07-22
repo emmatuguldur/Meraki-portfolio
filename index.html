@@ -66,6 +66,7 @@ body{
 /* ---------- corner wordmark ---------- */
 .wordmark{
   position:fixed;top:22px;left:26px;z-index:5;
+  transform:translate(calc(var(--parx,0)*6px), calc(var(--pary,0)*4px));
   pointer-events:none;user-select:none;
 }
 .wordmark h1{
@@ -176,7 +177,13 @@ body{
   position:fixed;left:0;right:0;bottom:0;height:46vh;z-index:10;
   pointer-events:none;overflow:hidden;
   transform:translateY(105%);
-  transition:transform .8s cubic-bezier(.22,1,.36,1);
+  transition:transform .9s cubic-bezier(.85,0,.15,1);  /* luxury rise: power4.inOut */
+}
+#groundCv{
+  transform:translate(calc(var(--parx,0)*-14px), calc(var(--pary,0)*-8px))
+            rotate(var(--groundRoll,0deg));
+  transform-origin:50% 120%;
+  will-change:transform;
 }
 #ground.up{transform:translateY(0)}
 #groundCv{display:block;width:100%;height:100%}
@@ -194,6 +201,12 @@ body{
   box-shadow:0 30px 80px rgba(0,0,0,.55);
 }
 .panel[hidden]{display:none}
+.panel .panel-head, .panel .panel-body{
+  opacity:0;transform:translateY(14px);
+  transition:opacity .5s cubic-bezier(.22,1,.36,1), transform .5s cubic-bezier(.22,1,.36,1);
+}
+.panel.open .panel-head{opacity:1;transform:none;transition-delay:.07s}
+.panel.open .panel-body{opacity:1;transform:none;transition-delay:.15s}
 .panel.open{opacity:1;pointer-events:auto;transform:translate(-50%,-56%) scale(1)}
 .panel-head{
   display:flex;align-items:flex-start;justify-content:space-between;
@@ -284,6 +297,32 @@ body{
 .socials a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 
 /* sound + language toggles — present in both acts */
+/* tactile press: every control physically yields */
+.hud-controls button:active, .panel-close:active, .see-more:active,
+.reserve .launch:active, #audioBtn:active, #langBtn:active, .sky-proj:active{
+  transform:scale(.93);
+  transition-duration:.07s !important;
+}
+
+/* bespoke cursor */
+@media (pointer:fine){
+  html, body, canvas, button, a, input, textarea, [role="dialog"]{cursor:none !important}
+}
+#curDot, #curRing{
+  position:fixed;top:0;left:0;z-index:60;pointer-events:none;border-radius:50%;
+}
+#curDot{width:6px;height:6px;background:var(--gold)}
+#curRing{
+  width:30px;height:30px;border:1px solid rgba(233,180,76,.55);
+  transition:width .25s,height .25s,margin .25s,border-color .25s,background .25s;
+}
+#curRing.hover{
+  width:46px;height:46px;margin:-8px 0 0 -8px;
+  border-color:var(--gold-bright);background:rgba(233,180,76,.07);
+}
+#curRing.press{border-color:var(--gold-hot)}
+@media (pointer:coarse){#curDot,#curRing{display:none}}
+
 #audioBtn,#langBtn{
   position:fixed;top:20px;right:20px;z-index:12;  /* above the veil: language + sound reachable while reading */
   width:42px;height:42px;border-radius:50%;
@@ -483,6 +522,59 @@ body{
   .sm-circle{transition:none}
 }
 
+/* ---------- member spread: no box, just space ---------- */
+#spread{position:fixed;inset:0;z-index:10;cursor:pointer;   /* above the ground layer */
+  background:linear-gradient(180deg, transparent 62%,
+    rgba(4,6,14,.34) 84%, rgba(4,6,14,.46) 100%);}
+#spread{transform:translate(calc(var(--parx,0)*5px), calc(var(--pary,0)*3px))}
+#spread .sp-el{position:absolute;opacity:0;transform:translate(0,26px) scale(.92);
+  transition-timing-function:cubic-bezier(.85,0,.15,1) !important;
+  text-shadow:0 2px 22px rgba(4,6,14,.85), 0 0 6px rgba(4,6,14,.6);
+  transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);}
+#spread.open .sp-el{opacity:1;transform:none}
+#spread.open .sp-name{transition-delay:.05s}
+#spread.open .sp-role{transition-delay:.16s}
+#spread.open .sp-note{transition-delay:.27s}
+#spread.open .sp-final{transition-delay:.34s}
+#spread.open .sp-sky{transition-delay:.24s}
+#spread.open .sp-fact{transition-delay:.3s}
+.sp-sky{inset:0;pointer-events:none}
+.sky-proj{position:absolute;pointer-events:auto;cursor:pointer;
+  background:none;border:none;color:var(--ink);font-family:var(--sans);
+  font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;padding:6px 4px;
+  animation:skyfloat 6s ease-in-out infinite;animation-delay:var(--d,0s);
+  transition:color .25s;}
+.sky-proj .sky-star{color:var(--gold);font-size:1rem;transition:transform .3s}
+.sky-proj:hover{color:var(--gold)}
+.sky-proj:hover .sky-star{transform:scale(1.5)}
+.sky-proj:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+@keyframes skyfloat{0%,100%{margin-top:0}50%{margin-top:-8px}}
+.sp-fact{left:8vw;bottom:38vh;font-size:.66rem;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--mc);max-width:60vw;}
+.planet-fact{font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--gold);margin:-4px 0 16px;}
+@media (prefers-reduced-motion:reduce){.sky-proj{animation:none}}
+#spread.open .sp-glyph{transition-delay:0s}
+.sp-glyph{left:4vw;bottom:-4vh;font-family:var(--display);font-size:min(44vh,34vw);line-height:1;
+  color:transparent;-webkit-text-stroke:1.5px color-mix(in srgb, var(--mc) 40%, transparent);}
+.sp-name{left:8vw;top:14vh;font-family:var(--display);font-weight:400;
+  font-size:clamp(2rem,6vw,4.2rem);color:var(--ink);margin:0;letter-spacing:.02em;}
+.sp-role{left:8.4vw;top:calc(14vh + clamp(2rem,6vw,4.2rem) + 18px);
+  font-size:.68rem;letter-spacing:.34em;text-transform:uppercase;color:var(--mc);}
+.sp-note{right:7vw;top:26vh;max-width:34ch;text-align:right;
+  font-family:var(--display);font-size:clamp(1rem,2.2vw,1.4rem);line-height:1.6;color:var(--muted);}
+.sp-final{right:7.4vw;bottom:9vh;font-size:.6rem;letter-spacing:.32em;
+  text-transform:uppercase;color:var(--gold);}
+.sp-close{left:50%;bottom:4vh;transform:translateX(-50%) !important;
+  font-size:.8rem;color:var(--muted);letter-spacing:.2em;}
+#spread.open .sp-close{transform:translateX(-50%) !important}
+@media (max-width:600px){
+  .sp-name{top:11vh;left:6vw}.sp-role{left:6.4vw;top:calc(11vh + clamp(2rem,6vw,4.2rem) + 14px)}
+  .sp-note{right:6vw;top:24vh;max-width:26ch;font-size:1rem}.sp-final{right:6.4vw;bottom:8vh}
+}
+@media (prefers-reduced-motion:reduce){#spread .sp-el{transition:none}}
+
 /* mobile */
 @media (max-width:600px){
   #audioBtn,#langBtn{top:14px;width:38px;height:38px}
@@ -559,6 +651,16 @@ body{
 
 <div class="veil" id="veil"></div>
 <div id="ground" aria-hidden="true"><canvas id="groundCv"></canvas></div>
+<div id="spread" role="dialog" aria-label="Team member" hidden>
+  <span class="sp-el sp-glyph" aria-hidden="true">E</span>
+  <h2 class="sp-el sp-name">Name</h2>
+  <p class="sp-el sp-role">Role</p>
+  <p class="sp-el sp-note">Note</p>
+  <div class="sp-el sp-sky"></div>
+  <p class="sp-el sp-fact">—</p>
+  <p class="sp-el sp-final">—</p>
+  <p class="sp-el sp-close">✕</p>
+</div>
 <section class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" hidden>
   <div class="panel-head">
     <div>
@@ -583,20 +685,20 @@ const CONTENT = {
     title: "Meraki (μεράκι)",
     lede: "A Greek word with no clean translation: to do something with soul, creativity, and love — to leave a piece of yourself in the work.",
     team: [
-      { name: "Enkh-Amgalan", role: "Creative Director · Team Leader",
-        note: "Turns ideas into identities and keeps every vision beautifully aligned.",
-        c: "#E9B44C" },
-      { name: "Ermuundorj", role: "Operations & Design",
-        note: "The bridge between people, projects, and polished visual experiences.",
-        c: "#7C98F0" },
+      { name: "Enkh-Amgalan", role: "3D & Poster Designer · Team Leader",
+        note: "Builds worlds in 3D and posters you can't walk past.", projects:[2,4],
+        c: "#E07B4F" },
+      { name: "Ermuundorj", role: "Marketing & Client Relations",
+        note: "Finds the people we're meant to work with — and makes the reels that reach them.", projects:[0,2],
+        c: "#D9A066" },
       { name: "Ashidbat", role: "Developer",
-        note: "Transforms ambitious concepts into fast, elegant digital products.",
-        c: "#FF9663" },
+        note: "Transforms ambitious concepts into fast, elegant digital products.", projects:[0,1,3],
+        c: "#E9CE9C" },
       { name: "Emmatuguldur", role: "Developer",
-        note: "Engineers thoughtful interactions where creativity meets precision.",
-        c: "#C9DBFF" },
-      { name: "Sarangerel", role: "Strategy & Analysis",
-        note: "Finds clarity in complexity and guides every decision with insight.",
+        note: "Engineers thoughtful interactions where creativity meets precision.", projects:[1,3,5],
+        c: "#9FD6DE" },
+      { name: "Sarangerel", role: "Advisor",
+        note: "The calm voice in the room — finds clarity and guides every decision with insight.", projects:[0,5],
         c: "#6E8CFF" }
     ],
     closingA: "Different minds. One vision.",
@@ -673,15 +775,15 @@ const CONTENT_MN = {
     title: "Мераки (μεράκι)",
     lede: "Шууд орчуулагдашгүй грек үг: сэтгэл, бүтээлч эрч, хайраа шингээж — өөрийнхөө нэг хэсгийг бүтээлдээ үлдээхийг хэлдэг.",
     team: [
-      { name: "Enkh-Amgalan", role: "Бүтээлч захирал · Багийн ахлагч",
-        note: "Санааг брэнд болгон хувиргаж, алсын харааг гоо сайхнаар нэгтгэдэг.", c: "#E9B44C" },
-      { name: "Ermuundorj", role: "Үйл ажиллагаа ба Дизайн",
-        note: "Хүмүүс, төслүүд, төгс визуалыг холбогч гүүр.", c: "#7C98F0" },
+      { name: "Enkh-Amgalan", role: "3D ба постер дизайнер · Багийн ахлагч",
+        note: "3D ертөнц бүтээж, хажуугаар нь өнгөрч чадахгүй постерууд урладаг.", c: "#E07B4F" },
+      { name: "Ermuundorj", role: "Маркетинг ба Харилцагчийн харилцаа",
+        note: "Хамтрах хүмүүсээ олж, тэдэнд хүрэх reel-үүдийг бүтээдэг.", c: "#D9A066" },
       { name: "Ashidbat", role: "Хөгжүүлэгч",
-        note: "Том санааг хурдан, дэгжин дижитал бүтээгдэхүүн болгодог.", c: "#FF9663" },
+        note: "Том санааг хурдан, дэгжин дижитал бүтээгдэхүүн болгодог.", c: "#E9CE9C" },
       { name: "Emmatuguldur", role: "Хөгжүүлэгч",
-        note: "Бүтээлч сэтгэлгээ, нарийвчлал уулзах харилцан үйлдлүүдийг урладаг.", c: "#C9DBFF" },
-      { name: "Sarangerel", role: "Стратеги ба Шинжилгээ",
+        note: "Бүтээлч сэтгэлгээ, нарийвчлал уулзах харилцан үйлдлүүдийг урладаг.", c: "#9FD6DE" },
+      { name: "Sarangerel", role: "Зөвлөх",
         note: "Ээдрээтэйгээс тодорхойг олж, шийдвэр бүрийг ухаанаар чиглүүлдэг.", c: "#6E8CFF" }
     ],
     closingA: "Өөр өөр сэтгэлгээ. Нэг алсын хараа.",
@@ -860,6 +962,28 @@ function setFlash(v, ms){
   flashEl.style.opacity = v;
 }
 const smooth = x => { x = Math.max(0, Math.min(1, x)); return x*x*(3-2*x); };
+
+/* ---------- bespoke cursor: a gold point that leads, a ring that breathes after ---------- */
+const Cursor = (() => {
+  if (matchMedia("(pointer: coarse)").matches) return { halt(){} };
+  const dot = document.createElement("div"); dot.id = "curDot";
+  const ring = document.createElement("div"); ring.id = "curRing";
+  document.body.append(ring, dot);
+  let tx = innerWidth/2, ty = innerHeight/2, rx = tx, ry = ty, raf = 0, halted = false;
+  window.addEventListener("pointermove", e => { tx = e.clientX; ty = e.clientY; }, { passive:true });
+  window.addEventListener("pointerdown", () => ring.classList.add("press"));
+  window.addEventListener("pointerup",   () => ring.classList.remove("press"));
+  (function tick(){
+    if (halted) return;
+    raf = requestAnimationFrame(tick);
+    rx += (tx - rx) * 0.18; ry += (ty - ry) * 0.18;      /* the luxurious lag */
+    dot.style.transform  = `translate(${tx - 3}px, ${ty - 3}px)`;
+    ring.style.transform = `translate(${rx - 15}px, ${ry - 15}px)`;
+    const hov = document.querySelector(".pointing, button:hover, a:hover, .sky-proj:hover, .cnode:hover, input:hover, textarea:hover");
+    ring.classList.toggle("hover", !!hov);
+  })();
+  return { halt(){ halted = true; cancelAnimationFrame(raf); dot.remove(); ring.remove(); } };
+})();
 
 /* scene handles, wired at the bottom */
 const Voyage = { enterGalaxy: null, toHeart: null, init: null, destroy: null };
@@ -1440,6 +1564,7 @@ const Galaxy = (() => {
     canvas.height = Math.round(H * DPR);
     canvas.style.width = "100%"; canvas.style.height = "100%";  /* lock layout bounds */
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.imageSmoothingQuality = "high";
   }
   Reg.on(window, "resize", resize);
   resize();
@@ -1478,13 +1603,27 @@ const Galaxy = (() => {
 
   /* ---------- camera (in tilted view space) ---------- */
   const WORLD_LIMIT = 950;
-  const cam = { x: 60, y: -30, z: isCoarse ? 0.72 : 0.92, tx: 0, ty: 0, tz: null };
+  const cam = { x: 60, y: -30, z: isCoarse ? 0.58 : 0.76, tx: 0, ty: 0, tz: null };
   cam.tx = cam.x; cam.ty = cam.y; cam.tz = cam.z;
   const ZMIN = 0.45, ZMAX = 2.6;
 
+  /* cursor parallax: normalized (-1..1), lerp-smoothed; mid layer rides toScreen
+     so hit-testing and visuals can never disagree */
+  const pp = { x: 0, y: 0, tx: 0, ty: 0 };
+  if (!isCoarse) Reg.on(window, "pointermove", e => {
+    pp.tx = (e.clientX / W) * 2 - 1;
+    pp.ty = (e.clientY / H) * 2 - 1;
+  });
+  /* cinematic swoop state — a hand-rolled power4.inOut timeline */
+  const p4io = k => k < 0.5 ? 8*k*k*k*k : 1 - Math.pow(-2*k + 2, 4) / 2;
+  let swoop = null, swoopY = 0, roll = 0;
+  /* depth of field: racks toward 1 while landed on a member */
+  let dofK = 0, dofTarget = null;
+
   const toScreen = (wx, wy) => {
     const [vx, vy] = tiltXY(wx, wy);
-    return [ (vx - cam.x) * cam.z + W/2, (vy - cam.y) * cam.z + H/2 ];
+    return [ (vx - cam.x) * cam.z + W/2 + pp.x * 11,
+             (vy - cam.y) * cam.z + H/2 + pp.y * 8 + swoopY ];
   };
   /* view-space (camera plane) coords — used for zoom anchoring */
   const toView = (sx, sy) => [ (sx - W/2) / cam.z + cam.x, (sy - H/2) / cam.z + cam.y ];
@@ -1538,7 +1677,8 @@ const Galaxy = (() => {
     }
     return stops[stops.length-1][1];
   }
-  const TEXW = 512, TEXH = 256;
+  const TEXW = 1024, TEXH = 512;          /* render size */
+  const PW = 512, PH = 256;                /* pattern space: same look, 4x the pixels */
   function paintTexture(seed, pixelFn){
     const n = makeNoise(seed);
     const c = document.createElement("canvas"); c.width = TEXW; c.height = TEXH;
@@ -1546,14 +1686,14 @@ const Galaxy = (() => {
     const img = g.createImageData(TEXW, TEXH);
     for (let y = 0; y < TEXH; y++){
       for (let x = 0; x < TEXW; x++){
-        const [r, gr, b] = pixelFn(n, x, y);
+        const [r, gr, b] = pixelFn(n, x * 0.5, y * 0.5);
         const i = (y*TEXW + x)*4;
         img.data[i] = r; img.data[i+1] = gr; img.data[i+2] = b; img.data[i+3] = 255;
       }
     }
     g.putImageData(img, 0, 0);
     /* crossfade left/right edges so the rotation seam disappears */
-    const BLEND = 40;
+    const BLEND = 80;
     const strip = g.getImageData(TEXW-BLEND, 0, BLEND, TEXH);
     const left  = g.getImageData(0, 0, BLEND, TEXH);
     for (let y = 0; y < TEXH; y++){
@@ -1566,56 +1706,102 @@ const Galaxy = (() => {
     g.putImageData(left, 0, 0);
     return c;
   }
-  /* gas giant — wind-sheared golden bands with storm cells */
-  const TEX_GAS = paintTexture(101, (n, x, y) => {
-    const warp = fbm(n, x*0.02, y*0.02, 3) * 34;
-    const band = fbm(n, x*0.004, (y+warp)*0.05, 4);
-    const storm = Math.max(0, fbm(n, x*0.05, y*0.05, 3) - 0.62) * 2.2;
-    return ramp([[0,[110,66,20]],[0.35,[201,138,52]],[0.55,[233,180,76]],
-                 [0.75,[255,217,138]],[1,[250,240,214]]], band*1.15 + storm*0.4);
-  });
-  /* storm world — deep cobalt with racing cloud streaks */
-  const TEX_STORM = paintTexture(202, (n, x, y) => {
-    const warp = fbm(n, x*0.03, y*0.012, 4) * 60;
-    const band = fbm(n, (x+warp)*0.006, y*0.045, 4);
-    const wisp = Math.max(0, fbm(n, x*0.08, y*0.03, 3) - 0.58) * 2.4;
-    return ramp([[0,[10,17,52]],[0.4,[33,55,140]],[0.62,[61,99,216]],
-                 [0.82,[124,152,240]],[1,[224,234,255]]], band + wisp*0.5);
-  });
-  /* rocky world — dusty highlands pocked with craters */
-  const TEX_ROCK = (() => {
-    const base = paintTexture(303, (n, x, y) => {
-      const v = fbm(n, x*0.02, y*0.02, 5);
-      return ramp([[0,[112,86,48]],[0.5,[178,140,86]],[0.8,[224,187,124]],
-                   [1,[255,225,166]]], v*1.25);
-    });
-    const g = base.getContext("2d");
-    const rnd = mulberry32(304);
-    for (let i = 0; i < 46; i++){
-      const cx = rnd()*TEXW, cy = 20 + rnd()*(TEXH-40), r = 3 + rnd()*rnd()*16;
-      g.fillStyle = "rgba(60,40,18,0.42)";
-      g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill();
-      g.strokeStyle = "rgba(255,228,170,0.35)";
-      g.lineWidth = Math.max(1, r*0.22);
-      g.beginPath(); g.arc(cx, cy + r*0.18, r*0.82, 0.15*Math.PI, 0.85*Math.PI); g.stroke();
-      if (cx < 30){ g.beginPath(); g.arc(cx+TEXW, cy, r, 0, 7); g.fillStyle="rgba(60,40,18,0.42)"; g.fill(); }
-    }
-    return base;
-  })();
-  /* ice world — glacial sheets veined with fractures */
-  const TEX_ICE = paintTexture(404, (n, x, y) => {
-    const v = fbm(n, x*0.018, y*0.02, 5);
-    const crack = Math.abs(fbm(n, x*0.05, y*0.05, 4) - 0.5) < 0.014 ? -0.35 : 0;
-    const sheet = v > 0.56 ? 0.28 : 0;
-    return ramp([[0,[52,74,150]],[0.45,[124,152,240]],[0.72,[190,208,250]],
-                 [1,[244,249,255]]], v + sheet + crack);
-  });
+  /* (four legacy world textures removed — the real eight replaced them) */
   /* star surface — boiling golden granulation, for landing on project stars */
-  const TEX_SUNFACE = paintTexture(505, (n, x, y) => {
+  /* textures paint AFTER first frame, one per tick — the heart never waits */
+  let TEX_SUNFACE, TEX_MERCURY, TEX_VENUS, TEX_EARTH, TEX_MARS, TEX_JUPITER, TEX_SATURN, TEX_URANUS, TEX_NEPTUNE;
+  let texReady = false;
+  const texJobs = [
+    () => {
+  TEX_SUNFACE = paintTexture(505, (n, x, y) => {
     const v = fbm(n, x*0.05, y*0.05, 5);
     return ramp([[0,[201,120,30]],[0.45,[233,180,76]],[0.75,[255,217,138]],
                  [1,[255,246,226]]], v*1.3);
   });
+
+  /* ---------- the real eight: procedural surfaces ---------- */
+    },
+    () => {
+  TEX_MERCURY = (() => {
+    const t = paintTexture(601, (n,x,y) => {
+      const v = fbm(n, x*0.03, y*0.03, 5);
+      return ramp([[0,[74,70,66]],[0.5,[122,116,108]],[0.8,[168,160,148]],[1,[204,196,184]]], v*1.2);
+    });
+    const g = t.getContext("2d"), rnd = mulberry32(602);
+    for (let i=0;i<140;i++){ const cx=rnd()*TEXW, cy=28+rnd()*(TEXH-56), r=4+rnd()*rnd()*26;
+      g.fillStyle="rgba(30,28,26,.45)"; g.beginPath(); g.arc(cx,cy,r,0,7); g.fill();
+      g.strokeStyle="rgba(220,212,200,.3)"; g.lineWidth=Math.max(1,r*.2);
+      g.beginPath(); g.arc(cx,cy+r*.15,r*.8,.2*Math.PI,.8*Math.PI); g.stroke(); }
+    return t;
+  })();
+    },
+    () => {
+  TEX_VENUS = paintTexture(611, (n,x,y) => {
+    const w = fbm(n, x*0.015, y*0.05, 3)*40;
+    const v = fbm(n, (x+w)*0.008, y*0.02, 4);
+    return ramp([[0,[150,110,50]],[0.45,[202,160,74]],[0.75,[233,208,140]],[1,[248,236,196]]], v*1.25);
+  });
+    },
+    () => {
+  TEX_EARTH = paintTexture(621, (n,x,y) => {
+    const land = fbm(n, x*0.02, y*0.028, 5);
+    let c = land > 0.53
+      ? ramp([[0,[64,110,52]],[0.6,[120,140,70]],[1,[176,160,110]]], (land-0.53)*3.2)
+      : ramp([[0,[8,36,92]],[0.7,[20,70,150]],[1,[52,110,190]]], land*1.7);
+    if (y<9||y>PH-9) c=[235,242,248];                       /* ice caps */
+    const cl = fbm(n, x*0.035+900, y*0.05, 4);
+    if (cl>0.60){ const k=Math.min(1,(cl-0.60)*4); c=[c[0]+(250-c[0])*k, c[1]+(252-c[1])*k, c[2]+(255-c[2])*k]; }
+    return c;
+  });
+    },
+    () => {
+  TEX_MARS = (() => {
+    const t = paintTexture(631, (n,x,y) => {
+      const v = fbm(n, x*0.022, y*0.026, 5);
+      let c = ramp([[0,[74,26,14]],[0.4,[142,58,30]],[0.72,[196,106,62]],[1,[228,158,106]]], v*1.25);
+      if (y<7||y>PH-7) c=[240,238,232];
+      return c;
+    });
+    const g = t.getContext("2d"), rnd = mulberry32(632);
+    for (let i=0;i<52;i++){ const cx=rnd()*TEXW, cy=36+rnd()*(TEXH-72), r=4+rnd()*rnd()*18;
+      g.fillStyle="rgba(50,16,8,.4)"; g.beginPath(); g.arc(cx,cy,r,0,7); g.fill(); }
+    return t;
+  })();
+    },
+    () => {
+  TEX_JUPITER = paintTexture(641, (n,x,y) => {
+    const w = fbm(n, x*0.02, y*0.06, 3)*26;
+    const band = fbm(n, x*0.002, (y+w)*0.08, 3);
+    let c = ramp([[0,[122,74,46]],[0.3,[190,130,84]],[0.55,[228,196,150]],[0.8,[246,232,206]],[1,[178,110,70]]], band*1.3);
+    const dx=(x-PW*0.30)/30, dy=(y-PH*0.64)/14;           /* the great spot */
+    if (dx*dx+dy*dy < 1){ const k=1-(dx*dx+dy*dy); c=[c[0]+(184-c[0])*k, c[1]+(70-c[1])*k, c[2]+(46-c[2])*k]; }
+    return c;
+  });
+    },
+    () => {
+  TEX_SATURN = paintTexture(651, (n,x,y) => {
+    const w = fbm(n, x*0.02, y*0.05, 3)*18;
+    const band = fbm(n, x*0.002, (y+w)*0.06, 3);
+    return ramp([[0,[168,132,84]],[0.4,[214,182,128]],[0.7,[238,216,168]],[1,[250,238,204]]], band*1.25);
+  });
+    },
+    () => {
+  TEX_URANUS = paintTexture(661, (n,x,y) => {
+    const v = fbm(n, x*0.006, y*0.03, 3);
+    return ramp([[0,[110,178,190]],[0.6,[159,214,222]],[1,[206,240,244]]], v*1.15);
+  });
+    },
+    () => {
+  TEX_NEPTUNE = paintTexture(671, (n,x,y) => {
+    const w = fbm(n, x*0.02, y*0.05, 3)*22;
+    const v = fbm(n, x*0.004, (y+w)*0.05, 4);
+    let c = ramp([[0,[16,42,120]],[0.5,[38,84,196]],[0.8,[92,138,232]],[1,[196,216,250]]], v*1.2);
+    const dx=(x-PW*0.62)/20, dy=(y-PH*0.4)/10;
+    if (dx*dx+dy*dy < 1) c=[18,34,92];
+    return c;
+  });
+    },
+  ];
 
   const TILE = 1400;
   function makeLayer(seed, count, parallax, rMin, rMax, blueRatio){
@@ -1649,16 +1835,51 @@ const Galaxy = (() => {
     ph: hazeRnd()*Math.PI*2
   }));
 
-  const planets = [
-    { id:"work",     label:"Work",     labelMn:"Бүтээл",     orbit:200, speed: 0.050, angle: -0.55, r:30,
-      color:C.gold,   style:"ring",     tex:TEX_GAS,   spin:1.0 },
-    { id:"services", label:"Services", labelMn:"Үйлчилгээ", orbit:330, speed:-0.034, angle:  2.30, r:26,
-      color:C.cobalt, style:"plain",    tex:TEX_STORM, spin:1.5 },
-    { id:"about",    label:"About",    labelMn:"Бидний тухай",    orbit:460, speed: 0.024, angle:  4.10, r:22,
-      color:C.goldBright, style:"plain", tex:TEX_ROCK, spin:0.55 },
-    { id:"contact",  label:"Contact",  labelMn:"Холбоо",  orbit:590, speed:-0.017, angle:  0.95, r:24,
-      color:C.cobaltLight, style:"moon", tex:TEX_ICE,  spin:0.8 }
+  /* the real eight — Kepler's third law sets every speed: ω ∝ r^(−3/2) */
+  /* the real eight — Kepler's third law sets every speed: ω ∝ r^(−3/2) */
+  const KEP = o => 130 / Math.pow(o, 1.5);
+  const REAL = [
+    { real:"Mercury", realMn:"Буд",           r:11, color:"#C9B8A6", style:"plain",
+      fact:"Closest to the Sun — a year lasts just 88 days.", factMn:"Наранд хамгийн ойр — жил нь ердөө 88 хоног." },
+    { real:"Venus",   realMn:"Сугар",           r:16, color:"#E8C97A", style:"plain",
+      fact:"Hotter than an oven: 464°C under golden clouds.", factMn:"Зуухнаас ч халуун: алтан үүлсийн дор 464°C." },
+    { real:"Earth",   realMn:"Дэлхий",          r:17, color:"#6FA8E8", style:"moon",
+      fact:"The only world known to hold life — and one moon.", factMn:"Амьдрал оршдог цорын ганц ертөнц — нэг дагуултай." },
+    { real:"Mars",    realMn:"Ангараг",          r:20, color:"#E07B4F", style:"plain",
+      fact:"The red desert where humanity looks next.", factMn:"Хүн төрөлхтний дараагийн зорьсон улаан цөл." },
+    { real:"Jupiter", realMn:"Бархасбадь",    r:20, color:"#D9A066", style:"plain",
+      fact:"So big that 1,300 Earths would fit inside.", factMn:"Дотор нь 1300 Дэлхий багтахуйц аварга." },
+    { real:"Saturn",  realMn:"Санчир",         r:20, color:"#E9CE9C", style:"plain",
+      fact:"Wears rings of ice — and would float on water.", factMn:"Мөсөн цагирагтай — усанд хөвөхүйц хөнгөн." },
+    { real:"Uranus",  realMn:"Тэнгэрийн ван",  r:20, color:"#9FD6DE", style:"plain",
+      fact:"Rolls around the Sun lying on its side.", factMn:"Нарыг хажуулдан хэвтэж тойрдог." },
+    { real:"Neptune", realMn:"Далайн ван",    r:20, color:"#6E8CFF", style:"plain",
+      fact:"Winds top 2,000 km/h — the fastest known.", factMn:"Салхи нь 2000 км/цаг — мэдэгдэж буй хамгийн хурдан." }
   ];
+  const SEATS = [
+    { id:"work",     label:"Work",     labelMn:"Бүтээл",    orbit:150, angle:-0.55 },
+    { id:"services", label:"Services", labelMn:"Үйлчилгээ", orbit:225, angle: 2.30 },
+    { id:"contact",  label:"Contact",  labelMn:"Холбоо",    orbit:305, angle: 0.95 },
+    ...CONTENT.about.team.map((m, i) => ({
+      id:"m"+i, member:i, label:m.name, labelMn:m.name,
+      orbit:[400, 495, 590, 690, 795][i], angle:(i*2.4 + 1.1) % 6.283
+    }))
+  ];
+  const planets = SEATS.map((s, i) => ({
+    ...s, ...REAL[i], speed:KEP(s.orbit), spin:0.5 + (i%4)*0.3,
+    /* the five minds are equals: same size, same treatment */
+    r: s.member != null ? 22 : REAL[i].r
+  }));
+  setTimeout(function paintStep(){
+    if (_ti < texJobs.length){ texJobs[_ti++](); setTimeout(paintStep, 18); }
+    else {
+      const M = { Mercury:TEX_MERCURY, Venus:TEX_VENUS, Earth:TEX_EARTH, Mars:TEX_MARS,
+                  Jupiter:TEX_JUPITER, Saturn:TEX_SATURN, Uranus:TEX_URANUS, Neptune:TEX_NEPTUNE };
+      for (const p of planets) p.tex = M[p.real];
+      texReady = true;
+    }
+  }, 120);
+  let _ti = 0;
   for (const p of planets) p.glow = glowOf(p.color, 0.55);
 
   const starSeats = [
@@ -1719,46 +1940,6 @@ const Galaxy = (() => {
     ctx.globalCompositeOperation = "source-over";
   }
 
-  /* ---------- foreground layer: dark-matter crystals drifting past the lens ---------- */
-  const crysRnd = mulberry32(909);
-  const crystals = Array.from({length: lowPower ? 8 : 13}, () => ({
-    x: crysRnd()*TILE, y: crysRnd()*TILE,
-    par: 1.35 + crysRnd()*0.8,                  /* parallax > 1 → closer than the ship */
-    s: 5 + crysRnd()*9, rot: crysRnd()*6.283, rs: (crysRnd()-0.5)*0.25,
-    vx: (crysRnd()-0.5)*4, vy: (crysRnd()-0.5)*4,
-    n: 3 + Math.floor(crysRnd()*3)
-  }));
-  function drawCrystals(dt){
-    ctx.lineWidth = 1;
-    for (const c of crystals){
-      if (!reduceMotion){ c.x += c.vx*dt; c.y += c.vy*dt; c.rot += c.rs*dt; }
-      const ox = cam.x * c.par * cam.z, oy = cam.y * c.par * cam.z;
-      const sx = ((c.x*cam.z - ox) % TILE + TILE) % TILE;
-      const sy = ((c.y*cam.z - oy) % TILE + TILE) % TILE;
-      for (let gx = -1; gx*TILE + sx < W + 30; gx++){
-        if (gx*TILE + sx < -30) continue;
-        for (let gy = -1; gy*TILE + sy < H + 30; gy++){
-          if (gy*TILE + sy < -30) continue;
-          const S = c.s * cam.z;
-          ctx.save();
-          ctx.translate(gx*TILE + sx, gy*TILE + sy);
-          ctx.rotate(c.rot);
-          ctx.beginPath();
-          for (let k = 0; k <= c.n*2; k++){
-            const a = k/(c.n*2)*Math.PI*2;
-            const r = S * (k % 2 ? 0.55 : 1);
-            k ? ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r) : ctx.moveTo(Math.cos(a)*r, Math.sin(a)*r);
-          }
-          ctx.closePath();
-          ctx.fillStyle = "rgba(10,15,34,0.38)";
-          ctx.strokeStyle = "rgba(124,152,240,0.12)";
-          ctx.fill(); ctx.stroke();
-          ctx.restore();
-        }
-      }
-    }
-  }
-
   let hovered = null;
   let dragging = false, dragMoved = 0;
   let lastPan = { x:0, y:0, t:0 };
@@ -1776,15 +1957,6 @@ const Galaxy = (() => {
     followRef = { ref, kind };
     cam.tz = isCoarse ? 1.15 : 1.7;
   }
-  let ping = null, revealTimer = null, currentId = null;
-  function revealStar(i){
-    const s = stars[i];
-    closePanel();                              /* veil down: the galaxy is visible */
-    flyTo(s, "star");                          /* glide to the star */
-    ping = { ref: s, until: performance.now() + 2600 };
-    clearTimeout(revealTimer);
-    revealTimer = setTimeout(() => openPanel("p" + i), 1700);  /* then land on it */
-  }
   function liftOff(){
     followRef = null;
     if (prevCam){
@@ -1797,11 +1969,12 @@ const Galaxy = (() => {
   const groundEl = document.getElementById("ground");
   const groundCv = document.getElementById("groundCv");
   const gctx = groundCv.getContext("2d");
-  const ground = { on:false, tex:TEX_GAS, color:C.gold, hideTimer:null };
+  const ground = { on:false, color:C.gold, hideTimer:null };
   function sizeGround(){
     groundCv.width  = Math.round(groundEl.clientWidth  * DPR);
     groundCv.height = Math.round(groundEl.clientHeight * DPR);
     gctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    gctx.imageSmoothingQuality = "high";
   }
   Reg.on(window, "resize", () => { if (ground.on) sizeGround(); });
 
@@ -1824,37 +1997,106 @@ const Galaxy = (() => {
     const [cr, cg, cb] = hexRgb(ground.color);
 
     /* atmosphere haze rising off the limb */
-    const at = gctx.createRadialGradient(cx, cy, R*0.985, cx, cy, R*1.12);
-    at.addColorStop(0,   `rgba(${cr},${cg},${cb},0.55)`);
-    at.addColorStop(0.4, `rgba(${cr},${cg},${cb},0.16)`);
-    at.addColorStop(1,   `rgba(${cr},${cg},${cb},0)`);
+    /* colored atmosphere: the wide glow you liked — just softer and dimmer */
+    const at = gctx.createRadialGradient(cx, cy, R*0.995, cx, cy, R*1.11);
+    at.addColorStop(0,    `rgba(${cr},${cg},${cb},0.30)`);
+    at.addColorStop(0.22, `rgba(${cr},${cg},${cb},0.17)`);
+    at.addColorStop(0.5,  `rgba(${cr},${cg},${cb},0.08)`);
+    at.addColorStop(0.78, `rgba(${cr},${cg},${cb},0.03)`);
+    at.addColorStop(1,    `rgba(${cr},${cg},${cb},0)`);
+    gctx.globalCompositeOperation = "screen";   /* light adds; color glows into space */
     gctx.fillStyle = at;
     gctx.fillRect(0, 0, gw, gh);
+    gctx.globalCompositeOperation = "source-over";
 
-    /* the surface itself, slowly turning beneath you */
+    /* the surface itself — closer to the eye, so real detail survives */
+    if (!ground.tex){ return; }
     gctx.save();
     gctx.beginPath(); gctx.arc(cx, cy, R, 0, 7); gctx.clip();
     const tex = ground.tex;
-    const scale = (gh * 2.6) / tex.height;
+    const scale = (gh * 0.98) / tex.height;      /* ≤1:1 sampling of the 1024px texture = crisp */
     const tw = tex.width * scale;
-    const off = reduceMotion ? 0 : (now * 0.012) % tw;
-    for (let x = -off; x < gw; x += tw){
-      gctx.drawImage(tex, x, gh*0.30 - gh*0.42, tw, tex.height*scale);
-    }
-    /* dusk falls toward the bottom of the view */
-    const dg = gctx.createLinearGradient(0, gh*0.28, 0, gh);
+    const off = reduceMotion ? 0 : (now * 0.010) % tw;
+    for (let x = -off; x < gw; x += tw)
+      gctx.drawImage(tex, x, gh*0.28, tw, tex.height*scale);
+    /* limb darkening: the surface edge fades into its own atmosphere */
+    const limb = gctx.createRadialGradient(cx, cy, R*0.9, cx, cy, R);
+    limb.addColorStop(0,   "rgba(4,6,14,0)");
+    limb.addColorStop(0.72, "rgba(4,6,14,0.12)");
+    limb.addColorStop(1,   "rgba(4,6,14,0.34)");
+    gctx.fillStyle = limb;
+    gctx.fillRect(0, 0, gw, gh);
+
+    /* gentle dusk — the surface stays visible */
+    const dg = gctx.createLinearGradient(0, gh*0.45, 0, gh);
     dg.addColorStop(0, "rgba(4,6,14,0)");
-    dg.addColorStop(1, "rgba(4,6,14,0.88)");
+    dg.addColorStop(1, "rgba(4,6,14,0.5)");
     gctx.fillStyle = dg;
     gctx.fillRect(0, 0, gw, gh);
     gctx.restore();
+  }
 
-    /* crisp sunlit limb line */
-    gctx.beginPath();
-    gctx.arc(cx, cy, R, Math.PI*1.15, Math.PI*1.85);
-    gctx.strokeStyle = `rgba(${Math.min(255,cr+70)},${Math.min(255,cg+70)},${Math.min(255,cb+60)},0.85)`;
-    gctx.lineWidth = 1.5;
-    gctx.stroke();
+  /* member spread: their identity scatters into open space around the planet */
+  const spreadEl = document.getElementById("spread");
+  let spreadIdx = null;
+  const SKY_SLOTS = [[16,13],[46,8],[70,17],[30,24],[60,29],[82,30]];
+  function renderSpread(i){
+    const m = L().about.team[i];
+    const pl = planets.find(p => p.member === i);
+    spreadEl.style.setProperty("--mc", m.c);
+    spreadEl.querySelector(".sp-glyph").textContent = m.name[0];
+    spreadEl.querySelector(".sp-name").textContent = m.name;
+    spreadEl.querySelector(".sp-role").textContent = m.role;
+    spreadEl.querySelector(".sp-note").textContent = m.note;
+    spreadEl.querySelector(".sp-fact").textContent =
+      "✦ " + pl.real + " — " + (LANG === "mn" ? pl.factMn : pl.fact);
+    spreadEl.querySelector(".sp-final").textContent = L().about.closingA;
+    /* their projects hang in the sky above the horizon */
+    const ids = CONTENT.about.team[i].projects || [];
+    spreadEl.querySelector(".sp-sky").innerHTML = ids.map((pi, k) => {
+      const [x, y] = SKY_SLOTS[k % SKY_SLOTS.length];
+      return `<button class="sky-proj" style="left:${x}vw;top:${y}vh;--d:${k*1.3}s" data-p="${pi}">
+        <span class="sky-star">✦</span>${esc(L().projects[pi].title)}</button>`;
+    }).join("");
+    spreadEl.querySelectorAll(".sky-proj").forEach(b =>
+      b.addEventListener("click", e => {
+        e.stopPropagation();
+        const pi = b.dataset.p;
+        closeSpread();
+        setTimeout(() => openPanel("p" + pi), 350);
+      }));
+  }
+  function openSpread(i){
+    spreadIdx = i;
+    renderSpread(i);
+    const pl = planets.find(p => p.member === i);
+    flyTo(pl, "planet");
+    swoop = { t0: performance.now(), dur: 1150 };  /* low-angle banked approach */
+    touchDown(pl.tex, pl.color);                 /* land on their world */
+    shipLand = { t0: performance.now(), dur: 850, burst: false };
+    spreadEl.hidden = false;
+    requestAnimationFrame(() => spreadEl.classList.add("open"));
+    hovered = null; hideTip();
+  }
+  function closeSpread(){
+    if (spreadIdx == null) return;
+    spreadIdx = null;
+    spreadEl.classList.remove("open");
+    setTimeout(() => { spreadEl.hidden = true; }, 420);
+    takeOff();
+    shipLand = null;
+    liftOff();
+  }
+  Reg.on(spreadEl, "click", closeSpread);
+
+  let ping = null, revealTimer = null, currentId = null, shipLand = null;
+  function revealStar(i){
+    const s = stars[i];
+    closePanel();                              /* veil down: the galaxy is visible */
+    flyTo(s, "star");                          /* glide to the star */
+    ping = { ref: s, until: performance.now() + 2600 };
+    clearTimeout(revealTimer);
+    revealTimer = setTimeout(() => openPanel("p" + i), 1000);  /* then land on it */
   }
 
   /* ---------- drawing ---------- */
@@ -1867,8 +2109,8 @@ const Galaxy = (() => {
     ctx.globalAlpha = 1;
 
     for (const layer of layers){
-      const ox = cam.x * layer.parallax * cam.z;
-      const oy = cam.y * layer.parallax * cam.z;
+      const ox = cam.x * layer.parallax * cam.z - pp.x * 26 * layer.parallax;
+      const oy = cam.y * layer.parallax * cam.z - pp.y * 18 * layer.parallax;
       for (const s of layer.stars){
         let sx = ((s.x * cam.z - ox) % TILE + TILE) % TILE;
         let sy = ((s.y * cam.z - oy) % TILE + TILE) % TILE;
@@ -1908,6 +2150,7 @@ const Galaxy = (() => {
 
   function drawOrbits(now){
     const t = now * 0.001;
+    ctx.globalAlpha = 1 - 0.62 * dofK;
     const [cx, cy] = toScreen(0, 0);
     for (const p of planets){
       const hov = hovered && hovered.ref === p;
@@ -1935,11 +2178,24 @@ const Galaxy = (() => {
         ctx.stroke();
       }
     }
+    ctx.globalAlpha = 1;
   }
 
   function drawSun(now){
     const [sx, sy] = toScreen(0, 0);
     const R = 58 * cam.z;
+    if (dofK > 0.05){                              /* the hub falls out of focus */
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = 0.5 * (1 - 0.3 * dofK);
+      ctx.drawImage(SPR_GOLD, sx - R*3, sy - R*3, R*6, R*6);
+      ctx.filter = `blur(${(4 * dofK).toFixed(1)}px)`;
+      ctx.globalAlpha = 0.8;
+      ctx.drawImage(SPR_GOLD, sx - R*1.3, sy - R*1.3, R*2.6, R*2.6);
+      ctx.filter = "none";
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+      return;
+    }
     const hot = hovered && hovered.type === "sun";
     const t = now * 0.001;
 
@@ -1979,6 +2235,11 @@ const Galaxy = (() => {
     ctx.save();
     ctx.translate(sx, sy);
     ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.clip();
+    if (!TEX_SUNFACE){                            /* pre-texture sun: pure light */
+      const sg0 = ctx.createRadialGradient(0, 0, R*0.1, 0, 0, R);
+      sg0.addColorStop(0, "#FFF9E8"); sg0.addColorStop(0.7, C.gold); sg0.addColorStop(1, "#C07020");
+      ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.fillStyle = sg0; ctx.fill();
+    } else {
     const tex = TEX_SUNFACE, TW = tex.width, TH = tex.height, HALF = TW*0.5;
     const ph1 = reduceMotion ? 0 : (now*0.004) % TW;
     const ph2 = reduceMotion ? 0 : (TW - (now*0.0065) % TW);
@@ -1999,6 +2260,7 @@ const Galaxy = (() => {
       }
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
+    }
     }
     /* limb darkening: white-hot core falling to deep amber edge */
     const ld = ctx.createRadialGradient(0, 0, R*0.1, 0, 0, R);
@@ -2051,6 +2313,25 @@ const Galaxy = (() => {
 
     if (sx < -120 || sx > W + 120 || sy < -120 || sy > H + 120) return;
 
+    /* out-of-focus worlds render as soft anamorphic bokeh — cheaper AND prettier */
+    if (dofK > 0.05 && p !== dofTarget){
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = 0.4 * (1 - 0.25 * dofK);
+      ctx.drawImage(p.glow, sx - R*2.6, sy - R*2.6, R*5.2, R*5.2);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.filter = `blur(${(2.5 * dofK).toFixed(1)}px)`;
+      ctx.globalAlpha = 1 - 0.35 * dofK;
+      const bg2 = ctx.createRadialGradient(sx - R*0.3, sy - R*0.3, R*0.1, sx, sy, R);
+      const [br, bgc, bb] = hexRgb(p.color);
+      bg2.addColorStop(0, `rgb(${Math.min(255,br+50)},${Math.min(255,bgc+50)},${Math.min(255,bb+40)})`);
+      bg2.addColorStop(1, `rgba(${Math.round(br*0.4)},${Math.round(bgc*0.4)},${Math.round(bb*0.5)},1)`);
+      ctx.beginPath(); ctx.arc(sx, sy, R, 0, 7);
+      ctx.fillStyle = bg2; ctx.fill();
+      ctx.filter = "none";
+      ctx.globalAlpha = 1;
+      return;
+    }
+
     /* atmosphere — soft volumetric glow in the planet's own color */
     ctx.globalCompositeOperation = "lighter";
     ctx.globalAlpha = (hot ? 0.55 : 0.32) * (0.7 + 0.3*dep);
@@ -2085,11 +2366,24 @@ const Galaxy = (() => {
     }
 
     /* --- textured rotating sphere --- */
+    if (!p.tex){                                  /* first breaths: soft lit orb */
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = 0.35;
+      ctx.drawImage(p.glow, sx - R*2.2, sy - R*2.2, R*4.4, R*4.4);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 1;
+      const [qr, qg, qb] = hexRgb(p.color);
+      const q = ctx.createRadialGradient(sx - R*0.3, sy - R*0.3, R*0.1, sx, sy, R);
+      q.addColorStop(0, `rgb(${Math.min(255,qr+50)},${Math.min(255,qg+50)},${Math.min(255,qb+40)})`);
+      q.addColorStop(1, `rgba(${qr*0.35|0},${qg*0.35|0},${qb*0.45|0},1)`);
+      ctx.beginPath(); ctx.arc(sx, sy, R, 0, 7); ctx.fillStyle = q; ctx.fill();
+      return;
+    }
     const tex = p.tex, TW = tex.width, TH = tex.height;
     const phase = reduceMotion ? 0 : (now * 0.006 * p.spin) % TW;
     ctx.save();
     ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.clip();
-    const SL = 26, HALF = TW * 0.5;
+    const SL = 34, HALF = TW * 0.5;
     for (let i = 0; i < SL; i++){
       const x0 = -R + (2*R*i)/SL, x1 = -R + (2*R*(i+1))/SL;
       const mx = (x0+x1)*0.5/R;
@@ -2117,16 +2411,6 @@ const Galaxy = (() => {
     ctx.fillStyle = "rgba(255,252,240,0.22)";
     ctx.fill();
 
-    /* cool rim light on the night side — starlight bounce */
-    ctx.save();
-    ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.clip();
-    ctx.beginPath();
-    ctx.arc(-lx*R*0.18, -ly*R*0.18, R*0.99, 0, 7);
-    ctx.strokeStyle = "rgba(124,152,240,0.35)";
-    ctx.lineWidth = Math.max(1, R*0.07);
-    ctx.stroke();
-    ctx.restore();
-
     if (p.style === "ring"){
       ctx.strokeStyle = hot ? C.goldBright : "rgba(255,217,138,0.95)";
       ctx.lineWidth = Math.max(1.5, 2.4 * cam.z);
@@ -2146,7 +2430,8 @@ const Galaxy = (() => {
     ctx.fillStyle = hot ? C.gold : C.muted;
     ctx.font = `500 ${Math.max(9, 10.5 * Math.min(cam.z, 1.4))}px ${css.getPropertyValue("--sans")}`;
     ctx.textAlign = "center"; ctx.textBaseline = "top";
-    const label = (LANG === "mn" ? p.labelMn : p.label).toUpperCase().split("").join("\u200A\u200A");
+    const lbl = (LANG === "mn" && p.labelMn) ? p.labelMn : p.label;
+    const label = lbl.toUpperCase().split("").join("\u200A\u200A");
     ctx.fillText(label, sx, sy + R * (p.style === "ring" ? 1.0 : 1.35) + 10);
     ctx.globalAlpha = 1;
   }
@@ -2156,6 +2441,7 @@ const Galaxy = (() => {
     s._sx = sx; s._sy = sy; s._sr = Math.max(12, s.r * cam.z * 1.6);
     if (sx < -60 || sx > W + 60 || sy < -60 || sy > H + 60) return;
 
+    const dofDim = 1 - 0.55 * dofK;
     const pinged = ping && ping.ref === s && now < ping.until;
     if (ping && now >= ping.until) ping = null;
     const hot = (hovered && hovered.ref === s) || pinged;
@@ -2172,7 +2458,7 @@ const Galaxy = (() => {
 
     /* warm glow behind each soul-star */
     ctx.globalCompositeOperation = "lighter";
-    ctx.globalAlpha = (hot ? 0.6 : 0.3) * tw;
+    ctx.globalAlpha = (hot ? 0.6 : 0.3) * tw * dofDim;
     ctx.drawImage(SPR_GOLD, sx - R*3.4, sy - R*3.4, R*6.8, R*6.8);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
@@ -2182,7 +2468,7 @@ const Galaxy = (() => {
     ctx.rotate(view.rot);          /* the sparkle lies in the galactic plane… */
     ctx.scale(1, view.ty);         /* …so it leans in 3D and stands flat in 2D */
     ctx.fillStyle = hot ? C.goldBright : C.gold;
-    ctx.globalAlpha = hot ? 1 : 0.55 + 0.45 * tw;
+    ctx.globalAlpha = (hot ? 1 : 0.55 + 0.45 * tw) * dofDim;
     ctx.beginPath();
     ctx.moveTo(0, -R * 2);
     ctx.quadraticCurveTo(R * 0.28, -R * 0.28, R * 2, 0);
@@ -2236,9 +2522,23 @@ const Galaxy = (() => {
   }
 
   function drawShip(now){
-    const cx = W / 2, cy = H / 2;
-    const tilt = Math.max(-0.5, Math.min(0.5, panVel.x * -0.002));
-    const bob = reduceMotion ? 0 : Math.sin(now * 0.0016) * 3;
+    const cx = W / 2;
+    let cy = H / 2, flame = 1, tilt = Math.max(-0.5, Math.min(0.5, panVel.x * -0.002));
+    if (shipLand){                                /* descent onto the horizon */
+      const p = Math.min(1, (now - shipLand.t0) / shipLand.dur);
+      const e = 1 - Math.pow(1 - p, 3);
+      cy = H / 2 + (H * 0.585 - H / 2) * e;
+      flame = 1 + (1 - p) * 2.2;
+      tilt *= (1 - e);
+      if (p >= 1 && !shipLand.burst){             /* touchdown dust */
+        shipLand.burst = true;
+        for (let i = 0; i < 14; i++)
+          engineDust.push({ x: cx + (Math.random()-0.5)*10, y: cy + 10,
+            vx: (Math.random()-0.5)*140, vy: -20 - Math.random()*50,
+            curve: (Math.random()-0.5)*2, life: 0.5 + Math.random()*0.4, max: 0.8 });
+      }
+    }
+    const bob = (reduceMotion || (shipLand && shipLand.burst)) ? 0 : Math.sin(now * 0.0016) * 3;
 
     ctx.save();
     ctx.translate(cx, cy + bob);
@@ -2251,7 +2551,7 @@ const Galaxy = (() => {
     ctx.beginPath(); ctx.arc(0, -2.5, 2.6, 0, 7);
     ctx.fillStyle = C.cobalt; ctx.fill();
     if (!reduceMotion){
-      const fl = 4 + Math.sin(now * 0.02) * 2;
+      const fl = (4 + Math.sin(now * 0.02) * 2) * flame;
       ctx.beginPath();
       ctx.moveTo(-2.6, 8.5); ctx.lineTo(0, 8.5 + fl); ctx.lineTo(2.6, 8.5);
       ctx.closePath();
@@ -2270,7 +2570,6 @@ const Galaxy = (() => {
     }
   }
 
-  /* ---------- main loop ---------- */
   let lastT = performance.now(), rafId = 0, halted = false;
   function frame(now){
     if (halted) return;
@@ -2279,7 +2578,7 @@ const Galaxy = (() => {
     const dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
 
-    const ease = 1 - Math.pow(0.0001, dt);
+    const ease = 1 - Math.pow(followRef ? 0.000001 : 0.0001, dt);  /* landings fly fast */
     cam.x += (cam.tx - cam.x) * ease;
     cam.y += (cam.ty - cam.y) * ease;
     cam.z += (cam.tz - cam.z) * ease;
@@ -2295,6 +2594,24 @@ const Galaxy = (() => {
 
     if (hasExplored) shipLabelAlpha = Math.max(0, shipLabelAlpha - dt * 0.5);
 
+    /* perspective tick: parallax lerp, swoop curve, focus rack */
+    const pk = Math.min(1, dt * 4.5);
+    pp.x += (pp.tx - pp.x) * pk;
+    pp.y += (pp.ty - pp.y) * pk;
+    if (swoop){
+      const k = Math.min(1, (now - swoop.t0) / swoop.dur);
+      const e = p4io(k);
+      swoopY = (1 - e) * 120;                      /* rise from a low orbital angle */
+      roll = Math.sin(e * Math.PI) * 0.05;          /* the sweeping banked arc */
+      if (k >= 1){ swoop = null; swoopY = 0; roll = 0; }
+    }
+    dofTarget = spreadIdx != null ? planets.find(q => q.member === spreadIdx) : null;
+    dofK += ((dofTarget ? 1 : 0) - dofK) * Math.min(1, dt * 3);
+    if (dofK < 0.01) dofK = 0;
+    document.documentElement.style.setProperty("--parx", pp.x.toFixed(3));
+    document.documentElement.style.setProperty("--pary", pp.y.toFixed(3));
+    document.documentElement.style.setProperty("--groundRoll", (roll * -32).toFixed(2) + "deg");
+
     /* keep gliding toward whatever we're landing on — it orbits, we track */
     if (followRef){
       const [wx, wy] = followRef.kind === "planet"
@@ -2306,6 +2623,7 @@ const Galaxy = (() => {
 
     drawBackground(now);
     drawHaze(now);
+    if (roll){ ctx.save(); ctx.translate(W/2, H/2); ctx.rotate(roll); ctx.translate(-W/2, -H/2); }
     drawOrbits(now);
     updateComet(now, dt);
     drawComet();
@@ -2320,8 +2638,8 @@ const Galaxy = (() => {
     puffTrail(dt);
     updateTrail(dt);
     drawTrail();
+    if (roll) ctx.restore();
     drawShip(now);
-    drawCrystals(dt);          /* foreground tier: closer than the ship */
     if (ground.on) drawGround(now);
   }
   rafId = requestAnimationFrame(frame);
@@ -2332,7 +2650,7 @@ const Galaxy = (() => {
       if (Math.hypot(sx - s._sx, sy - s._sy) < Math.max(16, s._sr)) return { type:"star", ref:s };
     }
     for (const p of planets){
-      if (Math.hypot(sx - p._sx, sy - p._sy) < p._sr + 8) return { type:"planet", ref:p };
+      if (Math.hypot(sx - p._sx, sy - p._sy) < Math.max(16, p._sr + 8)) return { type:"planet", ref:p };
     }
     const [cx, cy] = toScreen(0, 0);
     if (Math.hypot(sx - cx, sy - cy) < 58 * cam.z + 6) return { type:"sun", ref:"sun" };
@@ -2418,9 +2736,10 @@ const Galaxy = (() => {
           showTip(`<b>✦ ${hit.ref.label}</b> · ${T("land")}`, e.clientX, e.clientY);
         } else if (hit.type === "planet"){
           const pl = LANG === "mn" ? hit.ref.labelMn : hit.ref.label;
-          showTip(`<b>${pl}</b> · ${T("land")}`, e.clientX, e.clientY);
+          const rn = LANG === "mn" ? hit.ref.realMn : hit.ref.real;
+          showTip(`<b>${pl}</b> — ${rn} · ${T("land")}`, e.clientX, e.clientY);
         } else {
-          showTip(`<b>Meraki</b> · ${T("recenter")}`, e.clientX, e.clientY);
+          showTip(`<b>Meraki</b> · ${T("land")}`, e.clientX, e.clientY);
         }
       } else hideTip();
     }
@@ -2437,7 +2756,8 @@ const Galaxy = (() => {
         const hit = hitTest(e.clientX, e.clientY);
         if (hit){
           AudioSys.chime((e.clientX/W - 0.5)*1.6, hit.type);
-          if (hit.type === "sun") recenter();
+          if (hit.type === "sun") openPanel("about");
+          else if (hit.type === "planet" && hit.ref.member != null) openSpread(hit.ref.member);
           else openPanel(hit.ref.id);
         }
       }
@@ -2460,7 +2780,7 @@ const Galaxy = (() => {
   }, { passive:false });
 
   /* ---------- HUD ---------- */
-  function recenter(){ cam.tx = 0; cam.ty = 0; cam.tz = isCoarse ? 0.72 : 0.92; }
+  function recenter(){ cam.tx = 0; cam.ty = 0; cam.tz = isCoarse ? 0.58 : 0.76; }
   Reg.on(document.getElementById("zoomIn"), "click", () => { cam.tz *= 1.25; clampCam(); });
   Reg.on(document.getElementById("zoomOut"), "click", () => { cam.tz /= 1.25; clampCam(); });
   Reg.on(document.getElementById("recenter"), "click", recenter);
@@ -2573,6 +2893,11 @@ const Galaxy = (() => {
   }
   Reg.on(panelBody, "scroll", bodyParallax, { passive: true });
 
+  function planetFactLine(id){
+    const pl = planets.find(p => p.id === id);
+    if (!pl) return "";
+    return `<p class="planet-fact">✦ ${esc(pl.real)} — ${esc(LANG === "mn" ? pl.factMn : pl.fact)}</p>`;
+  }
   function buildPanel(id){
     if (id === "about"){
       const a = L().about;
@@ -2580,14 +2905,6 @@ const Galaxy = (() => {
       panelTitle.textContent = a.title;
       panelBody.innerHTML = `
         <p class="minds-lede">${esc(a.lede)}</p>
-        <ul class="minds">` + a.team.map(m => `
-          <li class="mind" style="--mc:${m.c}">
-            <span class="mind-glyph" aria-hidden="true">${esc(m.name[0])}</span>
-            <p class="mind-role">${esc(m.role)}</p>
-            <h3 class="mind-name">${esc(m.name)}</h3>
-            <p class="mind-note">${esc(m.note)}</p>
-          </li>`).join("") + `
-        </ul>
         <div class="minds-close">
           <p class="minds-final">${esc(a.closingA)}</p>
           <p class="minds-sub">${esc(a.closingB)}</p>
@@ -2597,7 +2914,7 @@ const Galaxy = (() => {
     if (id === "services"){
       panelEyebrow.textContent = L().services.eyebrow;
       panelTitle.textContent = L().services.title;
-      panelBody.innerHTML = `<ul class="item-list">` + L().services.items.map(s => `
+      panelBody.innerHTML = planetFactLine(id) + `<ul class="item-list">` + L().services.items.map(s => `
         <li>
           <p class="item-meta">${esc(s.meta)}</p>
           <p class="item-name">${esc(s.name)}</p>
@@ -2609,7 +2926,7 @@ const Galaxy = (() => {
       const c = L().contact;
       panelEyebrow.textContent = c.eyebrow;
       panelTitle.textContent = c.title;
-      panelBody.innerHTML = `
+      panelBody.innerHTML = planetFactLine(id) + `
         <p>${esc(c.note)}</p>
         <p><a class="contact-mail" href="mailto:${esc(c.email)}">${esc(c.email)}</a></p>
         <div class="socials">${c.socials.map(s =>
@@ -2631,7 +2948,7 @@ const Galaxy = (() => {
     if (id === "work"){
       panelEyebrow.textContent = T("workEyebrow");
       panelTitle.textContent = T("workTitle");
-      panelBody.innerHTML = `
+      panelBody.innerHTML = planetFactLine(id) + `
         <p style="margin-bottom:18px">${esc(T("workIntro"))}</p>
         <ul class="item-list works">` + L().projects.map((p, i) => `
         <li class="work-item">
@@ -2678,7 +2995,7 @@ const Galaxy = (() => {
       touchDown(planetRef.tex, planetRef.color);
     } else if (starRef){
       flyTo(starRef, "star");
-      touchDown(TEX_SUNFACE, C.gold);
+      touchDown(TEX_SUNFACE || null, C.gold);
     }
 
     buildPanel(id);
@@ -2705,7 +3022,10 @@ const Galaxy = (() => {
   Reg.on(panelClose, "click", closePanel);
   Reg.on(veil, "click", closePanel);
   Reg.on(document, "keydown", e => {
-    if (e.key === "Escape" && panelOpen) closePanel();
+    if (e.key === "Escape"){
+      if (panelOpen) closePanel();
+      else closeSpread();
+    }
   });
 
   Reg.on(document, "focusin", e => {
@@ -2724,14 +3044,14 @@ const Galaxy = (() => {
       canvas.classList.toggle("off", !v);
     },
     halt(){ halted = true; cancelAnimationFrame(rafId); },
-    relabel(){ if (panelOpen && currentId) buildPanel(currentId); },
+    relabel(){ if (panelOpen && currentId) buildPanel(currentId); if (spreadIdx != null) renderSpread(spreadIdx); },
     reset(){
       if (panelOpen) closePanel();
     },
     enter(){
       /* arrive from the warp: start deep in the sun's glare, pull back */
       cam.x = 0; cam.y = 0; cam.z = 2.5;
-      cam.tx = 0; cam.ty = 0; cam.tz = isCoarse ? 0.72 : 0.92;
+      cam.tx = 0; cam.ty = 0; cam.tz = isCoarse ? 0.58 : 0.76;
       hint.classList.remove("hidden");
       clearTimeout(hintTimer);
       hintTimer = setTimeout(() => hint.classList.add("hidden"), 14000);
@@ -2832,6 +3152,7 @@ Reg.on(audioBtn, "click", () => {
 /* explicit lifecycle: init runs automatically at load; destroy tears everything down */
 Voyage.init = function(){ /* modules self-arm above; kept for embedding symmetry */ };
 Voyage.destroy = function(){
+  Cursor.halt();
   AudioSys.stopHeart();
   Nebula.halt();
   Galaxy.halt();
