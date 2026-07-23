@@ -177,6 +177,10 @@ body{
   pointer-events:none;overflow:hidden;
   transform:translateY(105%);
   transition:transform .8s cubic-bezier(.22,1,.36,1);
+  /* feather the top edge so the layer dissolves into space instead of ending on a line.
+     Fully opaque by 26%, above where the horizon arc begins (30%), so the limb stays crisp. */
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.55) 13%,#000 26%);
+          mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.55) 13%,#000 26%);
 }
 #ground.up{transform:translateY(0)}
 #groundCv{display:block;width:100%;height:100%}
@@ -1915,11 +1919,17 @@ const Galaxy = (() => {
     const cx = gw/2, cy = gh*0.30 + R;         /* horizon arc near the top */
     const [cr, cg, cb] = hexRgb(ground.color);
 
-    /* atmosphere haze rising off the limb */
-    const at = gctx.createRadialGradient(cx, cy, R*0.985, cx, cy, R*1.12);
-    at.addColorStop(0,   `rgba(${cr},${cg},${cb},0.55)`);
-    at.addColorStop(0.4, `rgba(${cr},${cg},${cb},0.16)`);
-    at.addColorStop(1,   `rgba(${cr},${cg},${cb},0)`);
+    /* atmosphere haze rising off the limb.
+       The outer radius is clamped to the distance to the top of the layer, so the
+       glow reaches zero exactly at the boundary instead of being clipped mid-fade
+       — that clip was what drew a hard horizontal line across the screen. */
+    const atInner = R * 0.985;
+    const atOuter = Math.max(atInner + 1, Math.min(R * 1.12, cy));
+    const at = gctx.createRadialGradient(cx, cy, atInner, cx, cy, atOuter);
+    at.addColorStop(0,    `rgba(${cr},${cg},${cb},0.55)`);
+    at.addColorStop(0.35, `rgba(${cr},${cg},${cb},0.18)`);
+    at.addColorStop(0.7,  `rgba(${cr},${cg},${cb},0.05)`);
+    at.addColorStop(1,    `rgba(${cr},${cg},${cb},0)`);
     gctx.fillStyle = at;
     gctx.fillRect(0, 0, gw, gh);
 
