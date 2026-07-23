@@ -66,7 +66,6 @@ body{
 /* ---------- corner wordmark ---------- */
 .wordmark{
   position:fixed;top:22px;left:26px;z-index:5;
-  transform:translate(calc(var(--parx,0)*6px), calc(var(--pary,0)*4px));
   pointer-events:none;user-select:none;
 }
 .wordmark h1{
@@ -104,7 +103,7 @@ body{
   right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;
 }
 .hud-controls button{
-  width:42px;height:42px;border-radius:50%;
+  width:48px;height:48px;border-radius:50%;
   background:var(--panel);border:1px solid var(--panel-edge);
   color:var(--ink);font-size:1.05rem;line-height:1;cursor:pointer;
   transition:border-color .2s,color .2s;
@@ -177,43 +176,33 @@ body{
   position:fixed;left:0;right:0;bottom:0;height:46vh;z-index:10;
   pointer-events:none;overflow:hidden;
   transform:translateY(105%);
-  transition:transform .9s cubic-bezier(.85,0,.15,1);  /* luxury rise: power4.inOut */
-}
-#groundCv{
-  transform:translate(calc(var(--parx,0)*-14px), calc(var(--pary,0)*-8px))
-            rotate(var(--groundRoll,0deg));
-  transform-origin:50% 120%;
-  will-change:transform;
+  transition:transform .8s cubic-bezier(.22,1,.36,1);
 }
 #ground.up{transform:translateY(0)}
 #groundCv{display:block;width:100%;height:100%}
 
 .panel{
   position:fixed;z-index:11;top:50%;left:50%;
-  width:min(560px,calc(100vw - 36px));
-  max-height:min(78vh,720px);
+  width:min(660px,calc(100vw - 36px));
+  max-height:min(82vh,780px);
   transform:translate(-50%,-42%) scale(.98);
-  background:var(--panel);border:1px solid var(--panel-edge);
-  border-radius:14px;
+  background:linear-gradient(145deg,rgba(20,28,57,.98),rgba(11,16,36,.98));border:1px solid var(--panel-edge);
+  border-radius:18px;
   opacity:0;pointer-events:none;
   transition:opacity .5s cubic-bezier(.22,1,.36,1),transform .5s cubic-bezier(.22,1,.36,1);
   display:flex;flex-direction:column;
-  box-shadow:0 30px 80px rgba(0,0,0,.55);
+  box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.035);
+  isolation:isolate;
 }
+.panel.panel-wide{width:min(900px,calc(100vw - 36px))}
 .panel[hidden]{display:none}
-.panel .panel-head, .panel .panel-body{
-  opacity:0;transform:translateY(14px);
-  transition:opacity .5s cubic-bezier(.22,1,.36,1), transform .5s cubic-bezier(.22,1,.36,1);
-}
-.panel.open .panel-head{opacity:1;transform:none;transition-delay:.07s}
-.panel.open .panel-body{opacity:1;transform:none;transition-delay:.15s}
 .panel.open{opacity:1;pointer-events:auto;transform:translate(-50%,-56%) scale(1)}
 .panel-head{
   display:flex;align-items:flex-start;justify-content:space-between;
   padding:30px 32px 0;
 }
 .panel-eyebrow{
-  font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);
+  font-size:.64rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);
   margin-bottom:10px;
 }
 .panel-title{
@@ -221,7 +210,7 @@ body{
   letter-spacing:.02em;color:var(--ink);
 }
 .panel-close{
-  flex:none;width:38px;height:38px;border-radius:50%;
+  flex:none;width:48px;height:48px;border-radius:50%;
   background:transparent;border:1px solid var(--panel-edge);
   color:var(--muted);font-size:1rem;cursor:pointer;margin-left:16px;
   transition:border-color .2s,color .2s;font-family:var(--sans);
@@ -231,6 +220,7 @@ body{
 .panel-body{
   padding:22px 32px 34px;overflow-y:auto;
   font-size:.95rem;line-height:1.75;color:var(--muted);
+  scrollbar-color:var(--panel-edge) transparent;
 }
 .panel-body p+p{margin-top:14px}
 .panel-body em{color:var(--ink);font-style:normal}
@@ -241,16 +231,159 @@ body{
 
 /* lists inside panels */
 .item-list{list-style:none}
-.item-list li{border-top:1px solid var(--hairline);padding:18px 0}
-.item-list li:first-child{border-top:none;padding-top:4px}
+.item-list li{position:relative;padding:18px 0}
+.item-list li::before{top:0}
+.item-list li:first-child{padding-top:4px}
+.item-list li:first-child::before{display:none}
 .item-name{
-  font-family:var(--display);font-size:1.2rem;color:var(--ink);margin-bottom:4px;
+  font-family:var(--display);font-size:1.22rem;line-height:1.2;color:var(--ink);margin-bottom:4px;
 }
 .item-meta{
-  font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);
+  font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);
   margin-bottom:6px;
 }
-.item-desc{font-size:.9rem;line-height:1.7}
+.item-desc{font-size:.88rem;line-height:1.7}
+
+/* ---------- studio narratives: editorial clarity inside the galaxy ---------- */
+.studio-page,.case-study{padding-bottom:4px}
+.studio-intro{padding:2px 0 28px;position:relative;border-bottom:0}
+.studio-intro::after,.studio-section::after,.case-footer::before,
+.service-copy div::before,.item-list li::before{
+  content:"";position:absolute;left:0;right:0;height:1px;pointer-events:none;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(124,152,240,.055) 8%,
+    rgba(151,160,191,.20) 38%,
+    rgba(151,160,191,.20) 62%,
+    rgba(124,152,240,.055) 92%,
+    transparent 100%);
+}
+.studio-intro::after{bottom:0}
+.studio-intro .lede{max-width:760px;font-size:1.34rem;line-height:1.5}
+.studio-intro p:last-child{max-width:660px}
+.studio-section{padding:28px 0;position:relative;border-bottom:0}
+.studio-section::after{bottom:0}
+.studio-section:last-child{padding-bottom:0}
+.studio-section:last-child::after{display:none}
+.section-label,.case-label{
+  color:var(--gold);font-size:.62rem;font-weight:600;letter-spacing:.26em;
+  line-height:1.35;text-transform:uppercase;margin-bottom:9px;
+}
+.section-title{
+  color:var(--ink);font-family:var(--display);font-size:1.55rem;font-weight:400;
+  letter-spacing:.01em;line-height:1.15;margin-bottom:10px;
+}
+.studio-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 34px}
+.studio-grid p{margin:0}
+.studio-grid strong{color:var(--ink);font-weight:600}
+.principles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}
+.principle{
+  min-height:156px;padding:18px 17px;border:1px solid var(--hairline);border-radius:12px;
+  background:linear-gradient(150deg,rgba(61,99,216,.09),transparent 70%);
+  transition:border-color .25s,transform .25s,background .25s;
+}
+.principle:hover{border-color:rgba(233,180,76,.58);transform:translateY(-3px);background:linear-gradient(150deg,rgba(233,180,76,.12),transparent 70%)}
+.principle-index{color:var(--gold);font-family:var(--display);font-size:1.15rem;line-height:1;margin-bottom:18px}
+.principle h4,.team-role{color:var(--ink);font-size:.76rem;font-weight:600;letter-spacing:.13em;line-height:1.3;text-transform:uppercase;margin-bottom:8px}
+.principle p{font-size:.84rem;line-height:1.6;margin:0}
+.workflow{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;margin-top:26px;padding-top:0}
+.workflow::before{
+  position:absolute;content:"";top:19px;left:0;right:0;height:1px;
+  background:rgba(151,160,191,.22);
+}
+.workflow-step{position:relative;z-index:1;min-width:0}
+.workflow-orb{
+  width:auto;height:auto;display:block;border:0;border-radius:0;background:none;box-shadow:none;
+  color:var(--muted);font-family:var(--sans);font-size:.56rem;letter-spacing:.26em;
+  line-height:1;padding:0;margin:0 0 30px;position:relative;
+}
+.workflow-orb::after{
+  content:"";position:absolute;left:0;top:15px;width:7px;height:7px;border-radius:50%;
+  background:var(--space-deep);border:1px solid rgba(151,160,191,.55);
+}
+.workflow-step:last-child .workflow-orb::after{background:var(--gold);border-color:var(--gold)}
+.workflow-step:nth-child(even) .workflow-orb{color:var(--muted)}
+.workflow-step h4{color:var(--ink);font-family:var(--sans);font-size:.82rem;font-weight:600;letter-spacing:.01em;line-height:1.4;margin-bottom:7px}
+.workflow-step p{font-size:.7rem;line-height:1.62;color:var(--muted);opacity:.86;margin:0}
+@media (max-width:760px){
+  .workflow{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+  .workflow::before{display:none}
+}
+.studio-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:18px}
+.studio-stat{padding:16px 12px;border:1px solid var(--hairline);border-radius:10px;background:rgba(4,6,14,.25)}
+.studio-stat strong{display:block;color:var(--ink);font-family:var(--display);font-size:1.45rem;font-weight:400;line-height:1;margin-bottom:6px}
+.studio-stat span{display:block;color:var(--muted);font-size:.62rem;letter-spacing:.12em;line-height:1.35;text-transform:uppercase}
+.team-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:18px}
+.team-card{min-height:174px;padding:17px 14px;border:1px solid var(--hairline);border-radius:12px;background:linear-gradient(155deg,rgba(124,152,240,.08),transparent 74%)}
+.team-card p{font-size:.82rem;line-height:1.62;margin:0}
+.team-card .team-line{color:var(--ink);font-family:var(--sans);font-size:.82rem;font-weight:600;line-height:1.6;margin-top:13px}
+.studio-cta{padding:30px 0 4px;text-align:center}
+.studio-cta .section-title{font-size:1.8rem;margin:0 auto 12px;max-width:620px}
+.studio-cta p{max-width:560px;margin:0 auto 18px}
+.text-link{
+  display:inline-flex;align-items:center;gap:8px;padding:0;border:0;border-bottom:1px solid var(--gold);
+  background:transparent;color:var(--gold);cursor:pointer;font-family:var(--sans);font-size:.72rem;
+  letter-spacing:.2em;text-transform:uppercase;transition:color .2s,border-color .2s;
+}
+.text-link:hover{color:var(--gold-bright);border-color:var(--gold-bright)}
+.text-link:focus-visible{outline:2px solid var(--gold);outline-offset:5px}
+.reveal{animation:panel-rise .72s both;animation-delay:var(--delay,0s)}
+
+/* ---------- Developers / Marketing panels ---------- */
+.team-grid.roster{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.member-name{color:var(--ink);font-family:var(--display);font-size:1.22rem;line-height:1.2;margin:0 0 8px}
+.member-alias{color:var(--muted);font-family:var(--sans);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase}
+.featured-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.featured-card{padding:20px 18px;border:1px solid var(--hairline);border-radius:12px;
+  background:linear-gradient(155deg,rgba(233,180,76,.10),transparent 74%);
+  transition:border-color .25s,transform .25s}
+.featured-card:hover{border-color:var(--panel-edge);transform:translateY(-2px)}
+.featured-card p{font-size:.82rem;line-height:1.62;margin:0}
+.featured-name{color:var(--ink);font-family:var(--display);font-size:1.24rem;line-height:1.2;margin:2px 0 9px !important}
+.featured-card .text-link{margin-top:14px}
+.rating-block{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:16px 0 12px}
+.star-rating{color:var(--gold);font-size:1.6rem;letter-spacing:.22em;line-height:1;
+  text-shadow:0 0 20px rgba(233,180,76,.45)}
+.rating-count{color:var(--muted);font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;margin:0}
+.advisor-card{margin-top:18px;padding:22px 20px;border:1px solid var(--hairline);border-radius:12px;
+  background:linear-gradient(155deg,rgba(110,140,255,.12),transparent 76%)}
+.advisor-card p{font-size:.85rem;line-height:1.6;margin:0}
+.advisor-role{color:var(--gold);font-size:.62rem;letter-spacing:.26em;text-transform:uppercase;margin:0 0 10px !important}
+.advisor-card .team-line{color:var(--ink);font-family:var(--sans);font-size:.85rem;font-weight:600;line-height:1.6;margin-top:13px}
+.team-more{margin-top:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  font-size:.8rem;color:var(--muted)}
+@media (max-width:760px){
+  .team-grid.roster,.featured-grid{grid-template-columns:1fr}
+}
+
+/* ---------- service cards ---------- */
+.service-list{list-style:none;display:grid;gap:10px}
+.service-card{padding:22px;border:1px solid var(--hairline);border-radius:14px;background:rgba(4,6,14,.15);transition:border-color .25s,transform .25s,background .25s}
+.service-card:hover{border-color:rgba(124,152,240,.72);transform:translateY(-2px);background:rgba(61,99,216,.08)}
+.service-card .item-name{font-size:1.42rem}
+.service-copy{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;margin-top:17px}
+.service-copy div{position:relative;padding-top:11px;border-top:0}
+.service-copy div::before{top:0}
+.service-copy b,.case-detail dt{display:block;color:var(--gold);font-size:.59rem;font-weight:600;letter-spacing:.2em;line-height:1.3;text-transform:uppercase;margin-bottom:5px}
+.service-copy p{font-size:.83rem;line-height:1.6;margin:0}
+
+/* ---------- agency case studies ---------- */
+.case-stage{margin:2px 0 24px}
+.case-summary{max-width:700px;color:var(--ink);font-family:var(--sans);font-size:1.02rem;line-height:1.7;margin-bottom:20px}
+.case-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 22px}
+.case-detail{padding:14px 15px;border:1px solid var(--hairline);border-radius:10px;background:rgba(4,6,14,.22)}
+.case-detail dd{color:var(--ink);font-size:.85rem;line-height:1.6;margin:0}
+.case-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.case-block{padding:18px;border:1px solid var(--hairline);border-radius:12px;background:linear-gradient(155deg,rgba(61,99,216,.065),transparent 75%)}
+.case-block p{font-size:.86rem;line-height:1.65;margin:0}
+.case-block.wide{grid-column:1/-1}
+.case-outcome{border-color:rgba(233,180,76,.33);background:linear-gradient(145deg,rgba(233,180,76,.09),transparent 70%)}
+.case-footer{position:relative;display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:20px;margin-top:22px;border-top:0}
+.case-footer::before{top:0}
+.case-footer .case-label{margin:0}
+.case-unpublished{color:var(--muted);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase}
+@keyframes signal-flow{to{background-position:-180% 0}}
+@keyframes panel-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
 .star-list button{
   width:100%;text-align:left;background:none;border:none;color:inherit;
@@ -296,45 +429,18 @@ body{
 .socials a:hover{color:var(--gold)}
 .socials a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 
-/* sound + language toggles — present in both acts */
-/* tactile press: every control physically yields */
-.hud-controls button:active, .panel-close:active, .see-more:active,
-.reserve .launch:active, #audioBtn:active, #langBtn:active, .sky-proj:active{
-  transform:scale(.93);
-  transition-duration:.07s !important;
-}
-
-/* bespoke cursor */
-@media (pointer:fine){
-  html, body, canvas, button, a, input, textarea, [role="dialog"]{cursor:none !important}
-}
-#curDot, #curRing{
-  position:fixed;top:0;left:0;z-index:60;pointer-events:none;border-radius:50%;
-}
-#curDot{width:6px;height:6px;background:var(--gold)}
-#curRing{
-  width:30px;height:30px;border:1px solid rgba(233,180,76,.55);
-  transition:width .25s,height .25s,margin .25s,border-color .25s,background .25s;
-}
-#curRing.hover{
-  width:46px;height:46px;margin:-8px 0 0 -8px;
-  border-color:var(--gold-bright);background:rgba(233,180,76,.07);
-}
-#curRing.press{border-color:var(--gold-hot)}
-@media (pointer:coarse){#curDot,#curRing{display:none}}
-
-#audioBtn,#langBtn{
-  position:fixed;top:20px;right:20px;z-index:12;  /* above the veil: language + sound reachable while reading */
-  width:42px;height:42px;border-radius:50%;
+/* sound toggle — present in both acts */
+#audioBtn{
+  position:fixed;top:20px;right:20px;z-index:6;
+  width:48px;height:48px;border-radius:50%;
   background:var(--panel);border:1px solid var(--panel-edge);
   color:var(--gold);font-size:1rem;cursor:pointer;
   transition:border-color .2s,color .2s,opacity .2s;
   font-family:var(--sans);
 }
-#audioBtn:hover,#langBtn:hover{border-color:var(--gold-bright);color:var(--gold-bright)}
-#audioBtn:focus-visible,#langBtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+#audioBtn:hover{border-color:var(--gold-bright);color:var(--gold-bright)}
+#audioBtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #audioBtn.muted{opacity:.45;text-decoration:line-through}
-#langBtn{right:70px;font-size:.68rem;font-weight:600;letter-spacing:.08em}
 
 /* ---------- floating panel media (parallax layer) ---------- */
 .media-stage{position:relative;height:150px;margin:2px 0 20px}
@@ -357,31 +463,27 @@ body{
   .media-float.glyph{color:rgba(233,180,76,.16)}
 }
 
-/* ---------- data constellations inside project panels ---------- */
-.constellation{margin:20px 0 4px;border-top:1px solid var(--hairline);padding-top:16px}
-.const-eyebrow{
-  font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;
-  color:var(--gold);margin-bottom:10px;
+/* ---------- delivery map: one quiet horizontal progression ---------- */
+.dmap{margin:30px 0 6px}
+.dmap-title{
+  color:var(--muted);font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;
+  margin:0 0 14px;
 }
-.constellation svg{width:100%;height:auto;overflow:visible;display:block}
-.constellation line{stroke:rgba(124,152,240,.35);stroke-width:1}
-.constellation line.axis{stroke:rgba(124,152,240,.16);stroke-dasharray:2 5}
-.cnode circle{
-  fill:var(--panel);stroke:var(--gold);stroke-width:1.4;
-  transition:r .2s,fill .2s;cursor:pointer;
+.dmap svg{display:block;width:100%;height:auto;overflow:visible}
+.dmap-rail{stroke:rgba(151,160,191,.22);stroke-width:1}
+.dmap-node{fill:var(--space-deep);stroke:rgba(151,160,191,.55);stroke-width:1}
+.dmap-node.is-end{fill:var(--gold);stroke:var(--gold)}
+.dmap-step{
+  fill:var(--muted);font-family:var(--sans);font-size:6.4px;font-weight:400;
+  letter-spacing:.09em;text-transform:uppercase;text-anchor:middle;opacity:.82;
 }
-.cnode text{
-  fill:var(--muted);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
-  transition:fill .2s;
+.dmap-step.is-end{fill:var(--ink);opacity:1}
+.dmap-caption{
+  color:var(--muted);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;
+  margin:18px 0 0;opacity:.62;
 }
-.cnode:hover circle,.cnode:focus circle{r:6.4;fill:var(--gold)}
-.cnode:hover text,.cnode:focus text{fill:var(--ink)}
-.cnode:focus{outline:none}
-.mile circle{fill:var(--cobalt-light)}
-.mile text{fill:var(--muted);font-size:8.5px;letter-spacing:.1em}
-@media (prefers-reduced-motion:no-preference){
-  .cnode{animation:cfloat 5.5s ease-in-out infinite;animation-delay:var(--d,0s)}
-  @keyframes cfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media (max-width:600px){
+  .dmap-step{font-size:5.9px;letter-spacing:.04em}
 }
 
 /* ---------- reservation form (Contact panel) ---------- */
@@ -417,169 +519,28 @@ body{
 .reserve .launch:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .reserve .launch[disabled]{opacity:.55;cursor:wait}
 
-/* ---------- About: five minds, editorial masthead ---------- */
-.minds-lede{
-  font-family:var(--display);font-size:1.14rem;line-height:1.6;color:var(--ink);
-  max-width:38ch;margin:2px 0 8px;
-}
-.minds{list-style:none;margin:22px 0 0}
-.mind{
-  position:relative;padding:26px 96px 26px 18px;
-  border-top:1px solid var(--hairline);
-  overflow:hidden;
-  transition:transform .45s cubic-bezier(.22,1,.36,1);
-}
-.mind::before{                               /* soft gradient wash */
-  content:"";position:absolute;inset:0;opacity:0;
-  background:radial-gradient(120% 160% at 0% 50%,
-    color-mix(in srgb, var(--mc) 14%, transparent), transparent 62%);
-  transition:opacity .5s ease;pointer-events:none;
-}
-.mind::after{                                /* growing accent rule */
-  content:"";position:absolute;left:0;top:18%;bottom:18%;width:2px;
-  background:linear-gradient(180deg, transparent, var(--mc), transparent);
-  transform:scaleY(0);transform-origin:center;
-  transition:transform .5s cubic-bezier(.22,1,.36,1);
-}
-.mind:hover{transform:translateX(7px)}
-.mind:hover::before{opacity:1}
-.mind:hover::after{transform:scaleY(1)}
-.mind-glyph{
-  position:absolute;right:6px;top:50%;transform:translateY(-46%) translateX(10px);
-  font-family:var(--display);font-size:5.6rem;line-height:1;
-  color:transparent;-webkit-text-stroke:1px color-mix(in srgb, var(--mc) 55%, transparent);
-  opacity:0;transition:opacity .5s ease,transform .5s cubic-bezier(.22,1,.36,1);
-  pointer-events:none;user-select:none;
-}
-@supports not (-webkit-text-stroke:1px black){
-  .mind-glyph{color:color-mix(in srgb, var(--mc) 22%, transparent)}
-}
-.mind:hover .mind-glyph{opacity:.55;transform:translateY(-46%) translateX(0)}
-.mind-role{
-  font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;
-  color:var(--muted);margin-bottom:9px;transition:color .35s;
-}
-.mind:hover .mind-role{color:var(--mc)}
-.mind-name{
-  font-family:var(--display);font-weight:400;font-size:1.7rem;line-height:1.1;
-  letter-spacing:.015em;color:var(--ink);margin:0 0 10px;transition:color .35s;
-}
-.mind:hover .mind-name{color:var(--mc)}
-.mind-note{
-  font-size:.92rem;line-height:1.65;color:var(--muted);max-width:34ch;margin:0;
-}
-.minds-close{
-  border-top:1px solid var(--hairline);
-  margin-top:2px;padding:44px 0 18px;text-align:center;
-}
-.minds-final{
-  font-family:var(--display);font-weight:400;font-size:1.65rem;line-height:1.25;
-  color:var(--ink);margin:0 0 12px;
-}
-.minds-sub{
-  font-size:.64rem;letter-spacing:.34em;text-transform:uppercase;
-  color:var(--gold);margin:0;
-}
-@media (max-width:600px){
-  .mind{padding:22px 70px 22px 14px}
-  .mind-glyph{font-size:4rem}
-  .mind-name{font-size:1.45rem}
-}
-@media (prefers-reduced-motion:reduce){
-  .mind,.mind::before,.mind::after,.mind-glyph,.mind-role,.mind-name{transition:none}
-}
-
-/* ---------- Work list: unfold on "See more" ---------- */
-.works .item-name{margin-bottom:2px}
-.works .item-name::before{
-  content:"✦";color:var(--gold);font-size:.8em;margin-right:10px;
-}
-.see-more{
-  margin-top:14px;display:inline-flex;align-items:center;gap:11px;
-  background:none;border:none;cursor:pointer;padding:2px 0;
-  color:var(--gold);font-family:var(--sans);
-  font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;
-  transition:color .25s;
-}
-.sm-circle{
-  width:30px;height:30px;border-radius:50%;flex:none;
-  border:1px solid var(--gold);color:var(--gold);
-  display:inline-flex;align-items:center;justify-content:center;
-  font-size:.85rem;line-height:1;
-  transition:background .25s,color .25s,transform .45s cubic-bezier(.22,1,.36,1);
-}
-.see-more:hover{color:var(--gold-bright)}
-.see-more:hover .sm-circle{background:var(--gold);color:#1A1206;transform:translateX(5px)}
-.see-more:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
-.work-item .item-name-btn{
-  background:none;border:none;padding:0;margin:0;width:100%;
-  color:inherit;font-family:inherit;text-align:left;cursor:pointer;
-}
-.work-item .item-name-btn:hover .item-name{color:var(--gold)}
-.work-item .item-name-btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
-.work-item .item-desc{margin-top:4px}
-@media (prefers-reduced-motion:reduce){
-  .sm-circle{transition:none}
-}
-
-/* ---------- member spread: no box, just space ---------- */
-#spread{position:fixed;inset:0;z-index:10;cursor:pointer;   /* above the ground layer */
-  background:linear-gradient(180deg, transparent 62%,
-    rgba(4,6,14,.34) 84%, rgba(4,6,14,.46) 100%);}
-#spread{transform:translate(calc(var(--parx,0)*5px), calc(var(--pary,0)*3px))}
-#spread .sp-el{position:absolute;opacity:0;transform:translate(0,26px) scale(.92);
-  transition-timing-function:cubic-bezier(.85,0,.15,1) !important;
-  text-shadow:0 2px 22px rgba(4,6,14,.85), 0 0 6px rgba(4,6,14,.6);
-  transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);}
-#spread.open .sp-el{opacity:1;transform:none}
-#spread.open .sp-name{transition-delay:.05s}
-#spread.open .sp-role{transition-delay:.16s}
-#spread.open .sp-note{transition-delay:.27s}
-#spread.open .sp-final{transition-delay:.34s}
-#spread.open .sp-sky{transition-delay:.24s}
-#spread.open .sp-fact{transition-delay:.3s}
-.sp-sky{inset:0;pointer-events:none}
-.sky-proj{position:absolute;pointer-events:auto;cursor:pointer;
-  background:none;border:none;color:var(--ink);font-family:var(--sans);
-  font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;
-  display:flex;align-items:center;gap:8px;padding:6px 4px;
-  animation:skyfloat 6s ease-in-out infinite;animation-delay:var(--d,0s);
-  transition:color .25s;}
-.sky-proj .sky-star{color:var(--gold);font-size:1rem;transition:transform .3s}
-.sky-proj:hover{color:var(--gold)}
-.sky-proj:hover .sky-star{transform:scale(1.5)}
-.sky-proj:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-@keyframes skyfloat{0%,100%{margin-top:0}50%{margin-top:-8px}}
-.sp-fact{left:8vw;bottom:38vh;font-size:.66rem;letter-spacing:.22em;
-  text-transform:uppercase;color:var(--mc);max-width:60vw;}
-.planet-fact{font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;
-  color:var(--gold);margin:-4px 0 16px;}
-@media (prefers-reduced-motion:reduce){.sky-proj{animation:none}}
-#spread.open .sp-glyph{transition-delay:0s}
-.sp-glyph{left:4vw;bottom:-4vh;font-family:var(--display);font-size:min(44vh,34vw);line-height:1;
-  color:transparent;-webkit-text-stroke:1.5px color-mix(in srgb, var(--mc) 40%, transparent);}
-.sp-name{left:8vw;top:14vh;font-family:var(--display);font-weight:400;
-  font-size:clamp(2rem,6vw,4.2rem);color:var(--ink);margin:0;letter-spacing:.02em;}
-.sp-role{left:8.4vw;top:calc(14vh + clamp(2rem,6vw,4.2rem) + 18px);
-  font-size:.68rem;letter-spacing:.34em;text-transform:uppercase;color:var(--mc);}
-.sp-note{right:7vw;top:26vh;max-width:34ch;text-align:right;
-  font-family:var(--display);font-size:clamp(1rem,2.2vw,1.4rem);line-height:1.6;color:var(--muted);}
-.sp-final{right:7.4vw;bottom:9vh;font-size:.6rem;letter-spacing:.32em;
-  text-transform:uppercase;color:var(--gold);}
-.sp-close{left:50%;bottom:4vh;transform:translateX(-50%) !important;
-  font-size:.8rem;color:var(--muted);letter-spacing:.2em;}
-#spread.open .sp-close{transform:translateX(-50%) !important}
-@media (max-width:600px){
-  .sp-name{top:11vh;left:6vw}.sp-role{left:6.4vw;top:calc(11vh + clamp(2rem,6vw,4.2rem) + 14px)}
-  .sp-note{right:6vw;top:24vh;max-width:26ch;font-size:1rem}.sp-final{right:6.4vw;bottom:8vh}
-}
-@media (prefers-reduced-motion:reduce){#spread .sp-el{transition:none}}
-
 /* mobile */
+/* ---------- modal body lock + comfortable touch targets ---------- */
+body.modal-open{overflow:hidden;overscroll-behavior:none;touch-action:none}
+.panel-body{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+/* inline text controls keep their fine visual weight but gain a 48px hit area */
+.text-link,.socials a,.contact-mail,.proj-link{position:relative}
+.text-link::after,.socials a::after,.contact-mail::after,.proj-link::after{
+  content:"";position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+  height:48px;min-width:48px;
+}
+.a11y-nav button:focus-visible{min-height:48px}
+
+@media (max-width:780px){
+  .panel.panel-wide{width:min(680px,calc(100vw - 28px))}
+  .workflow{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:24px}
+  .workflow::before{display:none}
+  .studio-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .team-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .team-card{min-height:150px}
+}
 @media (max-width:600px){
-  #audioBtn,#langBtn{top:14px;width:38px;height:38px}
-  #audioBtn{right:14px}
-  #langBtn{right:58px}
+  #audioBtn{top:14px;right:14px;width:48px;height:48px}
   .wordmark{top:16px;left:18px}
   .wordmark h1{font-size:1.15rem}
   .heart-hint .line{font-size:.85rem}
@@ -588,11 +549,37 @@ body{
   .panel-title{font-size:1.6rem}
   .hint{bottom:24px;font-size:.68rem;padding:9px 16px}
   .hud-controls{right:14px;bottom:14px}
+  .panel,.panel.panel-wide{width:calc(100vw - 24px);max-height:84vh;border-radius:15px}
+  .studio-intro .lede{font-size:1.2rem}
+  .panel-body .lede{font-size:1.08rem}
+  .section-title{font-size:1.34rem}
+  .featured-name,.member-name,.item-name{font-size:1.12rem}
+  .case-summary{font-size:.97rem}
+  .studio-stat strong{font-size:1.28rem}
+  .studio-grid,.principles,.service-copy,.case-meta,.case-grid{grid-template-columns:1fr}
+  .principle{min-height:0}
+  .workflow{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 14px}
+  .studio-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .studio-stat:last-child{grid-column:1/-1}
+  .team-grid{grid-template-columns:1fr}
+  .team-card{min-height:0}
+  .case-block.wide{grid-column:auto}
+  .case-footer{align-items:flex-start;flex-direction:column;gap:7px}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .hint .dot,.heart-hint .line{animation:none}
-  .panel,.veil,.hint,.heart-hint{transition:none}
+  /* decorative motion off */
+  .hint .dot,.heart-hint .line,.reveal,.workflow::before,.media-float{animation:none}
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important}
+  /* transitions reduced to instant state changes */
+  .panel,.veil,.hint,.heart-hint,.principle,.service-card,.featured-card,
+  .panel .panel-head,.panel .panel-body,.text-link,.panel-close,
+  .hud-controls button,#audioBtn,#ground{transition:none !important}
+  /* heavy blur is expensive and disorienting: drop to a flat scrim */
+  .veil{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(7,11,25,.82)}
+  .panel{transform:translate(-50%,-50%) scale(1)}
+  .panel.open{transform:translate(-50%,-50%) scale(1)}
+  .featured-card:hover,.principle:hover{transform:none}
 }
 </style>
 </head>
@@ -612,7 +599,6 @@ body{
 </header>
 
 <button id="audioBtn" aria-label="Toggle sound" aria-pressed="true" title="Sound">♪</button>
-<button id="langBtn" aria-label="Switch language (Хэл солих)" title="Switch language (Хэл солих)">МН</button>
 
 <div class="heart-hint" id="heartHint">
   <p class="line">Touch the heart</p>
@@ -626,8 +612,10 @@ body{
   <button data-open="services">Open Services</button>
   <button data-open="about">Open About</button>
   <button data-open="contact">Open Contact</button>
+  <button data-open="developers">Open Developers</button>
+  <button data-open="marketing">Open Marketing</button>
   <button data-open="p0">Project: Roan</button>
-  <button data-open="p1">Project: Vessel No. 9</button>
+  <button data-open="p1">Project: Olymo</button>
   <button data-open="p2">Project: Cinder &amp; Sage</button>
   <button data-open="p3">Project: The Quiet Index</button>
   <button data-open="p4">Project: Halcyon FM</button>
@@ -651,16 +639,6 @@ body{
 
 <div class="veil" id="veil"></div>
 <div id="ground" aria-hidden="true"><canvas id="groundCv"></canvas></div>
-<div id="spread" role="dialog" aria-label="Team member" hidden>
-  <span class="sp-el sp-glyph" aria-hidden="true">E</span>
-  <h2 class="sp-el sp-name">Name</h2>
-  <p class="sp-el sp-role">Role</p>
-  <p class="sp-el sp-note">Note</p>
-  <div class="sp-el sp-sky"></div>
-  <p class="sp-el sp-fact">—</p>
-  <p class="sp-el sp-final">—</p>
-  <p class="sp-el sp-close">✕</p>
-</div>
 <section class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" hidden>
   <div class="panel-head">
     <div>
@@ -681,168 +659,189 @@ body{
    ============================================================ */
 const CONTENT = {
   about: {
-    eyebrow: "About · the minds behind it",
-    title: "Meraki (μεράκι)",
-    lede: "A Greek word with no clean translation: to do something with soul, creativity, and love — to leave a piece of yourself in the work.",
-    team: [
-      { name: "Enkh-Amgalan", role: "3D & Poster Designer · Team Leader",
-        note: "Builds worlds in 3D and posters you can't walk past.", projects:[2,4],
-        c: "#E07B4F" },
-      { name: "Ermuundorj", role: "Marketing & Client Relations",
-        note: "Finds the people we're meant to work with — and makes the reels that reach them.", projects:[0,2],
-        c: "#D9A066" },
-      { name: "Ashidbat", role: "Developer",
-        note: "Transforms ambitious concepts into fast, elegant digital products.", projects:[0,1,3],
-        c: "#E9CE9C" },
-      { name: "Emmatuguldur", role: "Developer",
-        note: "Engineers thoughtful interactions where creativity meets precision.", projects:[1,3,5],
-        c: "#9FD6DE" },
-      { name: "Sarangerel", role: "Advisor",
-        note: "The calm voice in the room — finds clarity and guides every decision with insight.", projects:[0,5],
-        c: "#6E8CFF" }
+    eyebrow: "About · a studio with standards",
+    title: "Ideas with soul. Built with intent.",
+    html: `
+      <article class="studio-page">
+        <header class="studio-intro reveal">
+          <p class="lede">Meraki is a multidisciplinary creative studio for brands that want to be felt, understood, and chosen.</p>
+          <p>Our name comes from the Greek idea of leaving a piece of yourself in your work. We bring that care to the whole journey: clear strategy, expressive design, and considered development made by one connected team.</p>
+        </header>
+        <section class="studio-section reveal" style="--delay:.06s">
+          <div class="studio-grid"><div><p class="section-label">Our story</p><h3 class="section-title">Small by design. Serious about the detail.</h3></div><p>Founded in 2026, Meraki was created around a simple belief: the strongest digital work is not passed from department to department. It is shaped in close conversation, from the first question to the final interaction.</p></div>
+        </section>
+        <section class="studio-section reveal" style="--delay:.1s">
+          <div class="studio-grid"><div><p class="section-label">Mission</p><h3 class="section-title">Make meaningful work that moves people forward.</h3></div><div><p class="section-label">Vision</p><p>To help ambitious teams create a more memorable, human standard for how their brand appears in the world.</p></div></div>
+        </section>
+        <section class="studio-section reveal" style="--delay:.14s">
+          <div class="studio-grid"><div><p class="section-label">What we do</p><p><strong>We connect the thinking, the identity, and the experience.</strong> Brand systems, digital products, websites, content direction, and the front-end craft that makes an idea feel complete.</p></div><div><p class="section-label">Who we help</p><p>Founders, cultural teams, hospitality brands, and growing businesses with a point of view—and the appetite to express it with more precision.</p></div></div>
+        </section>
+        <section class="studio-section reveal" style="--delay:.18s">
+          <p class="section-label">Why clients choose us</p><h3 class="section-title">A clear point of view, with the discipline to deliver it.</h3>
+          <div class="principles">
+            <article class="principle"><p class="principle-index">01</p><h4>Clarity earns attention</h4><p>We turn complex ideas into a focused story people can navigate and remember.</p></article>
+            <article class="principle"><p class="principle-index">02</p><h4>Craft carries strategy</h4><p>Every type choice, transition, and interaction has a job to do—not just a surface to decorate.</p></article>
+            <article class="principle"><p class="principle-index">03</p><h4>One team, one standard</h4><p>Strategy, design, and development stay connected, protecting the original intent through launch.</p></article>
+          </div>
+        </section>
+        <section class="studio-section reveal" style="--delay:.22s">
+          <p class="section-label">How we work</p><h3 class="section-title">A deliberate path from signal to launch.</h3>
+          <div class="workflow" aria-label="Meraki agency workflow">
+            <article class="workflow-step"><div class="workflow-orb">01</div><h4>Discover</h4><p>Listen closely. Define the real opportunity.</p></article>
+            <article class="workflow-step"><div class="workflow-orb">02</div><h4>Strategy</h4><p>Set the story, priorities, and direction.</p></article>
+            <article class="workflow-step"><div class="workflow-orb">03</div><h4>Design</h4><p>Give the idea a distinct visual language.</p></article>
+            <article class="workflow-step"><div class="workflow-orb">04</div><h4>Develop</h4><p>Build for performance, access, and feel.</p></article>
+            <article class="workflow-step"><div class="workflow-orb">05</div><h4>Launch</h4><p>Refine the final details and release with care.</p></article>
+            <article class="workflow-step"><div class="workflow-orb">06</div><h4>Support</h4><p>Stay close as the work meets the world.</p></article>
+          </div>
+        </section>
+        <section class="studio-section reveal" style="--delay:.26s">
+          <p class="section-label">Studio at a glance</p><div class="studio-stats" aria-label="Meraki studio facts"><div class="studio-stat"><strong>5</strong><span>Connected disciplines</span></div><div class="studio-stat"><strong>2026</strong><span>Founded</span></div><div class="studio-stat"><strong>1</strong><span>Integrated studio</span></div><div class="studio-stat"><strong>In-house</strong><span>Design + development</span></div><div class="studio-stat"><strong>Built in</strong><span>Access + performance</span></div></div>
+        </section>
+        <section class="studio-section reveal" style="--delay:.3s">
+          <p class="section-label">The team</p><h3 class="section-title">Five disciplines. One shared standard.</h3><p>Meraki works as a compact, collaborative studio: each specialist brings depth, and every decision is made in view of the whole experience.</p>
+          <div class="team-grid">
+            <article class="team-card"><h4 class="team-role">Creative direction</h4><p>Shapes the central idea, sharpens the story, and keeps the work honest.</p><p class="team-line">Meaning before noise.</p></article>
+            <article class="team-card"><h4 class="team-role">Brand systems</h4><p>Builds identities that stay distinct across the many places a brand has to live.</p><p class="team-line">Recognition, held together.</p></article>
+            <article class="team-card"><h4 class="team-role">Experience design</h4><p>Designs intuitive journeys, useful interfaces, and moments worth lingering on.</p><p class="team-line">Every screen has a reason.</p></article>
+            <article class="team-card"><h4 class="team-role">Front-end craft</h4><p>Turns the system into a fast, responsive, accessible experience with real character.</p><p class="team-line">The feeling survives the build.</p></article>
+            <article class="team-card"><h4 class="team-role">Content + motion</h4><p>Brings pace, voice, and movement into the details that make an experience memorable.</p><p class="team-line">The work keeps breathing.</p></article>
+          </div>
+          <p class="team-more">Go deeper into two of those disciplines:
+            <button class="text-link" type="button" data-panel="developers">Developers <span aria-hidden="true">→</span></button>
+            <button class="text-link" type="button" data-panel="marketing">Marketing <span aria-hidden="true">→</span></button>
+          </p>
+        </section>
+        <footer class="studio-cta reveal" style="--delay:.34s"><p class="section-label">A better kind of collaboration</p><h3 class="section-title">The client is part of the studio while the work is being made.</h3><p>We share the thinking early, invite useful friction, and make space for the small decisions that give a final result its integrity.</p><button class="text-link" type="button" data-panel="contact">Start a conversation <span aria-hidden="true">→</span></button></footer>
+      </article>`
+  },
+  developers: {
+    eyebrow: "Developers · featured builds",
+    title: "Engineering the experience",
+    lede: "Engineering excellence held to a single standard: clean architecture, rigorous technical execution, and interfaces that stay fast under real conditions.",
+    intro: "We build on modern web stacks and distributed systems — typed, tested, and reviewed — so the structure behind an experience is as considered as its surface. Development sits in the same room as strategy and design, which is how design intent survives the code.",
+    flow: ["Discovery", "Architecture", "Build", "Review", "Deploy", "Polish"],
+    featured: [
+      { name: "Roan",  proj: 0, meta: "Restaurant website · Live 2026",
+        line: "A cinematic restaurant experience with a calm, clear route to a reservation." },
+      { name: "Olymo", proj: 1, meta: "Product experience · Live",
+        line: "An expressive product story kept legible and direct when a visitor needs to act." }
     ],
-    closingA: "Different minds. One vision.",
-    closingB: "Crafted with Meraki."
+    team: [
+      { name: "Emmatuguldur", short: "Emma", role: "Front-end Developer",
+        note: "Owns the front-end architecture: component systems, state management, and performance budgets. Accountable for accessibility compliance and cross-browser testing before every release.",
+        line: "Front-end architecture and release quality." },
+      { name: "Ashidbat", short: "Ashid", role: "Back-end Developer",
+        note: "Leads back-end and integration work — API design, data modelling, and deployment pipelines. Responsible for uptime, security review, and the technical documentation clients inherit.",
+        line: "Back-end delivery and infrastructure." }
+    ]
+  },
+  marketing: {
+    eyebrow: "Marketing · a five-star standard",
+    title: "Positioning that gets chosen",
+    lede: "Strategic positioning and audience engagement, measured: conversion optimisation and data-driven brand growth that compounds after launch.",
+    intro: "Marketing joins at discovery, not at launch — so the story a brand tells outside matches the one the work tells inside, and every decision has a number behind it.",
+    flow: ["Research", "Positioning", "Audience", "Campaign", "Launch", "Optimise"],
+    stars: 5,
+    ratingLabel: "Five-star team",
+    ratingNote: "The standard we hold every campaign to — clarity, craft, and follow-through.",
+    team: [
+      { name: "Ermuundorj", short: "Ermvvn", role: "Marketing & Client Relations",
+        note: "Manages client accounts and campaign delivery end to end: scoping, timelines, and reporting. Runs audience research and channel planning against agreed conversion targets.",
+        line: "Client accounts and campaign reporting." },
+      { name: "Enkh-Amgalan", short: "Amga", role: "Design Lead · 3D & Print",
+        note: "Directs visual output across 3D, print, and campaign assets. Sets production standards, reviews work before it ships, and manages the design team’s capacity and schedule.",
+        line: "Visual production and design review." }
+    ]
+  },
+  advisor: {
+    name: "Sarangerel", short: "Saraa", role: "Advisor",
+    note: "Advises on positioning, scope, and commercial risk. Reviews major decisions before commitment and provides independent oversight on delivery quality across both teams.",
+    line: "Independent oversight on scope and delivery."
   },
   services: {
-    eyebrow: "Services · three orbits",
-    title: "What we make",
+    eyebrow: "Services · strategy through launch",
+    title: "Made to mean something—and work hard.",
     items: [
-      { name: "Brand identity", meta: "Strategy · Naming · Visual systems",
-        desc: "[Placeholder] Identities built from the inside out — strategy first, then a visual language that can grow with you." },
-      { name: "Digital experiences", meta: "Websites · Apps · Prototypes",
-        desc: "[Placeholder] Sites and products that feel hand-made: fast, accessible, and a little bit playful." },
-      { name: "Art direction & content", meta: "Campaigns · Motion · Photography",
-        desc: "[Placeholder] Campaign worlds, motion systems, and imagery directed with one eye on craft and one on results." }
+      { name: "Brand identity", meta: "Positioning · Identity systems · Art direction", what: "A clear visual and verbal system built from the real character of your business.", why: "A distinctive identity gives every decision a shared centre—and makes recognition easier to earn.", deliverables: "Positioning, visual direction, identity toolkit, type and colour systems, launch guidance." },
+      { name: "Digital experiences", meta: "Websites · Product UX · Front-end development", what: "High-consideration websites and interfaces where story, usability, and interaction carry equal weight.", why: "Your digital presence is often the first proof of how you think. It should be useful, fast, and unmistakably yours.", deliverables: "Experience strategy, UX/UI design, prototypes, responsive front-end build, accessibility and performance review." },
+      { name: "Art direction & content", meta: "Campaign worlds · Motion systems · Editorial direction", what: "A cohesive creative language for the imagery, motion, and words that bring a brand into focus.", why: "Consistency creates trust; a strong point of view turns attention into lasting recall.", deliverables: "Creative concepts, campaign direction, content frameworks, motion principles, production direction." },
+      { name: "Launch & evolution", meta: "QA · Design stewardship · Ongoing refinement", what: "The focused support that moves work from a polished hand-off to a confident public release.", why: "The final five percent is where usability, performance, and craft either hold up—or fall away.", deliverables: "Launch planning, cross-device QA, content support, optimisation priorities, design stewardship." }
     ]
   },
   contact: {
-    eyebrow: "Contact · send a signal",
-    title: "Say hello",
+    eyebrow: "Contact · begin with a conversation",
+    title: "Bring us the good problem.",
     email: "merakiagencymn@gmail.com",
-    note: "[Placeholder] Tell us about your project, your timeline, and what you want people to feel.",
-    socials: [
-      { label: "Instagram", url: "#" },
-      { label: "Behance",   url: "#" },
-      { label: "LinkedIn",  url: "#" },
-      { label: "X / Twitter", url: "#" }
-    ]
+    note: "Tell us what you are building, where it needs to go, and what a meaningful result would change. We will reply with a considered next step.",
+    socials: []
   },
   projects: [
     { title: "Roan", meta: "Restaurant website · Live 2026",
-      desc: "A fine-dining restaurant suspended thirty-two floors above Ulaanbaatar, where Korean precision meets nomadic heritage. We designed and built its home online: cinematic scrolling, a signature-dish narrative, and a reservation flow — quiet, elevated, alive.",
+      desc: "A digital home for a fine-dining restaurant suspended above Ulaanbaatar, where Korean precision meets nomadic heritage.",
       role: "Web design & development", link: "https://roa-nv3.vercel.app/",
+      challenge: "Give a nuanced restaurant story the same sense of intention as the room itself, while keeping the route to a reservation clear.",
+      solution: "A cinematic editorial experience that introduces the atmosphere, cuisine, and essential information in a calm, focused sequence.",
+      approach: "Restrained type, warm contrast, paced motion, and a hierarchy designed to reward exploration without hiding the practical details.",
+      outcome: "A quiet, conversion-conscious restaurant experience that gives the kitchen, the room, and the reservation journey equal weight.",
+      tech: ["HTML", "CSS", "JavaScript", "Responsive UX"],
       stack: ["Concept","Design","Build","Launch"],
       milestones: ["Concept","Build","Live"],
       c1: "rgba(233,180,76,.8)", c2: "rgba(170,55,40,.5)" },
-    { title: "Vessel No. 9", meta: "Digital experience · 2025",
-      desc: "[Placeholder] An immersive product site for a small-batch ceramics studio, with a 3D glaze configurator.",
-      role: "Design & development", link: "#",
-      stack: ["Research","UX","3D Config","Build"],
+    { title: "Olymo", meta: "https://olymo-mn.web.app",
+      desc: "A focused web experience designed to make a product story feel direct, distinctive, and easy to explore.",
+      role: "Design & development", link: "https://olymo-mn.web.app",
+      challenge: "Create a clearer digital introduction while giving the visual system enough presence to make an immediate impression.",
+      solution: "A concise experience that balances a bold visual rhythm with a more legible path through the core content.",
+      approach: "Interface hierarchy, responsive behaviour, and simple interaction are treated as one system rather than separate layers.",
+      outcome: "A more coherent digital front door: expressive at first glance, straightforward when a visitor needs to act.",
+      tech: ["HTML", "CSS", "JavaScript", "Firebase hosting"],
+      stack: ["Research","UX","UI","Build"],
       milestones: ["Discovery","Prototype","Ship"],
       c1: "rgba(124,152,240,.7)", c2: "rgba(233,180,76,.5)" },
-    { title: "Cinder & Sage", meta: "Art direction · 2024",
-      desc: "[Placeholder] Campaign world for a restaurant group — photography, menus, and a motion system for socials.",
-      role: "Art direction, content", link: "#",
+    { title: "Cinder & Sage", meta: "Restaurant direction · Selected study",
+      desc: "A considered identity direction for a restaurant group built around atmosphere, appetite, and repeat recognition.",
+      role: "Art direction, content", link: null,
+      challenge: "Create a flexible world that could carry menu moments, campaign imagery, and everyday communication without losing its appetite.",
+      solution: "A hospitality direction designed around a warm visual tension: grounded materials, sharp typography, and imagery with a sense of occasion.",
+      approach: "The system begins with mood and message, then translates into repeatable editorial rules for the places guests actually meet the brand.",
+      outcome: "A coherent creative platform designed to make many touchpoints feel like one unmistakable dining experience.",
+      tech: ["Identity system", "Editorial templates", "Motion principles", "Content direction"],
       stack: ["Concept","Photo","Menus","Motion"],
       milestones: ["Moodboard","Shoot","Rollout"],
       c1: "rgba(255,150,60,.6)", c2: "rgba(46,100,255,.45)" },
-    { title: "The Quiet Index", meta: "Editorial platform · 2024",
-      desc: "[Placeholder] A reading platform for long-form criticism. Typography-first, distraction-free, fast.",
-      role: "Product design, front-end", link: "#",
+    { title: "The Quiet Index", meta: "Editorial platform · Selected study",
+      desc: "A typography-first direction for long-form reading, shaped around focus, rhythm, and generous space.",
+      role: "Product design, front-end", link: null,
+      challenge: "Make a digital reading experience feel substantial without making it feel heavy or difficult to navigate.",
+      solution: "An editorial framework that gives writing room to breathe while supporting discovery, context, and return visits.",
+      approach: "Information architecture and type are developed together; restraint becomes the interface rather than a visual afterthought.",
+      outcome: "A reading environment designed to keep the work in focus—and make thoughtful content easier to stay with.",
+      tech: ["Information architecture", "Type system", "Responsive layouts", "Front-end prototypes"],
       stack: ["IA","Type System","Design","Front-end"],
       milestones: ["Audit","Beta","Public"],
       c1: "rgba(234,237,247,.35)", c2: "rgba(61,99,216,.6)" },
-    { title: "Halcyon FM", meta: "Brand & app · 2023",
-      desc: "[Placeholder] Identity and mobile app for an independent radio station that broadcasts only at golden hour.",
-      role: "Identity, UI design", link: "#",
+    { title: "Halcyon FM", meta: "Brand & app · Selected study",
+      desc: "An identity and listening experience for an independent radio concept with a clear sense of time and place.",
+      role: "Identity, UI design", link: null,
+      challenge: "Give an audio-first concept enough visual distinction to stand apart, while keeping the listener journey immediate and calm.",
+      solution: "A golden-hour identity system paired with a focused listening interface built around programming, discovery, and atmosphere.",
+      approach: "The brand combines a flexible typographic voice with UI patterns that reduce friction between curiosity and playback.",
+      outcome: "A cohesive listening concept designed to feel as collectible in the hand as it does present in the ear.",
+      tech: ["Brand identity", "UI kit", "Interaction prototypes", "Motion studies"],
       stack: ["Identity","UI Kit","iOS","Android"],
       milestones: ["Brand","App v1","On air"],
       c1: "rgba(255,217,138,.75)", c2: "rgba(255,110,60,.45)" },
-    { title: "Studio Marrow", meta: "Identity & site · 2023",
-      desc: "[Placeholder] A bone-deep rebrand for an architecture practice, plus a portfolio site that loads in under a second.",
-      role: "Identity, web design", link: "#",
+    { title: "Studio Marrow", meta: "Identity & site · Selected study",
+      desc: "A poised identity and portfolio direction for an architecture practice with work that needed more room to speak.",
+      role: "Identity, web design", link: null,
+      challenge: "Create a brand presence that respects architectural work without turning the studio site into a catalogue of empty minimalism.",
+      solution: "An editorial portfolio system where projects, process, and points of view each have a clear place in the story.",
+      approach: "A measured material palette, spatial layout, and performance-minded content structure give the work authority without excess.",
+      outcome: "A design direction intended to make the practice feel rigorous, contemporary, and ready to be commissioned.",
+      tech: ["Visual identity", "Design system", "Portfolio UX", "Content strategy"],
       stack: ["Workshops","Identity","Site","CMS"],
       milestones: ["Immersion","Reveal","Handover"],
-      c1: "rgba(151,160,191,.55)", c2: "rgba(233,180,76,.55)" }
-  ]
-};
-
-/* ☾ Монгол контент — CONTENT-тэй ижил бүтэцтэй; чөлөөтэй засаарай */
-const CONTENT_MN = {
-  about: {
-    eyebrow: "Бидний тухай · ард нь буй сэтгэлгээнүүд",
-    title: "Мераки (μεράκι)",
-    lede: "Шууд орчуулагдашгүй грек үг: сэтгэл, бүтээлч эрч, хайраа шингээж — өөрийнхөө нэг хэсгийг бүтээлдээ үлдээхийг хэлдэг.",
-    team: [
-      { name: "Enkh-Amgalan", role: "3D ба постер дизайнер · Багийн ахлагч",
-        note: "3D ертөнц бүтээж, хажуугаар нь өнгөрч чадахгүй постерууд урладаг.", c: "#E07B4F" },
-      { name: "Ermuundorj", role: "Маркетинг ба Харилцагчийн харилцаа",
-        note: "Хамтрах хүмүүсээ олж, тэдэнд хүрэх reel-үүдийг бүтээдэг.", c: "#D9A066" },
-      { name: "Ashidbat", role: "Хөгжүүлэгч",
-        note: "Том санааг хурдан, дэгжин дижитал бүтээгдэхүүн болгодог.", c: "#E9CE9C" },
-      { name: "Emmatuguldur", role: "Хөгжүүлэгч",
-        note: "Бүтээлч сэтгэлгээ, нарийвчлал уулзах харилцан үйлдлүүдийг урладаг.", c: "#9FD6DE" },
-      { name: "Sarangerel", role: "Зөвлөх",
-        note: "Ээдрээтэйгээс тодорхойг олж, шийдвэр бүрийг ухаанаар чиглүүлдэг.", c: "#6E8CFF" }
-    ],
-    closingA: "Өөр өөр сэтгэлгээ. Нэг алсын хараа.",
-    closingB: "Мераки сэтгэлээр бүтээв."
-  },
-  services: {
-    eyebrow: "Үйлчилгээ · гурван тойрог зам",
-    title: "Бид юу бүтээдэг вэ",
-    items: [
-      { name: "Брэнд айдентити", meta: "Стратеги · Нэршил · Визуал систем",
-        desc: "[Жишээ] Дотроосоо гадагшаа бүтээгдсэн айдентити — эхлээд стратеги, дараа нь тантай хамт өсөх визуал хэл." },
-      { name: "Дижитал туршлага", meta: "Вэбсайт · Апп · Прототип",
-        desc: "[Жишээ] Гараар урласан мэт мэдрэгддэг сайт, бүтээгдэхүүнүүд: хурдан, хүртээмжтэй, жаахан ч тоглоомч." },
-      { name: "Арт чиглүүлэг ба контент", meta: "Кампанит ажил · Хөдөлгөөн · Гэрэл зураг",
-        desc: "[Жишээ] Нэг нүдээрээ ур чадвар, нөгөөгөөрөө үр дүнг харсан кампанит ертөнц, хөдөлгөөнт систем, дүрслэл." }
-    ]
-  },
-  contact: {
-    eyebrow: "Холбоо барих · дохио илгээгээрэй",
-    title: "Мэндчилье",
-    email: "merakiagencymn@gmail.com",
-    note: "[Жишээ] Төслийнхөө тухай, хугацаа, хүмүүст ямар мэдрэмж төрүүлэхийг хүсэж буйгаа бидэнд хэлээрэй.",
-    socials: [
-      { label: "Instagram", url: "#" },
-      { label: "Behance",   url: "#" },
-      { label: "LinkedIn",  url: "#" },
-      { label: "X / Twitter", url: "#" }
-    ]
-  },
-  projects: [
-    { title: "Roan", meta: "Рестораны вэбсайт · 2026 нээлттэй",
-      desc: "Улаанбаатарын дээгүүр 32 давхарт өргөгдсөн fine dining ресторан — солонгос нарийн урлал нүүдэлчний өвтэй уулздаг газар. Бид түүний онлайн орон зайг бүтээв: кино мэт гүйлгэлт, онцлох хоолны түүх, захиалгын урсгал.",
-      role: "Вэб дизайн ба хөгжүүлэлт", link: "https://roa-nv3.vercel.app/",
-      stack: ["Санаа","Дизайн","Хөгжүүлэлт","Нээлт"], milestones: ["Санаа","Бүтээлт","Нээлттэй"],
-      c1: "rgba(233,180,76,.8)", c2: "rgba(170,55,40,.5)" },
-    { title: "Vessel No. 9", meta: "Дижитал туршлага · 2025",
-      desc: "[Жишээ] Жижиг цувралын шаазан урланы бүтээгдэхүүний сайт — 3D паалан сонгогчтой.",
-      role: "Дизайн ба хөгжүүлэлт", link: "#",
-      stack: ["Судалгаа","UX","3D сонгогч","Хөгжүүлэлт"], milestones: ["Судалгаа","Прототип","Хүлээлгэсэн"],
-      c1: "rgba(124,152,240,.7)", c2: "rgba(233,180,76,.5)" },
-    { title: "Cinder & Sage", meta: "Арт чиглүүлэг · 2024",
-      desc: "[Жишээ] Ресторанны сүлжээний кампанит ертөнц — гэрэл зураг, цэс, сошиал хөдөлгөөнт систем.",
-      role: "Арт чиглүүлэг, контент", link: "#",
-      stack: ["Концепц","Зураг авалт","Цэс","Хөдөлгөөн"], milestones: ["Мүүдборд","Зураг авалт","Түгээлт"],
-      c1: "rgba(255,150,60,.6)", c2: "rgba(46,100,255,.45)" },
-    { title: "The Quiet Index", meta: "Редакцийн платформ · 2024",
-      desc: "[Жишээ] Урт эссэ, шүүмжийн уншлагын платформ. Типографи түрүүлсэн, анхаарал сарниулахгүй, хурдан.",
-      role: "Бүтээгдэхүүний дизайн, фронт-энд", link: "#",
-      stack: ["Мэдээллийн бүтэц","Үсгийн систем","Дизайн","Фронт-энд"], milestones: ["Аудит","Бета","Нээлттэй"],
-      c1: "rgba(234,237,247,.35)", c2: "rgba(61,99,216,.6)" },
-    { title: "Halcyon FM", meta: "Брэнд ба апп · 2023",
-      desc: "[Жишээ] Зөвхөн алтан цагаар нэвтрүүлдэг бие даасан радиогийн айдентити болон гар утасны апп.",
-      role: "Айдентити, UI дизайн", link: "#",
-      stack: ["Айдентити","UI цуглуулга","iOS","Android"], milestones: ["Брэнд","Апп v1","Эфирт"],
-      c1: "rgba(255,217,138,.75)", c2: "rgba(255,110,60,.45)" },
-    { title: "Studio Marrow", meta: "Айдентити ба сайт · 2023",
-      desc: "[Жишээ] Архитектурын студийн ул суурьтай ре-брэнд, секундээс ч хурдан ачаалдаг портфолио сайт.",
-      role: "Айдентити, вэб дизайн", link: "#",
-      stack: ["Воркшоп","Айдентити","Сайт","CMS"], milestones: ["Судалгаа","Танилцуулга","Хүлээлгэсэн"],
       c1: "rgba(151,160,191,.55)", c2: "rgba(233,180,76,.55)" }
   ]
 };
@@ -851,63 +850,6 @@ const CONTENT_MN = {
 /* Reservation backend endpoint (see the meraki-backend package).
    Same-origin default; point at your deployment if hosted elsewhere. */
 const RESERVE_ENDPOINT = "/api/reserve";
-
-/* ---------- ☾ LANGUAGE — English / Монгол ---------- */
-let LANG = "en";
-const UI = {
-  en: {
-    subAgency:"a creative agency", subGalaxy:"a creative galaxy",
-    heartLine:"Touch the heart", heartSub:"every galaxy begins with one",
-    hint:"Drag to explore · pinch or scroll to zoom",
-    youAreHere:"Y O U   A R E   H E R E",
-    land:"land", recenter:"click to recenter",
-    a11yEnter:"Enter the galaxy", a11yHeart:"Return to the nebula heart",
-    openWork:"Open Work", openServices:"Open Services", openAbout:"Open About", openContact:"Open Contact",
-    project:"Project",
-    zoomIn:"Zoom in", zoomOut:"Zoom out", recenterBtn:"Recenter view",
-    switchView:"Switch between 3D and 2D view", toHeartBtn:"Return to the heart",
-    sound:"Toggle sound", langBtn:"Хэл солих (Switch language)",
-    workEyebrow:"Work · six stars and counting", workTitle:"Pieces of our soul",
-    workIntro:"Each glowing star out in the galaxy is one of these projects — open one by its name, or let \u201cSee more\u201d fly you to its star.",
-    seeMore:"See more", missionMap:"Mission map", ourRole:"Our role", viewProject:"View project \u2192",
-    formName:"Name", formEmail:"Email", formDate:"Preferred launch date", formNotes:"Mission notes",
-    formPh:"Timeline, budget orbit, what you want people to feel\u2026",
-    formSend:"Transmit reservation \u2726", formSending:"Transmitting\u2026",
-    stInfo:"Signal leaving the atmosphere\u2026",
-    stOk:"\u2726 Signal received. A navigator replies within one Earth rotation \u2014 check your inbox.",
-    st429:"Too many transmissions \u2014 give the relay a few minutes.",
-    stGlitch:"Mission control glitched \u2014 please try again.",
-    stOffline:"Could not reach mission control. Check your connection (or deploy the /api backend).",
-    planets:{ work:"Work", services:"Services", about:"About", contact:"Contact" }
-  },
-  mn: {
-    subAgency:"бүтээлч агентлаг", subGalaxy:"бүтээлч галактик",
-    heartLine:"Зүрхэнд хүрээрэй", heartSub:"галактик бүр нэг зүрхнээс эхэлдэг",
-    hint:"Чирж аялаарай · чимхэж эсвэл гүйлгэж томруулна",
-    youAreHere:"Т А   Э Н Д   Б А Й Н А",
-    land:"буух", recenter:"дарж голлуулах",
-    a11yEnter:"Галактикт орох", a11yHeart:"Мананцарын зүрхэнд буцах",
-    openWork:"Бүтээлүүдийг нээх", openServices:"Үйлчилгээг нээх", openAbout:"Бидний тухай нээх", openContact:"Холбоо барихыг нээх",
-    project:"Төсөл",
-    zoomIn:"Ойртуулах", zoomOut:"Холдуулах", recenterBtn:"Голлуулах",
-    switchView:"3D ба 2D хооронд шилжих", toHeartBtn:"Зүрх рүү буцах",
-    sound:"Дуу асаах/унтраах", langBtn:"Switch language (Хэл солих)",
-    workEyebrow:"Бүтээлүүд · зургаан од, өссөөр л байна", workTitle:"Сэтгэлийн минь хэлтэрхийнүүд",
-    workIntro:"Галактикт гэрэлтэх од бүр эдгээр төслийн нэг — нэрээр нь нээгээрэй, эсвэл \u201cДэлгэрэнгүй\u201d таныг од руу нь хөтөлнө.",
-    seeMore:"Дэлгэрэнгүй", missionMap:"Аяллын зураглал", ourRole:"Бидний үүрэг", viewProject:"Төслийг үзэх \u2192",
-    formName:"Нэр", formEmail:"Имэйл", formDate:"Хөөрөлтийн өдөр", formNotes:"Аяллын тэмдэглэл",
-    formPh:"Хугацаа, төсөв, хүмүүст ямар мэдрэмж төрүүлэхийг хүсэж буйгаа бичээрэй\u2026",
-    formSend:"Захиалга илгээх \u2726", formSending:"Илгээж байна\u2026",
-    stInfo:"Дохио агаар мандлыг орхиж байна\u2026",
-    stOk:"\u2726 Дохио хүлээн авлаа. Дэлхий нэг эргэхийн дотор хариу очно — имэйлээ шалгаарай.",
-    st429:"Хэт олон дохио илгээлээ — релег хэдэн минут амраагаарай.",
-    stGlitch:"Удирдлагын төвд саатал гарлаа — дахин оролдоно уу.",
-    stOffline:"Удирдлагын төвтэй холбогдож чадсангүй. Сүлжээгээ шалгаарай (эсвэл /api backend-ээ байршуулаарай).",
-    planets:{ work:"Бүтээл", services:"Үйлчилгээ", about:"Бидний тухай", contact:"Холбоо" }
-  }
-};
-const T = k => UI[LANG][k] ?? UI.en[k];
-const L = () => LANG === "mn" ? CONTENT_MN : CONTENT;
 
 /* ============================================================
    SHARED — grade, sprites, motion prefs, orchestration
@@ -962,28 +904,6 @@ function setFlash(v, ms){
   flashEl.style.opacity = v;
 }
 const smooth = x => { x = Math.max(0, Math.min(1, x)); return x*x*(3-2*x); };
-
-/* ---------- bespoke cursor: a gold point that leads, a ring that breathes after ---------- */
-const Cursor = (() => {
-  if (matchMedia("(pointer: coarse)").matches) return { halt(){} };
-  const dot = document.createElement("div"); dot.id = "curDot";
-  const ring = document.createElement("div"); ring.id = "curRing";
-  document.body.append(ring, dot);
-  let tx = innerWidth/2, ty = innerHeight/2, rx = tx, ry = ty, raf = 0, halted = false;
-  window.addEventListener("pointermove", e => { tx = e.clientX; ty = e.clientY; }, { passive:true });
-  window.addEventListener("pointerdown", () => ring.classList.add("press"));
-  window.addEventListener("pointerup",   () => ring.classList.remove("press"));
-  (function tick(){
-    if (halted) return;
-    raf = requestAnimationFrame(tick);
-    rx += (tx - rx) * 0.18; ry += (ty - ry) * 0.18;      /* the luxurious lag */
-    dot.style.transform  = `translate(${tx - 3}px, ${ty - 3}px)`;
-    ring.style.transform = `translate(${rx - 15}px, ${ry - 15}px)`;
-    const hov = document.querySelector(".pointing, button:hover, a:hover, .sky-proj:hover, .cnode:hover, input:hover, textarea:hover");
-    ring.classList.toggle("hover", !!hov);
-  })();
-  return { halt(){ halted = true; cancelAnimationFrame(raf); dot.remove(); ring.remove(); } };
-})();
 
 /* scene handles, wired at the bottom */
 const Voyage = { enterGalaxy: null, toHeart: null, init: null, destroy: null };
@@ -1346,6 +1266,8 @@ const Nebula = (() => {
   /* pointer: parallax + heart interaction */
   let pmx=0, pmy=0, mx=0, my=0;
   let hoveringHeart = false;
+  let engaged = false;                 /* set once the visitor reaches for the heart */
+  const INTRO_HOLD = 3.0, INTRO_FADE = 1.5;   /* full strength for 3s, then a 1.5s fade */
   let downAt = null;
   const heartHint = document.getElementById("heartHint");
 
@@ -1357,9 +1279,11 @@ const Nebula = (() => {
   Reg.on(cv, "pointermove", e => {
     mx = (e.clientX/W - 0.5); my = (e.clientY/H - 0.5);
     hoveringHeart = heartHit(e.clientX, e.clientY);
+    if (hoveringHeart) engaged = true;
     cv.classList.toggle("pointing", hoveringHeart && !warping);
   });
   Reg.on(cv, "pointerdown", e => {
+    engaged = true;
     downAt = { x:e.clientX, y:e.clientY };
   });
   Reg.on(cv, "pointerup", e => {
@@ -1371,8 +1295,16 @@ const Nebula = (() => {
 
   /* warp state */
   let warping = false, warpT = 0;
+  const AUTO_WARP_MS = 2600;          /* the voyage begins on its own — no input required */
+  let autoWarpTimer = null;
+  function cancelAutoWarp(){ clearTimeout(autoWarpTimer); autoWarpTimer = null; }
+  function armAutoWarp(){
+    cancelAutoWarp();
+    autoWarpTimer = setTimeout(() => { if (!warping && active) startWarp(); }, AUTO_WARP_MS);
+  }
   function startWarp(){
     if (warping || !active) return;
+    cancelAutoWarp();
     warping = true; warpT = 0;
     heartHint.classList.add("hidden");
     AudioSys.ensure();
@@ -1386,6 +1318,8 @@ const Nebula = (() => {
   }
   function reset(){
     warping = false; warpT = 0;
+    engaged = false; t = 0;            /* the intro cue plays again on return */
+    armAutoWarp();
     cv.style.transform = "";
     heartHint.classList.remove("hidden");
     for (let i=0;i<plasma.length;i++) plasma[i] = makePlasma();
@@ -1489,17 +1423,24 @@ const Nebula = (() => {
        the affordance hover can't provide on touch screens */
     if (!warping){
       const hx = cx-pmx*par, hy = cy-pmy*par;
+      ctx.strokeStyle = "rgba(255,217,138,1)";
       if (reduceMotion){
-        ctx.globalAlpha = 0.16;
-        ctx.strokeStyle = "rgba(255,217,138,1)";
-        ctx.lineWidth = 1.5;
+        /* reduced motion: one steady ring, no travel — the cue without the movement */
+        ctx.globalAlpha = 0.26;
+        ctx.lineWidth = 1.6;
         ctx.beginPath(); ctx.arc(hx, hy, cR*2.3, 0, 7); ctx.stroke();
       } else {
-        const pr = (t*0.36) % 1;
-        ctx.globalAlpha = (1-pr)*(1-pr)*0.32;
-        ctx.strokeStyle = "rgba(255,217,138,1)";
-        ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.arc(hx, hy, cR*(1.7 + pr*3.4), 0, 7); ctx.stroke();
+        /* onboarding: a bolder triple ripple holds for the first 3s, then
+           eases back to the single ambient ring (or stops early once engaged) */
+        const intro = engaged ? 0 : Math.max(0, Math.min(1, (INTRO_HOLD + INTRO_FADE - t) / INTRO_FADE));
+        const rings = intro > 0.02 ? 3 : 1;
+        const speed = 0.36 + intro * 0.30;
+        for (let i = 0; i < rings; i++){
+          const pr = ((t * speed) + i / rings) % 1;
+          ctx.globalAlpha = (1-pr)*(1-pr) * (0.30 + intro * 0.40);
+          ctx.lineWidth = 1.5 + intro * 0.9;
+          ctx.beginPath(); ctx.arc(hx, hy, cR*(1.7 + pr*3.4), 0, 7); ctx.stroke();
+        }
       }
       ctx.globalAlpha = 1;
     }
@@ -1540,10 +1481,26 @@ const Nebula = (() => {
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
   }
   rafId = requestAnimationFrame(frame);
+  armAutoWarp();
+
+  /* idle throttling: stop the loop outright while the tab is hidden.
+     A hidden tab also holds the intro: the auto-warp waits for a visible viewer. */
+  let paused = false;
+  function setPaused(v){
+    if (halted || v === paused) return;
+    paused = v;
+    if (v){ cancelAnimationFrame(rafId); rafId = 0; if (!warping) cancelAutoWarp(); }
+    else {
+      last = performance.now();
+      rafId = requestAnimationFrame(frame);
+      if (!warping && active) armAutoWarp();
+    }
+  }
 
   return {
     setActive(v){ active = v; cv.classList.toggle("off", !v); },
-    halt(){ halted = true; cancelAnimationFrame(rafId); },
+    halt(){ halted = true; cancelAnimationFrame(rafId); cancelAutoWarp(); },
+    setPaused,
     reset, startWarp
   };
 })();
@@ -1564,7 +1521,6 @@ const Galaxy = (() => {
     canvas.height = Math.round(H * DPR);
     canvas.style.width = "100%"; canvas.style.height = "100%";  /* lock layout bounds */
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    ctx.imageSmoothingQuality = "high";
   }
   Reg.on(window, "resize", resize);
   resize();
@@ -1603,27 +1559,13 @@ const Galaxy = (() => {
 
   /* ---------- camera (in tilted view space) ---------- */
   const WORLD_LIMIT = 950;
-  const cam = { x: 60, y: -30, z: isCoarse ? 0.58 : 0.76, tx: 0, ty: 0, tz: null };
+  const cam = { x: 60, y: -30, z: isCoarse ? 0.72 : 0.92, tx: 0, ty: 0, tz: null };
   cam.tx = cam.x; cam.ty = cam.y; cam.tz = cam.z;
   const ZMIN = 0.45, ZMAX = 2.6;
 
-  /* cursor parallax: normalized (-1..1), lerp-smoothed; mid layer rides toScreen
-     so hit-testing and visuals can never disagree */
-  const pp = { x: 0, y: 0, tx: 0, ty: 0 };
-  if (!isCoarse) Reg.on(window, "pointermove", e => {
-    pp.tx = (e.clientX / W) * 2 - 1;
-    pp.ty = (e.clientY / H) * 2 - 1;
-  });
-  /* cinematic swoop state — a hand-rolled power4.inOut timeline */
-  const p4io = k => k < 0.5 ? 8*k*k*k*k : 1 - Math.pow(-2*k + 2, 4) / 2;
-  let swoop = null, swoopY = 0, roll = 0;
-  /* depth of field: racks toward 1 while landed on a member */
-  let dofK = 0, dofTarget = null;
-
   const toScreen = (wx, wy) => {
     const [vx, vy] = tiltXY(wx, wy);
-    return [ (vx - cam.x) * cam.z + W/2 + pp.x * 11,
-             (vy - cam.y) * cam.z + H/2 + pp.y * 8 + swoopY ];
+    return [ (vx - cam.x) * cam.z + W/2, (vy - cam.y) * cam.z + H/2 ];
   };
   /* view-space (camera plane) coords — used for zoom anchoring */
   const toView = (sx, sy) => [ (sx - W/2) / cam.z + cam.x, (sy - H/2) / cam.z + cam.y ];
@@ -1677,8 +1619,7 @@ const Galaxy = (() => {
     }
     return stops[stops.length-1][1];
   }
-  const TEXW = 1024, TEXH = 512;          /* render size */
-  const PW = 512, PH = 256;                /* pattern space: same look, 4x the pixels */
+  const TEXW = 512, TEXH = 256;
   function paintTexture(seed, pixelFn){
     const n = makeNoise(seed);
     const c = document.createElement("canvas"); c.width = TEXW; c.height = TEXH;
@@ -1686,14 +1627,14 @@ const Galaxy = (() => {
     const img = g.createImageData(TEXW, TEXH);
     for (let y = 0; y < TEXH; y++){
       for (let x = 0; x < TEXW; x++){
-        const [r, gr, b] = pixelFn(n, x * 0.5, y * 0.5);
+        const [r, gr, b] = pixelFn(n, x, y);
         const i = (y*TEXW + x)*4;
         img.data[i] = r; img.data[i+1] = gr; img.data[i+2] = b; img.data[i+3] = 255;
       }
     }
     g.putImageData(img, 0, 0);
     /* crossfade left/right edges so the rotation seam disappears */
-    const BLEND = 80;
+    const BLEND = 40;
     const strip = g.getImageData(TEXW-BLEND, 0, BLEND, TEXH);
     const left  = g.getImageData(0, 0, BLEND, TEXH);
     for (let y = 0; y < TEXH; y++){
@@ -1706,102 +1647,72 @@ const Galaxy = (() => {
     g.putImageData(left, 0, 0);
     return c;
   }
-  /* (four legacy world textures removed — the real eight replaced them) */
+  /* gas giant — wind-sheared golden bands with storm cells */
+  const TEX_GAS = paintTexture(101, (n, x, y) => {
+    const warp = fbm(n, x*0.02, y*0.02, 3) * 34;
+    const band = fbm(n, x*0.004, (y+warp)*0.05, 4);
+    const storm = Math.max(0, fbm(n, x*0.05, y*0.05, 3) - 0.62) * 2.2;
+    return ramp([[0,[110,66,20]],[0.35,[201,138,52]],[0.55,[233,180,76]],
+                 [0.75,[255,217,138]],[1,[250,240,214]]], band*1.15 + storm*0.4);
+  });
+  /* storm world — deep cobalt with racing cloud streaks */
+  const TEX_STORM = paintTexture(202, (n, x, y) => {
+    const warp = fbm(n, x*0.03, y*0.012, 4) * 60;
+    const band = fbm(n, (x+warp)*0.006, y*0.045, 4);
+    const wisp = Math.max(0, fbm(n, x*0.08, y*0.03, 3) - 0.58) * 2.4;
+    return ramp([[0,[10,17,52]],[0.4,[33,55,140]],[0.62,[61,99,216]],
+                 [0.82,[124,152,240]],[1,[224,234,255]]], band + wisp*0.5);
+  });
+  /* rocky world — dusty highlands pocked with craters */
+  const TEX_ROCK = (() => {
+    const base = paintTexture(303, (n, x, y) => {
+      const v = fbm(n, x*0.02, y*0.02, 5);
+      return ramp([[0,[112,86,48]],[0.5,[178,140,86]],[0.8,[224,187,124]],
+                   [1,[255,225,166]]], v*1.25);
+    });
+    const g = base.getContext("2d");
+    const rnd = mulberry32(304);
+    for (let i = 0; i < 46; i++){
+      const cx = rnd()*TEXW, cy = 20 + rnd()*(TEXH-40), r = 3 + rnd()*rnd()*16;
+      g.fillStyle = "rgba(60,40,18,0.42)";
+      g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill();
+      g.strokeStyle = "rgba(255,228,170,0.35)";
+      g.lineWidth = Math.max(1, r*0.22);
+      g.beginPath(); g.arc(cx, cy + r*0.18, r*0.82, 0.15*Math.PI, 0.85*Math.PI); g.stroke();
+      if (cx < 30){ g.beginPath(); g.arc(cx+TEXW, cy, r, 0, 7); g.fillStyle="rgba(60,40,18,0.42)"; g.fill(); }
+    }
+    return base;
+  })();
+  /* ice world — glacial sheets veined with fractures */
+  const TEX_ICE = paintTexture(404, (n, x, y) => {
+    const v = fbm(n, x*0.018, y*0.02, 5);
+    const crack = Math.abs(fbm(n, x*0.05, y*0.05, 4) - 0.5) < 0.014 ? -0.35 : 0;
+    const sheet = v > 0.56 ? 0.28 : 0;
+    return ramp([[0,[52,74,150]],[0.45,[124,152,240]],[0.72,[190,208,250]],
+                 [1,[244,249,255]]], v + sheet + crack);
+  });
+  /* circuit world — cool strata veined with bright conductive lines (Developers) */
+  const TEX_CIRCUIT = paintTexture(606, (n, x, y) => {
+    const warp = fbm(n, x*0.02, y*0.03, 3) * 28;
+    const strata = fbm(n, (x+warp)*0.005, y*0.04, 4);
+    const vein = Math.abs(fbm(n, x*0.06, y*0.06, 3) - 0.5) < 0.02 ? 0.34 : 0;
+    return ramp([[0,[16,44,54]],[0.4,[38,96,110]],[0.64,[110,178,190]],
+                 [0.85,[159,214,222]],[1,[226,246,248]]], strata*1.12 + vein);
+  });
+  /* signal world — warm broadcast bands with bright pulse cells (Marketing) */
+  const TEX_SIGNAL = paintTexture(707, (n, x, y) => {
+    const warp = fbm(n, x*0.025, y*0.015, 4) * 44;
+    const band = fbm(n, (x+warp)*0.005, y*0.05, 4);
+    const pulse = Math.max(0, fbm(n, x*0.07, y*0.04, 3) - 0.60) * 2.1;
+    return ramp([[0,[74,30,26]],[0.36,[168,78,52]],[0.58,[224,140,86]],
+                 [0.8,[244,190,132]],[1,[253,232,206]]], band*1.1 + pulse*0.45);
+  });
   /* star surface — boiling golden granulation, for landing on project stars */
-  /* textures paint AFTER first frame, one per tick — the heart never waits */
-  let TEX_SUNFACE, TEX_MERCURY, TEX_VENUS, TEX_EARTH, TEX_MARS, TEX_JUPITER, TEX_SATURN, TEX_URANUS, TEX_NEPTUNE;
-  let texReady = false;
-  const texJobs = [
-    () => {
-  TEX_SUNFACE = paintTexture(505, (n, x, y) => {
+  const TEX_SUNFACE = paintTexture(505, (n, x, y) => {
     const v = fbm(n, x*0.05, y*0.05, 5);
     return ramp([[0,[201,120,30]],[0.45,[233,180,76]],[0.75,[255,217,138]],
                  [1,[255,246,226]]], v*1.3);
   });
-
-  /* ---------- the real eight: procedural surfaces ---------- */
-    },
-    () => {
-  TEX_MERCURY = (() => {
-    const t = paintTexture(601, (n,x,y) => {
-      const v = fbm(n, x*0.03, y*0.03, 5);
-      return ramp([[0,[74,70,66]],[0.5,[122,116,108]],[0.8,[168,160,148]],[1,[204,196,184]]], v*1.2);
-    });
-    const g = t.getContext("2d"), rnd = mulberry32(602);
-    for (let i=0;i<140;i++){ const cx=rnd()*TEXW, cy=28+rnd()*(TEXH-56), r=4+rnd()*rnd()*26;
-      g.fillStyle="rgba(30,28,26,.45)"; g.beginPath(); g.arc(cx,cy,r,0,7); g.fill();
-      g.strokeStyle="rgba(220,212,200,.3)"; g.lineWidth=Math.max(1,r*.2);
-      g.beginPath(); g.arc(cx,cy+r*.15,r*.8,.2*Math.PI,.8*Math.PI); g.stroke(); }
-    return t;
-  })();
-    },
-    () => {
-  TEX_VENUS = paintTexture(611, (n,x,y) => {
-    const w = fbm(n, x*0.015, y*0.05, 3)*40;
-    const v = fbm(n, (x+w)*0.008, y*0.02, 4);
-    return ramp([[0,[150,110,50]],[0.45,[202,160,74]],[0.75,[233,208,140]],[1,[248,236,196]]], v*1.25);
-  });
-    },
-    () => {
-  TEX_EARTH = paintTexture(621, (n,x,y) => {
-    const land = fbm(n, x*0.02, y*0.028, 5);
-    let c = land > 0.53
-      ? ramp([[0,[64,110,52]],[0.6,[120,140,70]],[1,[176,160,110]]], (land-0.53)*3.2)
-      : ramp([[0,[8,36,92]],[0.7,[20,70,150]],[1,[52,110,190]]], land*1.7);
-    if (y<9||y>PH-9) c=[235,242,248];                       /* ice caps */
-    const cl = fbm(n, x*0.035+900, y*0.05, 4);
-    if (cl>0.60){ const k=Math.min(1,(cl-0.60)*4); c=[c[0]+(250-c[0])*k, c[1]+(252-c[1])*k, c[2]+(255-c[2])*k]; }
-    return c;
-  });
-    },
-    () => {
-  TEX_MARS = (() => {
-    const t = paintTexture(631, (n,x,y) => {
-      const v = fbm(n, x*0.022, y*0.026, 5);
-      let c = ramp([[0,[74,26,14]],[0.4,[142,58,30]],[0.72,[196,106,62]],[1,[228,158,106]]], v*1.25);
-      if (y<7||y>PH-7) c=[240,238,232];
-      return c;
-    });
-    const g = t.getContext("2d"), rnd = mulberry32(632);
-    for (let i=0;i<52;i++){ const cx=rnd()*TEXW, cy=36+rnd()*(TEXH-72), r=4+rnd()*rnd()*18;
-      g.fillStyle="rgba(50,16,8,.4)"; g.beginPath(); g.arc(cx,cy,r,0,7); g.fill(); }
-    return t;
-  })();
-    },
-    () => {
-  TEX_JUPITER = paintTexture(641, (n,x,y) => {
-    const w = fbm(n, x*0.02, y*0.06, 3)*26;
-    const band = fbm(n, x*0.002, (y+w)*0.08, 3);
-    let c = ramp([[0,[122,74,46]],[0.3,[190,130,84]],[0.55,[228,196,150]],[0.8,[246,232,206]],[1,[178,110,70]]], band*1.3);
-    const dx=(x-PW*0.30)/30, dy=(y-PH*0.64)/14;           /* the great spot */
-    if (dx*dx+dy*dy < 1){ const k=1-(dx*dx+dy*dy); c=[c[0]+(184-c[0])*k, c[1]+(70-c[1])*k, c[2]+(46-c[2])*k]; }
-    return c;
-  });
-    },
-    () => {
-  TEX_SATURN = paintTexture(651, (n,x,y) => {
-    const w = fbm(n, x*0.02, y*0.05, 3)*18;
-    const band = fbm(n, x*0.002, (y+w)*0.06, 3);
-    return ramp([[0,[168,132,84]],[0.4,[214,182,128]],[0.7,[238,216,168]],[1,[250,238,204]]], band*1.25);
-  });
-    },
-    () => {
-  TEX_URANUS = paintTexture(661, (n,x,y) => {
-    const v = fbm(n, x*0.006, y*0.03, 3);
-    return ramp([[0,[110,178,190]],[0.6,[159,214,222]],[1,[206,240,244]]], v*1.15);
-  });
-    },
-    () => {
-  TEX_NEPTUNE = paintTexture(671, (n,x,y) => {
-    const w = fbm(n, x*0.02, y*0.05, 3)*22;
-    const v = fbm(n, x*0.004, (y+w)*0.05, 4);
-    let c = ramp([[0,[16,42,120]],[0.5,[38,84,196]],[0.8,[92,138,232]],[1,[196,216,250]]], v*1.2);
-    const dx=(x-PW*0.62)/20, dy=(y-PH*0.4)/10;
-    if (dx*dx+dy*dy < 1) c=[18,34,92];
-    return c;
-  });
-    },
-  ];
 
   const TILE = 1400;
   function makeLayer(seed, count, parallax, rMin, rMax, blueRatio){
@@ -1835,51 +1746,20 @@ const Galaxy = (() => {
     ph: hazeRnd()*Math.PI*2
   }));
 
-  /* the real eight — Kepler's third law sets every speed: ω ∝ r^(−3/2) */
-  /* the real eight — Kepler's third law sets every speed: ω ∝ r^(−3/2) */
-  const KEP = o => 130 / Math.pow(o, 1.5);
-  const REAL = [
-    { real:"Mercury", realMn:"Буд",           r:11, color:"#C9B8A6", style:"plain",
-      fact:"Closest to the Sun — a year lasts just 88 days.", factMn:"Наранд хамгийн ойр — жил нь ердөө 88 хоног." },
-    { real:"Venus",   realMn:"Сугар",           r:16, color:"#E8C97A", style:"plain",
-      fact:"Hotter than an oven: 464°C under golden clouds.", factMn:"Зуухнаас ч халуун: алтан үүлсийн дор 464°C." },
-    { real:"Earth",   realMn:"Дэлхий",          r:17, color:"#6FA8E8", style:"moon",
-      fact:"The only world known to hold life — and one moon.", factMn:"Амьдрал оршдог цорын ганц ертөнц — нэг дагуултай." },
-    { real:"Mars",    realMn:"Ангараг",          r:20, color:"#E07B4F", style:"plain",
-      fact:"The red desert where humanity looks next.", factMn:"Хүн төрөлхтний дараагийн зорьсон улаан цөл." },
-    { real:"Jupiter", realMn:"Бархасбадь",    r:20, color:"#D9A066", style:"plain",
-      fact:"So big that 1,300 Earths would fit inside.", factMn:"Дотор нь 1300 Дэлхий багтахуйц аварга." },
-    { real:"Saturn",  realMn:"Санчир",         r:20, color:"#E9CE9C", style:"plain",
-      fact:"Wears rings of ice — and would float on water.", factMn:"Мөсөн цагирагтай — усанд хөвөхүйц хөнгөн." },
-    { real:"Uranus",  realMn:"Тэнгэрийн ван",  r:20, color:"#9FD6DE", style:"plain",
-      fact:"Rolls around the Sun lying on its side.", factMn:"Нарыг хажуулдан хэвтэж тойрдог." },
-    { real:"Neptune", realMn:"Далайн ван",    r:20, color:"#6E8CFF", style:"plain",
-      fact:"Winds top 2,000 km/h — the fastest known.", factMn:"Салхи нь 2000 км/цаг — мэдэгдэж буй хамгийн хурдан." }
+  const planets = [
+    { id:"work",     label:"Work",     orbit:200, speed: 0.050, angle: -0.55, r:30,
+      color:C.gold,   style:"ring",     tex:TEX_GAS,   spin:1.0 },
+    { id:"services", label:"Services", orbit:330, speed:-0.034, angle:  2.30, r:26,
+      color:C.cobalt, style:"plain",    tex:TEX_STORM, spin:1.5 },
+    { id:"about",    label:"About",    orbit:460, speed: 0.024, angle:  4.10, r:22,
+      color:C.goldBright, style:"plain", tex:TEX_ROCK, spin:0.55 },
+    { id:"contact",  label:"Contact",  orbit:590, speed:-0.017, angle:  0.95, r:24,
+      color:C.cobaltLight, style:"moon", tex:TEX_ICE,  spin:0.8 },
+    { id:"developers", label:"Developers", orbit:710, speed: 0.013, angle: 5.25, r:23,
+      color:"#9FD6DE", style:"plain", tex:TEX_CIRCUIT, spin:1.25 },
+    { id:"marketing",  label:"Marketing",  orbit:830, speed:-0.010, angle: 3.05, r:25,
+      color:"#E08C56", style:"ring",  tex:TEX_SIGNAL,  spin:0.7 }
   ];
-  const SEATS = [
-    { id:"work",     label:"Work",     labelMn:"Бүтээл",    orbit:150, angle:-0.55 },
-    { id:"services", label:"Services", labelMn:"Үйлчилгээ", orbit:225, angle: 2.30 },
-    { id:"contact",  label:"Contact",  labelMn:"Холбоо",    orbit:305, angle: 0.95 },
-    ...CONTENT.about.team.map((m, i) => ({
-      id:"m"+i, member:i, label:m.name, labelMn:m.name,
-      orbit:[400, 495, 590, 690, 795][i], angle:(i*2.4 + 1.1) % 6.283
-    }))
-  ];
-  const planets = SEATS.map((s, i) => ({
-    ...s, ...REAL[i], speed:KEP(s.orbit), spin:0.5 + (i%4)*0.3,
-    /* the five minds are equals: same size, same treatment */
-    r: s.member != null ? 22 : REAL[i].r
-  }));
-  setTimeout(function paintStep(){
-    if (_ti < texJobs.length){ texJobs[_ti++](); setTimeout(paintStep, 18); }
-    else {
-      const M = { Mercury:TEX_MERCURY, Venus:TEX_VENUS, Earth:TEX_EARTH, Mars:TEX_MARS,
-                  Jupiter:TEX_JUPITER, Saturn:TEX_SATURN, Uranus:TEX_URANUS, Neptune:TEX_NEPTUNE };
-      for (const p of planets) p.tex = M[p.real];
-      texReady = true;
-    }
-  }, 120);
-  let _ti = 0;
   for (const p of planets) p.glow = glowOf(p.color, 0.55);
 
   const starSeats = [
@@ -1940,6 +1820,46 @@ const Galaxy = (() => {
     ctx.globalCompositeOperation = "source-over";
   }
 
+  /* ---------- foreground layer: dark-matter crystals drifting past the lens ---------- */
+  const crysRnd = mulberry32(909);
+  const crystals = Array.from({length: lowPower ? 8 : 13}, () => ({
+    x: crysRnd()*TILE, y: crysRnd()*TILE,
+    par: 1.35 + crysRnd()*0.8,                  /* parallax > 1 → closer than the ship */
+    s: 5 + crysRnd()*9, rot: crysRnd()*6.283, rs: (crysRnd()-0.5)*0.25,
+    vx: (crysRnd()-0.5)*4, vy: (crysRnd()-0.5)*4,
+    n: 3 + Math.floor(crysRnd()*3)
+  }));
+  function drawCrystals(dt){
+    ctx.lineWidth = 1;
+    for (const c of crystals){
+      if (!reduceMotion){ c.x += c.vx*dt; c.y += c.vy*dt; c.rot += c.rs*dt; }
+      const ox = cam.x * c.par * cam.z, oy = cam.y * c.par * cam.z;
+      const sx = ((c.x*cam.z - ox) % TILE + TILE) % TILE;
+      const sy = ((c.y*cam.z - oy) % TILE + TILE) % TILE;
+      for (let gx = -1; gx*TILE + sx < W + 30; gx++){
+        if (gx*TILE + sx < -30) continue;
+        for (let gy = -1; gy*TILE + sy < H + 30; gy++){
+          if (gy*TILE + sy < -30) continue;
+          const S = c.s * cam.z;
+          ctx.save();
+          ctx.translate(gx*TILE + sx, gy*TILE + sy);
+          ctx.rotate(c.rot);
+          ctx.beginPath();
+          for (let k = 0; k <= c.n*2; k++){
+            const a = k/(c.n*2)*Math.PI*2;
+            const r = S * (k % 2 ? 0.55 : 1);
+            k ? ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r) : ctx.moveTo(Math.cos(a)*r, Math.sin(a)*r);
+          }
+          ctx.closePath();
+          ctx.fillStyle = "rgba(10,15,34,0.38)";
+          ctx.strokeStyle = "rgba(124,152,240,0.12)";
+          ctx.fill(); ctx.stroke();
+          ctx.restore();
+        }
+      }
+    }
+  }
+
   let hovered = null;
   let dragging = false, dragMoved = 0;
   let lastPan = { x:0, y:0, t:0 };
@@ -1969,12 +1889,11 @@ const Galaxy = (() => {
   const groundEl = document.getElementById("ground");
   const groundCv = document.getElementById("groundCv");
   const gctx = groundCv.getContext("2d");
-  const ground = { on:false, color:C.gold, hideTimer:null };
+  const ground = { on:false, tex:TEX_GAS, color:C.gold, hideTimer:null };
   function sizeGround(){
     groundCv.width  = Math.round(groundEl.clientWidth  * DPR);
     groundCv.height = Math.round(groundEl.clientHeight * DPR);
     gctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    gctx.imageSmoothingQuality = "high";
   }
   Reg.on(window, "resize", () => { if (ground.on) sizeGround(); });
 
@@ -1997,106 +1916,37 @@ const Galaxy = (() => {
     const [cr, cg, cb] = hexRgb(ground.color);
 
     /* atmosphere haze rising off the limb */
-    /* colored atmosphere: the wide glow you liked — just softer and dimmer */
-    const at = gctx.createRadialGradient(cx, cy, R*0.995, cx, cy, R*1.11);
-    at.addColorStop(0,    `rgba(${cr},${cg},${cb},0.30)`);
-    at.addColorStop(0.22, `rgba(${cr},${cg},${cb},0.17)`);
-    at.addColorStop(0.5,  `rgba(${cr},${cg},${cb},0.08)`);
-    at.addColorStop(0.78, `rgba(${cr},${cg},${cb},0.03)`);
-    at.addColorStop(1,    `rgba(${cr},${cg},${cb},0)`);
-    gctx.globalCompositeOperation = "screen";   /* light adds; color glows into space */
+    const at = gctx.createRadialGradient(cx, cy, R*0.985, cx, cy, R*1.12);
+    at.addColorStop(0,   `rgba(${cr},${cg},${cb},0.55)`);
+    at.addColorStop(0.4, `rgba(${cr},${cg},${cb},0.16)`);
+    at.addColorStop(1,   `rgba(${cr},${cg},${cb},0)`);
     gctx.fillStyle = at;
     gctx.fillRect(0, 0, gw, gh);
-    gctx.globalCompositeOperation = "source-over";
 
-    /* the surface itself — closer to the eye, so real detail survives */
-    if (!ground.tex){ return; }
+    /* the surface itself, slowly turning beneath you */
     gctx.save();
     gctx.beginPath(); gctx.arc(cx, cy, R, 0, 7); gctx.clip();
     const tex = ground.tex;
-    const scale = (gh * 0.98) / tex.height;      /* ≤1:1 sampling of the 1024px texture = crisp */
+    const scale = (gh * 2.6) / tex.height;
     const tw = tex.width * scale;
-    const off = reduceMotion ? 0 : (now * 0.010) % tw;
-    for (let x = -off; x < gw; x += tw)
-      gctx.drawImage(tex, x, gh*0.28, tw, tex.height*scale);
-    /* limb darkening: the surface edge fades into its own atmosphere */
-    const limb = gctx.createRadialGradient(cx, cy, R*0.9, cx, cy, R);
-    limb.addColorStop(0,   "rgba(4,6,14,0)");
-    limb.addColorStop(0.72, "rgba(4,6,14,0.12)");
-    limb.addColorStop(1,   "rgba(4,6,14,0.34)");
-    gctx.fillStyle = limb;
-    gctx.fillRect(0, 0, gw, gh);
-
-    /* gentle dusk — the surface stays visible */
-    const dg = gctx.createLinearGradient(0, gh*0.45, 0, gh);
+    const off = reduceMotion ? 0 : (now * 0.012) % tw;
+    for (let x = -off; x < gw; x += tw){
+      gctx.drawImage(tex, x, gh*0.30 - gh*0.42, tw, tex.height*scale);
+    }
+    /* dusk falls toward the bottom of the view */
+    const dg = gctx.createLinearGradient(0, gh*0.28, 0, gh);
     dg.addColorStop(0, "rgba(4,6,14,0)");
-    dg.addColorStop(1, "rgba(4,6,14,0.5)");
+    dg.addColorStop(1, "rgba(4,6,14,0.88)");
     gctx.fillStyle = dg;
     gctx.fillRect(0, 0, gw, gh);
     gctx.restore();
-  }
 
-  /* member spread: their identity scatters into open space around the planet */
-  const spreadEl = document.getElementById("spread");
-  let spreadIdx = null;
-  const SKY_SLOTS = [[16,13],[46,8],[70,17],[30,24],[60,29],[82,30]];
-  function renderSpread(i){
-    const m = L().about.team[i];
-    const pl = planets.find(p => p.member === i);
-    spreadEl.style.setProperty("--mc", m.c);
-    spreadEl.querySelector(".sp-glyph").textContent = m.name[0];
-    spreadEl.querySelector(".sp-name").textContent = m.name;
-    spreadEl.querySelector(".sp-role").textContent = m.role;
-    spreadEl.querySelector(".sp-note").textContent = m.note;
-    spreadEl.querySelector(".sp-fact").textContent =
-      "✦ " + pl.real + " — " + (LANG === "mn" ? pl.factMn : pl.fact);
-    spreadEl.querySelector(".sp-final").textContent = L().about.closingA;
-    /* their projects hang in the sky above the horizon */
-    const ids = CONTENT.about.team[i].projects || [];
-    spreadEl.querySelector(".sp-sky").innerHTML = ids.map((pi, k) => {
-      const [x, y] = SKY_SLOTS[k % SKY_SLOTS.length];
-      return `<button class="sky-proj" style="left:${x}vw;top:${y}vh;--d:${k*1.3}s" data-p="${pi}">
-        <span class="sky-star">✦</span>${esc(L().projects[pi].title)}</button>`;
-    }).join("");
-    spreadEl.querySelectorAll(".sky-proj").forEach(b =>
-      b.addEventListener("click", e => {
-        e.stopPropagation();
-        const pi = b.dataset.p;
-        closeSpread();
-        setTimeout(() => openPanel("p" + pi), 350);
-      }));
-  }
-  function openSpread(i){
-    spreadIdx = i;
-    renderSpread(i);
-    const pl = planets.find(p => p.member === i);
-    flyTo(pl, "planet");
-    swoop = { t0: performance.now(), dur: 1150 };  /* low-angle banked approach */
-    touchDown(pl.tex, pl.color);                 /* land on their world */
-    shipLand = { t0: performance.now(), dur: 850, burst: false };
-    spreadEl.hidden = false;
-    requestAnimationFrame(() => spreadEl.classList.add("open"));
-    hovered = null; hideTip();
-  }
-  function closeSpread(){
-    if (spreadIdx == null) return;
-    spreadIdx = null;
-    spreadEl.classList.remove("open");
-    setTimeout(() => { spreadEl.hidden = true; }, 420);
-    takeOff();
-    shipLand = null;
-    liftOff();
-  }
-  Reg.on(spreadEl, "click", closeSpread);
-
-  let ping = null, revealTimer = null, currentId = null, shipLand = null;
-  function revealStar(i){
-    const s = stars[i];
-    closePanel();                              /* veil down: the galaxy is visible */
-    flyTo(s, "star");                          /* glide to the star */
-    ping = { ref: s, until: performance.now() + 2600 };
-    clearTimeout(revealTimer);
-    revealTimer = setTimeout(() => openPanel("p" + i), 1000);  /* then land on it */
+    /* crisp sunlit limb line */
+    gctx.beginPath();
+    gctx.arc(cx, cy, R, Math.PI*1.15, Math.PI*1.85);
+    gctx.strokeStyle = `rgba(${Math.min(255,cr+70)},${Math.min(255,cg+70)},${Math.min(255,cb+60)},0.85)`;
+    gctx.lineWidth = 1.5;
+    gctx.stroke();
   }
 
   /* ---------- drawing ---------- */
@@ -2109,8 +1959,8 @@ const Galaxy = (() => {
     ctx.globalAlpha = 1;
 
     for (const layer of layers){
-      const ox = cam.x * layer.parallax * cam.z - pp.x * 26 * layer.parallax;
-      const oy = cam.y * layer.parallax * cam.z - pp.y * 18 * layer.parallax;
+      const ox = cam.x * layer.parallax * cam.z;
+      const oy = cam.y * layer.parallax * cam.z;
       for (const s of layer.stars){
         let sx = ((s.x * cam.z - ox) % TILE + TILE) % TILE;
         let sy = ((s.y * cam.z - oy) % TILE + TILE) % TILE;
@@ -2150,7 +2000,6 @@ const Galaxy = (() => {
 
   function drawOrbits(now){
     const t = now * 0.001;
-    ctx.globalAlpha = 1 - 0.62 * dofK;
     const [cx, cy] = toScreen(0, 0);
     for (const p of planets){
       const hov = hovered && hovered.ref === p;
@@ -2178,24 +2027,11 @@ const Galaxy = (() => {
         ctx.stroke();
       }
     }
-    ctx.globalAlpha = 1;
   }
 
   function drawSun(now){
     const [sx, sy] = toScreen(0, 0);
     const R = 58 * cam.z;
-    if (dofK > 0.05){                              /* the hub falls out of focus */
-      ctx.globalCompositeOperation = "lighter";
-      ctx.globalAlpha = 0.5 * (1 - 0.3 * dofK);
-      ctx.drawImage(SPR_GOLD, sx - R*3, sy - R*3, R*6, R*6);
-      ctx.filter = `blur(${(4 * dofK).toFixed(1)}px)`;
-      ctx.globalAlpha = 0.8;
-      ctx.drawImage(SPR_GOLD, sx - R*1.3, sy - R*1.3, R*2.6, R*2.6);
-      ctx.filter = "none";
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
-      return;
-    }
     const hot = hovered && hovered.type === "sun";
     const t = now * 0.001;
 
@@ -2235,11 +2071,6 @@ const Galaxy = (() => {
     ctx.save();
     ctx.translate(sx, sy);
     ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.clip();
-    if (!TEX_SUNFACE){                            /* pre-texture sun: pure light */
-      const sg0 = ctx.createRadialGradient(0, 0, R*0.1, 0, 0, R);
-      sg0.addColorStop(0, "#FFF9E8"); sg0.addColorStop(0.7, C.gold); sg0.addColorStop(1, "#C07020");
-      ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.fillStyle = sg0; ctx.fill();
-    } else {
     const tex = TEX_SUNFACE, TW = tex.width, TH = tex.height, HALF = TW*0.5;
     const ph1 = reduceMotion ? 0 : (now*0.004) % TW;
     const ph2 = reduceMotion ? 0 : (TW - (now*0.0065) % TW);
@@ -2260,7 +2091,6 @@ const Galaxy = (() => {
       }
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
-    }
     }
     /* limb darkening: white-hot core falling to deep amber edge */
     const ld = ctx.createRadialGradient(0, 0, R*0.1, 0, 0, R);
@@ -2313,25 +2143,6 @@ const Galaxy = (() => {
 
     if (sx < -120 || sx > W + 120 || sy < -120 || sy > H + 120) return;
 
-    /* out-of-focus worlds render as soft anamorphic bokeh — cheaper AND prettier */
-    if (dofK > 0.05 && p !== dofTarget){
-      ctx.globalCompositeOperation = "lighter";
-      ctx.globalAlpha = 0.4 * (1 - 0.25 * dofK);
-      ctx.drawImage(p.glow, sx - R*2.6, sy - R*2.6, R*5.2, R*5.2);
-      ctx.globalCompositeOperation = "source-over";
-      ctx.filter = `blur(${(2.5 * dofK).toFixed(1)}px)`;
-      ctx.globalAlpha = 1 - 0.35 * dofK;
-      const bg2 = ctx.createRadialGradient(sx - R*0.3, sy - R*0.3, R*0.1, sx, sy, R);
-      const [br, bgc, bb] = hexRgb(p.color);
-      bg2.addColorStop(0, `rgb(${Math.min(255,br+50)},${Math.min(255,bgc+50)},${Math.min(255,bb+40)})`);
-      bg2.addColorStop(1, `rgba(${Math.round(br*0.4)},${Math.round(bgc*0.4)},${Math.round(bb*0.5)},1)`);
-      ctx.beginPath(); ctx.arc(sx, sy, R, 0, 7);
-      ctx.fillStyle = bg2; ctx.fill();
-      ctx.filter = "none";
-      ctx.globalAlpha = 1;
-      return;
-    }
-
     /* atmosphere — soft volumetric glow in the planet's own color */
     ctx.globalCompositeOperation = "lighter";
     ctx.globalAlpha = (hot ? 0.55 : 0.32) * (0.7 + 0.3*dep);
@@ -2366,24 +2177,11 @@ const Galaxy = (() => {
     }
 
     /* --- textured rotating sphere --- */
-    if (!p.tex){                                  /* first breaths: soft lit orb */
-      ctx.globalCompositeOperation = "lighter";
-      ctx.globalAlpha = 0.35;
-      ctx.drawImage(p.glow, sx - R*2.2, sy - R*2.2, R*4.4, R*4.4);
-      ctx.globalCompositeOperation = "source-over";
-      ctx.globalAlpha = 1;
-      const [qr, qg, qb] = hexRgb(p.color);
-      const q = ctx.createRadialGradient(sx - R*0.3, sy - R*0.3, R*0.1, sx, sy, R);
-      q.addColorStop(0, `rgb(${Math.min(255,qr+50)},${Math.min(255,qg+50)},${Math.min(255,qb+40)})`);
-      q.addColorStop(1, `rgba(${qr*0.35|0},${qg*0.35|0},${qb*0.45|0},1)`);
-      ctx.beginPath(); ctx.arc(sx, sy, R, 0, 7); ctx.fillStyle = q; ctx.fill();
-      return;
-    }
     const tex = p.tex, TW = tex.width, TH = tex.height;
     const phase = reduceMotion ? 0 : (now * 0.006 * p.spin) % TW;
     ctx.save();
     ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.clip();
-    const SL = 34, HALF = TW * 0.5;
+    const SL = 26, HALF = TW * 0.5;
     for (let i = 0; i < SL; i++){
       const x0 = -R + (2*R*i)/SL, x1 = -R + (2*R*(i+1))/SL;
       const mx = (x0+x1)*0.5/R;
@@ -2411,6 +2209,16 @@ const Galaxy = (() => {
     ctx.fillStyle = "rgba(255,252,240,0.22)";
     ctx.fill();
 
+    /* cool rim light on the night side — starlight bounce */
+    ctx.save();
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, 7); ctx.clip();
+    ctx.beginPath();
+    ctx.arc(-lx*R*0.18, -ly*R*0.18, R*0.99, 0, 7);
+    ctx.strokeStyle = "rgba(124,152,240,0.35)";
+    ctx.lineWidth = Math.max(1, R*0.07);
+    ctx.stroke();
+    ctx.restore();
+
     if (p.style === "ring"){
       ctx.strokeStyle = hot ? C.goldBright : "rgba(255,217,138,0.95)";
       ctx.lineWidth = Math.max(1.5, 2.4 * cam.z);
@@ -2430,8 +2238,7 @@ const Galaxy = (() => {
     ctx.fillStyle = hot ? C.gold : C.muted;
     ctx.font = `500 ${Math.max(9, 10.5 * Math.min(cam.z, 1.4))}px ${css.getPropertyValue("--sans")}`;
     ctx.textAlign = "center"; ctx.textBaseline = "top";
-    const lbl = (LANG === "mn" && p.labelMn) ? p.labelMn : p.label;
-    const label = lbl.toUpperCase().split("").join("\u200A\u200A");
+    const label = p.label.toUpperCase().split("").join("\u200A\u200A");
     ctx.fillText(label, sx, sy + R * (p.style === "ring" ? 1.0 : 1.35) + 10);
     ctx.globalAlpha = 1;
   }
@@ -2441,24 +2248,13 @@ const Galaxy = (() => {
     s._sx = sx; s._sy = sy; s._sr = Math.max(12, s.r * cam.z * 1.6);
     if (sx < -60 || sx > W + 60 || sy < -60 || sy > H + 60) return;
 
-    const dofDim = 1 - 0.55 * dofK;
-    const pinged = ping && ping.ref === s && now < ping.until;
-    if (ping && now >= ping.until) ping = null;
-    const hot = (hovered && hovered.ref === s) || pinged;
+    const hot = hovered && hovered.ref === s;
     const tw = reduceMotion ? 1 : 0.72 + 0.28 * Math.sin(now * 0.0021 + s.tw);
     const R = s.r * cam.z * (hot ? 1.45 : tw);
-    if (pinged){                                /* expanding "here I am" rings */
-      const k = (now % 700) / 700;
-      ctx.globalAlpha = (1 - k) * 0.85;
-      ctx.strokeStyle = C.goldBright;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(sx, sy, R * 2.2 + k * R * 4.5, 0, 7); ctx.stroke();
-      ctx.globalAlpha = 1;
-    }
 
     /* warm glow behind each soul-star */
     ctx.globalCompositeOperation = "lighter";
-    ctx.globalAlpha = (hot ? 0.6 : 0.3) * tw * dofDim;
+    ctx.globalAlpha = (hot ? 0.6 : 0.3) * tw;
     ctx.drawImage(SPR_GOLD, sx - R*3.4, sy - R*3.4, R*6.8, R*6.8);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
@@ -2468,7 +2264,7 @@ const Galaxy = (() => {
     ctx.rotate(view.rot);          /* the sparkle lies in the galactic plane… */
     ctx.scale(1, view.ty);         /* …so it leans in 3D and stands flat in 2D */
     ctx.fillStyle = hot ? C.goldBright : C.gold;
-    ctx.globalAlpha = (hot ? 1 : 0.55 + 0.45 * tw) * dofDim;
+    ctx.globalAlpha = hot ? 1 : 0.55 + 0.45 * tw;
     ctx.beginPath();
     ctx.moveTo(0, -R * 2);
     ctx.quadraticCurveTo(R * 0.28, -R * 0.28, R * 2, 0);
@@ -2522,23 +2318,9 @@ const Galaxy = (() => {
   }
 
   function drawShip(now){
-    const cx = W / 2;
-    let cy = H / 2, flame = 1, tilt = Math.max(-0.5, Math.min(0.5, panVel.x * -0.002));
-    if (shipLand){                                /* descent onto the horizon */
-      const p = Math.min(1, (now - shipLand.t0) / shipLand.dur);
-      const e = 1 - Math.pow(1 - p, 3);
-      cy = H / 2 + (H * 0.585 - H / 2) * e;
-      flame = 1 + (1 - p) * 2.2;
-      tilt *= (1 - e);
-      if (p >= 1 && !shipLand.burst){             /* touchdown dust */
-        shipLand.burst = true;
-        for (let i = 0; i < 14; i++)
-          engineDust.push({ x: cx + (Math.random()-0.5)*10, y: cy + 10,
-            vx: (Math.random()-0.5)*140, vy: -20 - Math.random()*50,
-            curve: (Math.random()-0.5)*2, life: 0.5 + Math.random()*0.4, max: 0.8 });
-      }
-    }
-    const bob = (reduceMotion || (shipLand && shipLand.burst)) ? 0 : Math.sin(now * 0.0016) * 3;
+    const cx = W / 2, cy = H / 2;
+    const tilt = Math.max(-0.5, Math.min(0.5, panVel.x * -0.002));
+    const bob = reduceMotion ? 0 : Math.sin(now * 0.0016) * 3;
 
     ctx.save();
     ctx.translate(cx, cy + bob);
@@ -2551,7 +2333,7 @@ const Galaxy = (() => {
     ctx.beginPath(); ctx.arc(0, -2.5, 2.6, 0, 7);
     ctx.fillStyle = C.cobalt; ctx.fill();
     if (!reduceMotion){
-      const fl = (4 + Math.sin(now * 0.02) * 2) * flame;
+      const fl = 4 + Math.sin(now * 0.02) * 2;
       ctx.beginPath();
       ctx.moveTo(-2.6, 8.5); ctx.lineTo(0, 8.5 + fl); ctx.lineTo(2.6, 8.5);
       ctx.closePath();
@@ -2565,11 +2347,12 @@ const Galaxy = (() => {
       ctx.fillStyle = C.muted;
       ctx.font = `500 10px ${css.getPropertyValue("--sans")}`;
       ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.fillText(T("youAreHere"), cx, cy + 22);
+      ctx.fillText("Y O U   A R E   H E R E", cx, cy + 22);
       ctx.globalAlpha = 1;
     }
   }
 
+  /* ---------- main loop ---------- */
   let lastT = performance.now(), rafId = 0, halted = false;
   function frame(now){
     if (halted) return;
@@ -2578,7 +2361,7 @@ const Galaxy = (() => {
     const dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
 
-    const ease = 1 - Math.pow(followRef ? 0.000001 : 0.0001, dt);  /* landings fly fast */
+    const ease = 1 - Math.pow(0.0001, dt);
     cam.x += (cam.tx - cam.x) * ease;
     cam.y += (cam.ty - cam.y) * ease;
     cam.z += (cam.tz - cam.z) * ease;
@@ -2594,24 +2377,6 @@ const Galaxy = (() => {
 
     if (hasExplored) shipLabelAlpha = Math.max(0, shipLabelAlpha - dt * 0.5);
 
-    /* perspective tick: parallax lerp, swoop curve, focus rack */
-    const pk = Math.min(1, dt * 4.5);
-    pp.x += (pp.tx - pp.x) * pk;
-    pp.y += (pp.ty - pp.y) * pk;
-    if (swoop){
-      const k = Math.min(1, (now - swoop.t0) / swoop.dur);
-      const e = p4io(k);
-      swoopY = (1 - e) * 120;                      /* rise from a low orbital angle */
-      roll = Math.sin(e * Math.PI) * 0.05;          /* the sweeping banked arc */
-      if (k >= 1){ swoop = null; swoopY = 0; roll = 0; }
-    }
-    dofTarget = spreadIdx != null ? planets.find(q => q.member === spreadIdx) : null;
-    dofK += ((dofTarget ? 1 : 0) - dofK) * Math.min(1, dt * 3);
-    if (dofK < 0.01) dofK = 0;
-    document.documentElement.style.setProperty("--parx", pp.x.toFixed(3));
-    document.documentElement.style.setProperty("--pary", pp.y.toFixed(3));
-    document.documentElement.style.setProperty("--groundRoll", (roll * -32).toFixed(2) + "deg");
-
     /* keep gliding toward whatever we're landing on — it orbits, we track */
     if (followRef){
       const [wx, wy] = followRef.kind === "planet"
@@ -2623,7 +2388,6 @@ const Galaxy = (() => {
 
     drawBackground(now);
     drawHaze(now);
-    if (roll){ ctx.save(); ctx.translate(W/2, H/2); ctx.rotate(roll); ctx.translate(-W/2, -H/2); }
     drawOrbits(now);
     updateComet(now, dt);
     drawComet();
@@ -2638,11 +2402,20 @@ const Galaxy = (() => {
     puffTrail(dt);
     updateTrail(dt);
     drawTrail();
-    if (roll) ctx.restore();
     drawShip(now);
+    drawCrystals(dt);          /* foreground tier: closer than the ship */
     if (ground.on) drawGround(now);
   }
   rafId = requestAnimationFrame(frame);
+
+  /* idle throttling: stop the loop outright while the tab is hidden */
+  let paused = false;
+  function setPaused(v){
+    if (halted || v === paused) return;
+    paused = v;
+    if (v){ cancelAnimationFrame(rafId); rafId = 0; }
+    else { lastT = performance.now(); rafId = requestAnimationFrame(frame); }
+  }
 
   /* ---------- hit testing ---------- */
   function hitTest(sx, sy){
@@ -2650,7 +2423,7 @@ const Galaxy = (() => {
       if (Math.hypot(sx - s._sx, sy - s._sy) < Math.max(16, s._sr)) return { type:"star", ref:s };
     }
     for (const p of planets){
-      if (Math.hypot(sx - p._sx, sy - p._sy) < Math.max(16, p._sr + 8)) return { type:"planet", ref:p };
+      if (Math.hypot(sx - p._sx, sy - p._sy) < p._sr + 8) return { type:"planet", ref:p };
     }
     const [cx, cy] = toScreen(0, 0);
     if (Math.hypot(sx - cx, sy - cy) < 58 * cam.z + 6) return { type:"sun", ref:"sun" };
@@ -2733,13 +2506,11 @@ const Galaxy = (() => {
       canvas.classList.toggle("pointing", !!hit);
       if (hit){
         if (hit.type === "star"){
-          showTip(`<b>✦ ${hit.ref.label}</b> · ${T("land")}`, e.clientX, e.clientY);
+          showTip(`<b>✦ ${hit.ref.label}</b> · land`, e.clientX, e.clientY);
         } else if (hit.type === "planet"){
-          const pl = LANG === "mn" ? hit.ref.labelMn : hit.ref.label;
-          const rn = LANG === "mn" ? hit.ref.realMn : hit.ref.real;
-          showTip(`<b>${pl}</b> — ${rn} · ${T("land")}`, e.clientX, e.clientY);
+          showTip(`<b>${hit.ref.label}</b> · land`, e.clientX, e.clientY);
         } else {
-          showTip(`<b>Meraki</b> · ${T("land")}`, e.clientX, e.clientY);
+          showTip(`<b>Meraki</b> · click to recenter`, e.clientX, e.clientY);
         }
       } else hideTip();
     }
@@ -2756,8 +2527,7 @@ const Galaxy = (() => {
         const hit = hitTest(e.clientX, e.clientY);
         if (hit){
           AudioSys.chime((e.clientX/W - 0.5)*1.6, hit.type);
-          if (hit.type === "sun") openPanel("about");
-          else if (hit.type === "planet" && hit.ref.member != null) openSpread(hit.ref.member);
+          if (hit.type === "sun") recenter();
           else openPanel(hit.ref.id);
         }
       }
@@ -2780,7 +2550,7 @@ const Galaxy = (() => {
   }, { passive:false });
 
   /* ---------- HUD ---------- */
-  function recenter(){ cam.tx = 0; cam.ty = 0; cam.tz = isCoarse ? 0.58 : 0.76; }
+  function recenter(){ cam.tx = 0; cam.ty = 0; cam.tz = isCoarse ? 0.72 : 0.92; }
   Reg.on(document.getElementById("zoomIn"), "click", () => { cam.tz *= 1.25; clampCam(); });
   Reg.on(document.getElementById("zoomOut"), "click", () => { cam.tz /= 1.25; clampCam(); });
   Reg.on(document.getElementById("recenter"), "click", recenter);
@@ -2822,8 +2592,8 @@ const Galaxy = (() => {
       e.preventDefault();
       setInvalid(null);
       button.disabled = true;
-      button.textContent = T("formSending");
-      say(T("stInfo"), "info");
+      button.textContent = "Transmitting…";
+      say("Signal leaving the atmosphere…", "info");
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 12000);
@@ -2839,15 +2609,15 @@ const Galaxy = (() => {
           setInvalid(data.errors);
           say(Object.values(data.errors)[0], "err");
         } else if (res.status === 429){
-          say(data.error || T("st429"), "err");
+          say(data.error || "Too many transmissions — give the relay a few minutes.", "err");
         } else if (res.ok && data.ok){
           form.reset();
-          say(T("stOk"), "ok");
+          say("✦ Signal received. A navigator replies within one Earth rotation — check your inbox.", "ok");
         } else {
-          say(data.error || T("stGlitch"), "err");
+          say(data.error || "Mission control glitched — please try again.", "err");
         }
       } catch {
-        say(T("stOffline"), "err");
+        say("Could not reach mission control. Check your connection (or deploy the /api backend).", "err");
       } finally {
         button.disabled = false;
         button.textContent = idle;
@@ -2855,34 +2625,30 @@ const Galaxy = (() => {
     });
   }
 
-  function constellationSVG(p){
-    const nodes = p.stack.map((label, i, arr) => {
-      const n = arr.length;
-      const x = 26 + i * (268 / Math.max(1, n-1));
-      const y = 44 + ((i % 2) ? 32 : 0) + (i % 3 === 2 ? -16 : 0);
-      return { label, x, y };
-    });
-    let lines = "";
-    for (let i = 1; i < nodes.length; i++){
-      lines += `<line x1="${nodes[i-1].x}" y1="${nodes[i-1].y}" x2="${nodes[i].x}" y2="${nodes[i].y}"/>`;
-    }
-    const dots = nodes.map((n, i) =>
-      `<g class="cnode" style="--d:${(i*0.7).toFixed(1)}s" tabindex="0">
-         <circle cx="${n.x}" cy="${n.y}" r="4"/>
-         <text x="${n.x}" y="${n.y+18}" text-anchor="middle">${esc(n.label)}</text>
-       </g>`).join("");
-    const miles = (p.milestones || []).map((m, i, arr) => {
-      const x = 26 + i * (268 / Math.max(1, arr.length-1));
-      return `<g class="mile"><circle cx="${x}" cy="118" r="2.6"/>
-              <text x="${x}" y="132" text-anchor="middle">${esc(m)}</text></g>`;
+  /* Delivery map — one quiet horizontal progression: discovery → polish.
+     No boxes, no scatter, no second node row: a single rail, small nodes, ample air. */
+  function deliveryMap(steps, caption, title){
+    const list = (steps || []).filter(Boolean);
+    if (!list.length) return "";
+    const X0 = 30, X1 = 290, Y = 15, n = list.length;
+    const at = i => n === 1 ? (X0 + X1) / 2 : X0 + i * (X1 - X0) / (n - 1);
+    const nodes = list.map((label, i) => {
+      const x = at(i).toFixed(1);
+      const last = i === n - 1;
+      return `<circle class="dmap-node${last ? " is-end" : ""}" cx="${x}" cy="${Y}" r="${last ? 3.6 : 2.8}"/>`;
     }).join("");
-    return `<div class="constellation">
-      <p class="const-eyebrow">${T("missionMap")}</p>
-      <svg viewBox="0 0 320 142" role="img"
-           aria-label="Project constellation: ${esc(p.stack.join(", "))}. Milestones: ${esc((p.milestones||[]).join(", "))}">
-        <line class="axis" x1="26" y1="118" x2="294" y2="118"/>
-        ${lines}${dots}${miles}
-      </svg></div>`;
+    const labels = list.map((label, i) =>
+      `<text class="dmap-step${i === n - 1 ? " is-end" : ""}" x="${at(i).toFixed(1)}" y="35">${esc(label)}</text>`
+    ).join("");
+    return `<figure class="dmap">
+      <figcaption class="dmap-title">${esc(title || "Delivery map")}</figcaption>
+      <svg viewBox="0 0 320 45" role="img"
+           aria-label="${esc(title || "Delivery map")}: ${esc(list.join(", then "))}.">
+        <line class="dmap-rail" x1="${X0}" y1="${Y}" x2="${X1}" y2="${Y}"/>
+        ${nodes}${labels}
+      </svg>
+      ${caption ? `<p class="dmap-caption">${esc(caption)}</p>` : ""}
+    </figure>`;
   }
 
   function bodyParallax(){
@@ -2893,52 +2659,143 @@ const Galaxy = (() => {
   }
   Reg.on(panelBody, "scroll", bodyParallax, { passive: true });
 
-  function planetFactLine(id){
-    const pl = planets.find(p => p.id === id);
-    if (!pl) return "";
-    return `<p class="planet-fact">✦ ${esc(pl.real)} — ${esc(LANG === "mn" ? pl.factMn : pl.fact)}</p>`;
+  /* shared blocks for the Developers & Marketing panels */
+  function memberCards(team){
+    return `<div class="team-grid roster">` + team.map(m => `
+      <article class="team-card">
+        <h4 class="team-role">${esc(m.role)}</h4>
+        <p class="member-name">${esc(m.name)}${m.short ? ` <span class="member-alias">(${esc(m.short)})</span>` : ""}</p>
+        <p>${esc(m.note)}</p>
+        ${m.line ? `<p class="team-line">${esc(m.line)}</p>` : ""}
+      </article>`).join("") + `</div>`;
   }
+  function advisorBlock(){
+    const a = CONTENT.advisor;
+    return `
+      <section class="studio-section reveal" style="--delay:.22s">
+        <p class="section-label">Advisor</p>
+        <div class="advisor-card">
+          <p class="member-name">${esc(a.name)}${a.short ? ` <span class="member-alias">(${esc(a.short)})</span>` : ""}</p>
+          <p class="advisor-role">${esc(a.role)}</p>
+          <p>${esc(a.note)}</p>
+          ${a.line ? `<p class="team-line">${esc(a.line)}</p>` : ""}
+        </div>
+      </section>`;
+  }
+
   function buildPanel(id){
-    if (id === "about"){
-      const a = L().about;
-      panelEyebrow.textContent = a.eyebrow;
-      panelTitle.textContent = a.title;
+    if (id === "developers"){
+      const d = CONTENT.developers;
+      panelEyebrow.textContent = d.eyebrow;
+      panelTitle.textContent = d.title;
       panelBody.innerHTML = `
-        <p class="minds-lede">${esc(a.lede)}</p>
-        <div class="minds-close">
-          <p class="minds-final">${esc(a.closingA)}</p>
-          <p class="minds-sub">${esc(a.closingB)}</p>
-        </div>`;
+        <article class="studio-page">
+          <header class="studio-intro reveal">
+            <p class="lede">${esc(d.lede)}</p>
+            <p>${esc(d.intro)}</p>
+          </header>
+          <section class="studio-section reveal" style="--delay:.06s">
+            <p class="section-label">Featured projects</p>
+            <h3 class="section-title">Two builds, start to launch.</h3>
+            <div class="featured-grid">` + d.featured.map(f => `
+              <article class="featured-card">
+                <p class="item-meta">${esc(f.meta)}</p>
+                <p class="featured-name">${esc(f.name)}</p>
+                <p>${esc(f.line)}</p>
+                <button class="text-link" type="button" data-proj="${f.proj}">View case study <span aria-hidden="true">→</span></button>
+              </article>`).join("") + `</div>
+          </section>
+          <section class="studio-section reveal" style="--delay:.10s">
+            <p class="section-label">How a build ships</p>
+            ${deliveryMap(d.flow, "", "Engineering flow")}
+          </section>
+          <section class="studio-section reveal" style="--delay:.14s">
+            <p class="section-label">Team roster</p>
+            <h3 class="section-title">Who builds it.</h3>
+            ${memberCards(d.team)}
+          </section>
+          ${advisorBlock()}
+        </article>`;
+      panelBody.querySelectorAll("[data-proj]").forEach(btn =>
+        btn.addEventListener("click", () => openPanel("p" + btn.dataset.proj)));
+      panelBody.querySelectorAll("[data-panel]").forEach(btn =>
+        btn.addEventListener("click", () => openPanel(btn.dataset.panel)));
+      return;
+    }
+    if (id === "marketing"){
+      const mk = CONTENT.marketing;
+      const n = mk.stars || 5;
+      panelEyebrow.textContent = mk.eyebrow;
+      panelTitle.textContent = mk.title;
+      panelBody.innerHTML = `
+        <article class="studio-page">
+          <header class="studio-intro reveal">
+            <p class="lede">${esc(mk.lede)}</p>
+            <p>${esc(mk.intro)}</p>
+          </header>
+          <section class="studio-section reveal" style="--delay:.06s">
+            <p class="section-label">${esc(mk.ratingLabel)}</p>
+            <div class="rating-block">
+              <div class="star-rating" role="img" aria-label="${n} out of 5 stars">${"\u2605".repeat(n)}</div>
+              <p class="rating-count">${n}.0 · ${n}-star standard</p>
+            </div>
+            <p>${esc(mk.ratingNote)}</p>
+          </section>
+          <section class="studio-section reveal" style="--delay:.10s">
+            <p class="section-label">How a campaign runs</p>
+            ${deliveryMap(mk.flow, "", "Campaign flow")}
+          </section>
+          <section class="studio-section reveal" style="--delay:.14s">
+            <p class="section-label">Team roster</p>
+            <h3 class="section-title">Who takes it to market.</h3>
+            ${memberCards(mk.team)}
+          </section>
+          ${advisorBlock()}
+        </article>`;
+      panelBody.querySelectorAll("[data-panel]").forEach(btn =>
+        btn.addEventListener("click", () => openPanel(btn.dataset.panel)));
+      return;
+    }
+    if (id === "about"){
+      panelEyebrow.textContent = CONTENT.about.eyebrow;
+      panelTitle.textContent = CONTENT.about.title;
+      panelBody.innerHTML = CONTENT.about.html;
+      panelBody.querySelectorAll("[data-panel]").forEach(btn =>
+        btn.addEventListener("click", () => openPanel(btn.dataset.panel)));
       return;
     }
     if (id === "services"){
-      panelEyebrow.textContent = L().services.eyebrow;
-      panelTitle.textContent = L().services.title;
-      panelBody.innerHTML = planetFactLine(id) + `<ul class="item-list">` + L().services.items.map(s => `
-        <li>
+      panelEyebrow.textContent = CONTENT.services.eyebrow;
+      panelTitle.textContent = CONTENT.services.title;
+      panelBody.innerHTML = `<div class="service-list">` + CONTENT.services.items.map((s, i) => `
+        <article class="service-card reveal" style="--delay:${(i * .06).toFixed(2)}s">
           <p class="item-meta">${esc(s.meta)}</p>
           <p class="item-name">${esc(s.name)}</p>
-          <p class="item-desc">${esc(s.desc)}</p>
-        </li>`).join("") + `</ul>`;
+          <div class="service-copy">
+            <div><b>What it is</b><p>${esc(s.what)}</p></div>
+            <div><b>Why it matters</b><p>${esc(s.why)}</p></div>
+            <div><b>What you receive</b><p>${esc(s.deliverables)}</p></div>
+          </div>
+        </article>`).join("") + `</div>`;
       return;
     }
     if (id === "contact"){
-      const c = L().contact;
+      const c = CONTENT.contact;
       panelEyebrow.textContent = c.eyebrow;
       panelTitle.textContent = c.title;
-      panelBody.innerHTML = planetFactLine(id) + `
+      panelBody.innerHTML = `
         <p>${esc(c.note)}</p>
         <p><a class="contact-mail" href="mailto:${esc(c.email)}">${esc(c.email)}</a></p>
-        <div class="socials">${c.socials.map(s =>
-          `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`).join("")}</div>
+        ${c.socials.length ? `<div class="socials">${c.socials.map(s =>
+          `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`).join("")}</div>` : ""}
         <form class="reserve" novalidate>
-          <label>${T("formName")}<input name="name" required maxlength="80" autocomplete="name"></label>
-          <label>${T("formEmail")}<input name="email" type="email" required maxlength="254" autocomplete="email"></label>
-          <label>${T("formDate")}<input name="date" type="date" required></label>
-          <label>${T("formNotes")}<textarea name="notes" maxlength="1000"
-            placeholder="${T("formPh")}"></textarea></label>
+          <label>Name<input name="name" required maxlength="80" autocomplete="name"></label>
+          <label>Email<input name="email" type="email" required maxlength="254" autocomplete="email"></label>
+          <label>Preferred launch date<input name="date" type="date" required></label>
+          <label>Mission notes<textarea name="notes" maxlength="1000"
+            placeholder="Timeline, budget orbit, what you want people to feel…"></textarea></label>
           <p class="form-status" data-status role="status" aria-live="polite"></p>
-          <button type="submit" class="launch">${T("formSend")}</button>
+          <button type="submit" class="launch">Transmit reservation ✦</button>
         </form>`;
       const form = panelBody.querySelector("form.reserve");
       form.elements.date.min = new Date().toISOString().slice(0, 10);
@@ -2946,46 +2803,51 @@ const Galaxy = (() => {
       return;
     }
     if (id === "work"){
-      panelEyebrow.textContent = T("workEyebrow");
-      panelTitle.textContent = T("workTitle");
-      panelBody.innerHTML = planetFactLine(id) + `
-        <p style="margin-bottom:18px">${esc(T("workIntro"))}</p>
-        <ul class="item-list works">` + L().projects.map((p, i) => `
-        <li class="work-item">
-          <button class="item-name-btn" data-proj="${i}">
-            <p class="item-meta">${esc(p.meta)}</p>
-            <p class="item-name">${esc(p.title)}</p>
-          </button>
+      panelEyebrow.textContent = "Work · six stars and counting";
+      panelTitle.textContent = "Pieces of our soul";
+      panelBody.innerHTML = `
+        <p style="margin-bottom:18px">Each glowing star out in the galaxy is one of these
+        projects — click them in the scene, or browse here.</p>
+        <ul class="item-list star-list">` + CONTENT.projects.map((p, i) => `
+        <li><button data-proj="${i}">
+          <p class="item-meta">${esc(p.meta)}</p>
+          <p class="item-name">${esc(p.title)}</p>
           <p class="item-desc">${esc(p.desc)}</p>
-          <button class="see-more" data-star="${i}">
-            <span>${esc(T("seeMore"))}</span><span class="sm-circle" aria-hidden="true">→</span>
-          </button>
-        </li>`).join("") + `</ul>`;
+        </button></li>`).join("") + `</ul>`;
       panelBody.querySelectorAll("[data-proj]").forEach(btn =>
         btn.addEventListener("click", () => openPanel("p" + btn.dataset.proj)));
-      panelBody.querySelectorAll("[data-star]").forEach(btn =>
-        btn.addEventListener("click", () => revealStar(+btn.dataset.star)));
       return;
     }
     const i = parseInt(id.slice(1), 10);
-    const p = L().projects[i];
+    const p = CONTENT.projects[i];
     panelEyebrow.textContent = "✦ " + p.meta;
     panelTitle.textContent = p.title;
     panelBody.innerHTML = `
-      <div class="media-stage" aria-hidden="true">
+      <article class="case-study">
+      <div class="media-stage case-stage" aria-hidden="true">
         <div class="media-float glyph" data-parallax="0.7">${esc(p.title[0])}</div>
         <div class="media-float render" data-parallax="0.4" style="--c1:${p.c1};--c2:${p.c2}"></div>
       </div>
-      <p>${esc(p.desc)}</p>
-      ${p.stack ? constellationSVG(p) : ""}
-      <p class="proj-role"><b>${esc(T("ourRole"))}</b>${esc(p.role)}</p>
-      <a class="proj-link" href="${esc(p.link)}" target="_blank" rel="noopener">${esc(T("viewProject"))}</a>`;
+      <p class="case-summary">${esc(p.desc)}</p>
+      <dl class="case-meta">
+        <div class="case-detail"><dt>Our role</dt><dd>${esc(p.role)}</dd></div>
+        <div class="case-detail"><dt>Technologies</dt><dd>${esc(p.tech.join(" · "))}</dd></div>
+      </dl>
+      <div class="case-grid">
+        <section class="case-block"><p class="case-label">Challenge</p><p>${esc(p.challenge)}</p></section>
+        <section class="case-block"><p class="case-label">Solution</p><p>${esc(p.solution)}</p></section>
+        <section class="case-block wide"><p class="case-label">Design approach</p><p>${esc(p.approach)}</p></section>
+        <section class="case-block wide case-outcome"><p class="case-label">Outcome</p><p>${esc(p.outcome)}</p></section>
+      </div>
+      ${deliveryMap(p.stack, (p.milestones || []).join("  →  "), "Delivery map")}
+      <footer class="case-footer"><p class="case-label">${p.link ? "Live website" : "Publication availability"}</p>
+      ${p.link ? `<a class="proj-link" href="${esc(p.link)}" target="_blank" rel="noopener">Visit live website <span aria-hidden="true">→</span></a>` : `<p class="case-unpublished">Selected study · not publicly published</p>`}</footer>
+      </article>`;
     bodyParallax();
   }
 
   function openPanel(id){
     if (!active) Voyage.enterGalaxy();   /* a11y: opening a section warps you in */
-    currentId = id;
 
     /* land on what you touched: camera glides in, the horizon rises */
     const planetRef = planets.find(pl => pl.id === id);
@@ -2995,15 +2857,18 @@ const Galaxy = (() => {
       touchDown(planetRef.tex, planetRef.color);
     } else if (starRef){
       flyTo(starRef, "star");
-      touchDown(TEX_SUNFACE || null, C.gold);
+      touchDown(TEX_SUNFACE, C.gold);
     }
 
+    panel.classList.toggle("panel-wide", id === "about" || id === "services" ||
+      id === "developers" || id === "marketing" || /^p\d$/.test(id));
     buildPanel(id);
     panelBody.scrollTop = 0;
     lastFocus = document.activeElement;
     panel.hidden = false;
     panelOpen = true;
     veil.classList.add("open");
+    document.body.classList.add("modal-open");   /* lock the background on mobile */
     requestAnimationFrame(() => panel.classList.add("open"));
     panelClose.focus();
     hovered = null; hideTip();
@@ -3013,6 +2878,7 @@ const Galaxy = (() => {
     panelOpen = false;
     panel.classList.remove("open");
     veil.classList.remove("open");
+    document.body.classList.remove("modal-open");
     takeOff();
     liftOff();
     setTimeout(() => { panel.hidden = true; }, 480);
@@ -3022,10 +2888,7 @@ const Galaxy = (() => {
   Reg.on(panelClose, "click", closePanel);
   Reg.on(veil, "click", closePanel);
   Reg.on(document, "keydown", e => {
-    if (e.key === "Escape"){
-      if (panelOpen) closePanel();
-      else closeSpread();
-    }
+    if (e.key === "Escape" && panelOpen) closePanel();
   });
 
   Reg.on(document, "focusin", e => {
@@ -3044,14 +2907,14 @@ const Galaxy = (() => {
       canvas.classList.toggle("off", !v);
     },
     halt(){ halted = true; cancelAnimationFrame(rafId); },
-    relabel(){ if (panelOpen && currentId) buildPanel(currentId); if (spreadIdx != null) renderSpread(spreadIdx); },
+    setPaused,
     reset(){
       if (panelOpen) closePanel();
     },
     enter(){
       /* arrive from the warp: start deep in the sun's glare, pull back */
       cam.x = 0; cam.y = 0; cam.z = 2.5;
-      cam.tx = 0; cam.ty = 0; cam.tz = isCoarse ? 0.58 : 0.76;
+      cam.tx = 0; cam.ty = 0; cam.tz = isCoarse ? 0.72 : 0.92;
       hint.classList.remove("hidden");
       clearTimeout(hintTimer);
       hintTimer = setTimeout(() => hint.classList.add("hidden"), 14000);
@@ -3075,7 +2938,7 @@ Voyage.enterGalaxy = function(){
   Galaxy.enter();
   hudControls.classList.remove("off");
   hintEl.classList.remove("off");
-  wordmarkSub.textContent = T("subGalaxy");
+  wordmarkSub.textContent = "a creative galaxy";
   AudioSys.stopHeart();
   AudioSys.startPad();               /* the lo-fi loop arrives with you */
   setFlash(0, 1100);
@@ -3091,45 +2954,13 @@ Voyage.toHeart = function(){
     Galaxy.setActive(false);
     hudControls.classList.add("off");
     hintEl.classList.add("off");
-    wordmarkSub.textContent = T("subAgency");
+    wordmarkSub.textContent = "a creative agency";
     Nebula.reset();
     Nebula.setActive(true);
     AudioSys.startHeart();
     setFlash(0, 900);
   }, 340);
 };
-
-/* ---------- language switch: repaint every string in place ---------- */
-const langBtn = document.getElementById("langBtn");
-function applyLang(){
-  document.documentElement.lang = LANG;
-  langBtn.textContent = LANG === "mn" ? "EN" : "МН";
-  langBtn.title = T("langBtn");
-  langBtn.setAttribute("aria-label", T("langBtn"));
-  wordmarkSub.textContent = inGalaxy ? T("subGalaxy") : T("subAgency");
-  const hh = document.getElementById("heartHint");
-  hh.querySelector(".line").textContent = T("heartLine");
-  hh.querySelector(".sub").textContent  = T("heartSub");
-  document.getElementById("hintText").textContent = T("hint");
-  document.getElementById("a11yEnter").textContent = T("a11yEnter");
-  document.getElementById("a11yHeart").textContent = T("a11yHeart");
-  const opens = ["openWork","openServices","openAbout","openContact"];
-  document.querySelectorAll('.a11y-nav [data-open]').forEach((b, i) => {
-    if (i < 4) b.textContent = T(opens[i]);
-    else b.textContent = T("project") + ": " + CONTENT.projects[i - 4].title;
-  });
-  for (const [id, key] of [["zoomIn","zoomIn"],["zoomOut","zoomOut"],["recenter","recenterBtn"],
-                           ["viewMode","switchView"],["toHeart","toHeartBtn"],["audioBtn","sound"]]){
-    const el = document.getElementById(id);
-    if (el){ el.setAttribute("aria-label", T(key)); el.title = T(key); }
-  }
-  Galaxy.relabel();                        /* live-rebuild whatever panel is open */
-}
-Reg.on(langBtn, "click", () => {
-  LANG = LANG === "mn" ? "en" : "mn";
-  applyLang();
-});
-applyLang();
 
 /* the heart's sound needs a gesture to exist: the visitor's first tap or key wakes it */
 function wakeHeartAudio(){
@@ -3149,10 +2980,16 @@ Reg.on(audioBtn, "click", () => {
   audioBtn.setAttribute("aria-pressed", String(!m));
 });
 
+/* ---------- idle throttling: both canvases sleep while the tab is hidden ---------- */
+Reg.on(document, "visibilitychange", () => {
+  const asleep = document.hidden;
+  Nebula.setPaused(asleep);
+  Galaxy.setPaused(asleep);
+});
+
 /* explicit lifecycle: init runs automatically at load; destroy tears everything down */
 Voyage.init = function(){ /* modules self-arm above; kept for embedding symmetry */ };
 Voyage.destroy = function(){
-  Cursor.halt();
   AudioSys.stopHeart();
   Nebula.halt();
   Galaxy.halt();
