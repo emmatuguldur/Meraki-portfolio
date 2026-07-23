@@ -1824,46 +1824,6 @@ const Galaxy = (() => {
     ctx.globalCompositeOperation = "source-over";
   }
 
-  /* ---------- foreground layer: dark-matter crystals drifting past the lens ---------- */
-  const crysRnd = mulberry32(909);
-  const crystals = Array.from({length: lowPower ? 8 : 13}, () => ({
-    x: crysRnd()*TILE, y: crysRnd()*TILE,
-    par: 1.35 + crysRnd()*0.8,                  /* parallax > 1 → closer than the ship */
-    s: 5 + crysRnd()*9, rot: crysRnd()*6.283, rs: (crysRnd()-0.5)*0.25,
-    vx: (crysRnd()-0.5)*4, vy: (crysRnd()-0.5)*4,
-    n: 3 + Math.floor(crysRnd()*3)
-  }));
-  function drawCrystals(dt){
-    ctx.lineWidth = 1;
-    for (const c of crystals){
-      if (!reduceMotion){ c.x += c.vx*dt; c.y += c.vy*dt; c.rot += c.rs*dt; }
-      const ox = cam.x * c.par * cam.z, oy = cam.y * c.par * cam.z;
-      const sx = ((c.x*cam.z - ox) % TILE + TILE) % TILE;
-      const sy = ((c.y*cam.z - oy) % TILE + TILE) % TILE;
-      for (let gx = -1; gx*TILE + sx < W + 30; gx++){
-        if (gx*TILE + sx < -30) continue;
-        for (let gy = -1; gy*TILE + sy < H + 30; gy++){
-          if (gy*TILE + sy < -30) continue;
-          const S = c.s * cam.z;
-          ctx.save();
-          ctx.translate(gx*TILE + sx, gy*TILE + sy);
-          ctx.rotate(c.rot);
-          ctx.beginPath();
-          for (let k = 0; k <= c.n*2; k++){
-            const a = k/(c.n*2)*Math.PI*2;
-            const r = S * (k % 2 ? 0.55 : 1);
-            k ? ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r) : ctx.moveTo(Math.cos(a)*r, Math.sin(a)*r);
-          }
-          ctx.closePath();
-          ctx.fillStyle = "rgba(10,15,34,0.38)";
-          ctx.strokeStyle = "rgba(124,152,240,0.12)";
-          ctx.fill(); ctx.stroke();
-          ctx.restore();
-        }
-      }
-    }
-  }
-
   let hovered = null;
   let dragging = false, dragMoved = 0;
   let lastPan = { x:0, y:0, t:0 };
@@ -2413,7 +2373,6 @@ const Galaxy = (() => {
     updateTrail(dt);
     drawTrail();
     drawShip(now);
-    drawCrystals(dt);          /* foreground tier: closer than the ship */
     if (ground.on) drawGround(now);
   }
   rafId = requestAnimationFrame(frame);
